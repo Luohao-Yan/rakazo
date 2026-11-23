@@ -8,7 +8,9 @@ test("the full-window computer saves a screenshot of the bot's screen", async ({
   await completeOnboarding(page);
 
   await openBotComputer(page);
-  await page.getByTestId("side-panel").getByTestId("computer-preview-open").click();
+  const preview = page.getByTestId("computer-preview");
+  await preview.hover();
+  await preview.getByTestId("computer-preview-open").click();
   const chrome = page.getByTestId("computer-chrome");
   await chrome.getByRole("button", { name: "Take control", exact: true }).click();
   const save = chrome.getByRole("button", { name: "Save screenshot", exact: true });
