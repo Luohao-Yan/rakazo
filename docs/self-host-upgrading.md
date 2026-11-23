@@ -153,11 +153,11 @@ because a Space can have more than one account for the same app.
 `${{ github.repository }}` rather than hardcoded, so a fork's CI fills the fork's own namespace. For
 this repository that is:
 
-| Image                             | Contents                                                                |
-| --------------------------------- | ----------------------------------------------------------------------- |
-| `ghcr.io/elie222/rakazo/app`      | api, worker, web, and sandbox supervisor — one image, multiple commands |
-| `ghcr.io/elie222/rakazo/computer` | Linux desktop used as each bot computer                                 |
-| `ghcr.io/elie222/rakazo/updater`  | the updater sidecar, plus the Docker CLI                                |
+| Image                                | Contents                                                                |
+| ------------------------------------ | ----------------------------------------------------------------------- |
+| `ghcr.io/luohao-yan/rakazo/app`      | api, worker, web, and sandbox supervisor — one image, multiple commands |
+| `ghcr.io/luohao-yan/rakazo/computer` | Linux desktop used as each bot computer                                 |
+| `ghcr.io/luohao-yan/rakazo/updater`  | the updater sidecar, plus the Docker CLI                                |
 
 `infra/compose/docker-compose.images.yml` is the no-checkout path for those app and computer tags
 plus Postgres. The supervisor runs from the app image on the internal network only (not a separate
@@ -373,7 +373,7 @@ fetch("http://127.0.0.1:7092/rollback", {
 
 For a manual stable update using the second command, change the path to `/apply` and add
 `"content-type": "application/json"` to its headers and
-`body: JSON.stringify({repoUrl: "https://github.com/elie222/rakazo", branch: "main"})` to its
+`body: JSON.stringify({repoUrl: "https://github.com/Luohao-Yan/rakazo", branch: "main"})` to its
 fetch options. The official repository still selects stable releases; `main` here does not select
 a main-build image. Keep the updater profile running with an interval of `0` to use only these
 manual controls. Operator-initiated `/apply` does not use the scheduler's stable-source gate,

@@ -66,7 +66,7 @@ import { confirmUnsentSendLoss } from "../lib/thread/send/unsent-send-warning";
 type Amount = (typeof MODEL_CREDIT_AMOUNTS)[number];
 type SymbolName = ComponentProps<typeof NativeSymbol>["android"];
 
-const TERMS_URL = "https://rakazo.com/terms/";
+const TERMS_URL = `${process.env.EXPO_PUBLIC_SITE_URL ?? "http://localhost:4321"}/terms/`;
 
 // Bots carry the app's only colour, so the paywall's colour is a small crew of them.
 const CREW = [

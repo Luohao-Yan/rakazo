@@ -1,26 +1,26 @@
-# Rakazo
+# AgentForge
 
 [English](./README.md) | [简体中文](./README.zh-CN.md) | [日本語](./README.ja.md)
 
-[![GitHub stars](https://img.shields.io/github/stars/elie222/rakazo?labelColor=black&style=for-the-badge&color=2563EB)](https://github.com/elie222/rakazo/stargazers)
-[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?labelColor=black&style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/RWwKa2Sn7h)
-[![Download on the App Store](https://img.shields.io/badge/App%20Store-Download%20for%20iPhone-black?labelColor=black&style=for-the-badge&logo=apple&logoColor=white)](https://apps.apple.com/app/rakazo/id6801531099)
-[![Get Android on Google Play](https://img.shields.io/badge/Google%20Play-Get%20the%20app-black?labelColor=black&style=for-the-badge&logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.rakazo.app)
+[![GitHub stars](https://img.shields.io/github/stars/Luohao-Yan/rakazo?labelColor=black&style=for-the-badge&color=2563EB)](https://github.com/Luohao-Yan/rakazo/stargazers)
+[![Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?labelColor=black&style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/agentforge)
+[![Download on the App Store](https://img.shields.io/badge/App%20Store-Download%20for%20iPhone-black?labelColor=black&style=for-the-badge&logo=apple&logoColor=white)](https://apps.apple.com/app/agentforge/id0000000000)
+[![Get Android on Google Play](https://img.shields.io/badge/Google%20Play-Get%20the%20app-black?labelColor=black&style=for-the-badge&logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.agentforge.app)
 
-![Rakazo — AI teammates you actually own](./docs/readme-hero.png)
+![AgentForge — AI teammates you actually own](./docs/readme-hero.png)
 
-Rakazo is an open source, self-hosted alternative to Grok Bot.
+AgentForge is an open source, self-hosted alternative to Grok Bot.
 
 Persistent AI teammates with their own memory, routines, apps, and computer. Run it on your own
 machine, with your own model.
 
-Use it on the [web](https://app.rakazo.com), [desktop](https://rakazo.com/download/), [iPhone](https://apps.apple.com/app/rakazo/id6801531099), and
-[Android](https://play.google.com/store/apps/details?id=com.rakazo.app).
+Use it on the [web](https://app.agentforge.example.com), [desktop](https://agentforge.example.com/download/), [iPhone](https://apps.apple.com/app/agentforge/id0000000000), and
+[Android](https://play.google.com/store/apps/details?id=com.agentforge.app).
 
 It is also an alternative to Meta Muse, OpenAI Dots, Instinct, OpenClaw, Hermes Agent, and Claude
 Duet.
 
-Learn more at [rakazo.com](https://rakazo.com).
+Learn more at [agentforge.example.com](https://agentforge.example.com).
 
 ## Features
 
@@ -105,11 +105,11 @@ You need Docker Engine, the Compose plugin, curl, and OpenSSL. No clone or Node 
 
 ```bash
 mkdir -p rakazo && cd rakazo &&
-curl -fsSLO https://raw.githubusercontent.com/elie222/rakazo/main/infra/compose/install-images.sh &&
+curl -fsSLO https://raw.githubusercontent.com/Luohao-Yan/rakazo/main/infra/compose/install-images.sh &&
 bash install-images.sh
 ```
 
-The installer downloads the Compose files, creates `.env` with random secrets, and starts Rakazo.
+The installer downloads the Compose files, creates `.env` with random secrets, and starts AgentForge.
 It preserves an existing `.env` when rerun.
 
 Open [http://127.0.0.1:5173](http://127.0.0.1:5173), create an account, and connect a model.
@@ -150,7 +150,7 @@ You need Node.js 24.15.0 or newer in the 24.x line, or Node.js 26+; pnpm 12;
 and Docker. Node.js 25.x is not supported.
 
 ```bash
-git clone https://github.com/elie222/rakazo.git
+git clone https://github.com/Luohao-Yan/rakazo.git
 cd rakazo
 cp .env.example .env
 ```
@@ -256,7 +256,7 @@ Workspace exports reject files above 64 MiB without truncating them. Set `RAILWA
 
 ## Desktop and mobile
 
-The Electron and Expo apps are clients of the same Rakazo API used by the web app.
+The Electron and Expo apps are clients of the same AgentForge API used by the web app.
 
 With the development stack running, launch Electron with:
 
@@ -264,7 +264,7 @@ With the development stack running, launch Electron with:
 pnpm --filter @rakazo/desktop dev
 ```
 
-On first run the desktop app asks whether to run Rakazo on this computer or connect to an existing
+On first run the desktop app asks whether to run AgentForge on this computer or connect to an existing
 server. **This computer** can run without Docker on Apple silicon Macs with macOS 26 or later
 when the build includes a server bundle. Fresh setups use this path: the app downloads the server
 and computer runtime as needed. Existing Docker setups are offered a move while Docker is running;
@@ -277,7 +277,7 @@ an installed Docker app that is not running, and continues on its own once Docke
 builds pin the image tag to their own version; unpackaged builds pull `edge`. Developers running
 `pnpm dev` should pick **Existing instance** with `http://127.0.0.1:5173` instead. Public servers
 must use HTTPS; HTTP is accepted only for loopback and private LAN addresses (not link-local). The
-app verifies Rakazo's health endpoint before saving, and later launches go straight to that
+app verifies AgentForge's health endpoint before saving, and later launches go straight to that
 instance. The Docker stack keeps running after the app quits; the Docker-free server stops with the app.
 **Quit and Stop Bots** in the application menu stops the managed stack and quits; switching to
 another server also stops it.
@@ -289,15 +289,15 @@ that only include FUSE 3, such as Fedora Silverblue or Ubuntu 24.04, show
 FUSE:
 
 ```bash
-chmod +x Rakazo-*.AppImage
-./Rakazo-*.AppImage --appimage-extract-and-run
+chmod +x AgentForge-*.AppImage
+./AgentForge-*.AppImage --appimage-extract-and-run
 ```
 
 The Docker path of **This computer** looks for the `docker` CLI and does not detect Podman. To try another
 Docker-compatible CLI that supports the `compose` commands, set `RAKAZO_DOCKER_BINARY` to its path
 before starting the app.
 
-Use **Change Rakazo Server…** in the application menu to reconnect. Closing that window without
+Use **Change AgentForge Server…** in the application menu to reconnect. Closing that window without
 saving returns to the previous instance. For development automation, set `RAKAZO_WEB_URL` to point
 the shell somewhere else without changing the saved instance, or `RAKAZO_FORCE_SETUP=1` to run
 setup again.
@@ -366,15 +366,15 @@ Chinese guides cover [self-hosting](./docs/zh-CN/self-host.md), [models](./docs/
 - [Performance testing](./docs/performance.md)
 - [Bots that manage bots](./docs/fleet-management.md)
 
-## How Rakazo compares
+## How AgentForge compares
 
-- [Grok Bot](https://rakazo.com/grok-bot-alternative/)
-- [Muse](https://rakazo.com/muse-alternative/)
-- [Dots](https://rakazo.com/dots-alternative/)
-- [Instinct](https://rakazo.com/instinct-alternative/)
-- [OpenClaw](https://rakazo.com/openclaw-alternative/)
-- [Hermes Agent](https://rakazo.com/hermes-alternative/)
-- [All comparisons](https://rakazo.com/alternatives/)
+- [Grok Bot](https://agentforge.example.com/grok-bot-alternative/)
+- [Muse](https://agentforge.example.com/muse-alternative/)
+- [Dots](https://agentforge.example.com/dots-alternative/)
+- [Instinct](https://agentforge.example.com/instinct-alternative/)
+- [OpenClaw](https://agentforge.example.com/openclaw-alternative/)
+- [Hermes Agent](https://agentforge.example.com/hermes-alternative/)
+- [All comparisons](https://agentforge.example.com/alternatives/)
 
 ## Thanks
 
@@ -405,6 +405,6 @@ Contributions are welcome. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) befo
 request. For security vulnerabilities, follow [SECURITY.md](./SECURITY.md) instead of filing a public
 issue.
 
-Rakazo is licensed under the [Apache License 2.0](./LICENSE).
+AgentForge is licensed under the [Apache License 2.0](./LICENSE).
 
-Questions and ideas are welcome in the [Rakazo Discord community](https://discord.gg/RWwKa2Sn7h).
+Questions and ideas are welcome in the [AgentForge Discord community](https://discord.gg/agentforge).

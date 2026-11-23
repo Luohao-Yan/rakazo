@@ -3,7 +3,7 @@ export const RU_MESSAGES: Record<string, string> = {
   "Check for Updates…": "Проверить обновления…",
   "Computer Access…": "Доступ к компьютеру…",
   "Revoke Local Computer Access": "Отозвать доступ к локальному компьютеру",
-  "Change Rakazo Server…": "Сменить сервер Rakazo…",
+  "Change AgentForge Server…": "Сменить сервер AgentForge…",
   "Hide {name}": "Скрыть {name}",
   "Hide Others": "Скрыть остальные",
   "Show All": "Показать все",
@@ -39,13 +39,13 @@ export const RU_MESSAGES: Record<string, string> = {
   "Checking for Updates…": "Проверка обновлений…",
   "Downloading Update…": "Загрузка обновления…",
   "Restart to Update…": "Перезапустить для обновления…",
-  "Downloading Rakazo {version}…": "Загрузка Rakazo {version}…",
-  "Rakazo {version} is ready to install.": "Rakazo {version} готов к установке.",
+  "Downloading AgentForge {version}…": "Загрузка AgentForge {version}…",
+  "AgentForge {version} is ready to install.": "AgentForge {version} готов к установке.",
   Restart: "Перезапустить",
   Later: "Позже",
   "Could not install the update.": "Не удалось установить обновление.",
   "Could not check for updates.": "Не удалось проверить обновления.",
-  "Rakazo is up to date.": "У вас последняя версия Rakazo.",
+  "AgentForge is up to date.": "У вас последняя версия AgentForge.",
   "Version {version}": "Версия {version}",
   "Automatic updates are turned off for this install.":
     "Автоматические обновления отключены для этой установки.",
@@ -53,12 +53,12 @@ export const RU_MESSAGES: Record<string, string> = {
     "Автоматические обновления работают только в установленной версии.",
   "No desktop releases are published for this build yet.":
     "Для этой сборки пока не опубликовано ни одной версии для компьютера.",
-  "Move Rakazo to Applications to install updates.":
-    "Переместите Rakazo в папку «Программы», чтобы устанавливать обновления.",
+  "Move AgentForge to Applications to install updates.":
+    "Переместите AgentForge в папку «Программы», чтобы устанавливать обновления.",
   "Free up disk space to install updates.":
     "Освободите место на диске, чтобы установить обновления.",
-  "This update could not be verified. Reinstall Rakazo from a trusted download.":
-    "Не удалось проверить это обновление. Переустановите Rakazo из надёжного источника.",
+  "This update could not be verified. Reinstall AgentForge from a trusted download.":
+    "Не удалось проверить это обновление. Переустановите AgentForge из надёжного источника.",
   "The update could not be completed. Try again later.":
     "Не удалось завершить обновление. Повторите попытку позже.",
   "Could not reach the update server.": "Не удалось связаться с сервером обновлений.",
@@ -77,13 +77,14 @@ export const RU_MESSAGES: Record<string, string> = {
     "Вход уже выполняется. Отмените его и повторите попытку.",
   "Could not open browser sign-in. Close other sign-in attempts and retry.":
     "Не удалось открыть вход в браузере. Закройте другие попытки входа и повторите.",
-  "Sign-in callback rejected. Return to Rakazo to retry.":
-    "Ответ на вход отклонён. Вернитесь в Rakazo, чтобы повторить попытку.",
-  "You can close this tab and return to Rakazo.": "Можно закрыть эту вкладку и вернуться в Rakazo.",
-  "Set up Rakazo": "Настройка Rakazo",
-  "Quit Rakazo": "Завершить Rakazo",
-  "Welcome to Rakazo": "Добро пожаловать в Rakazo",
-  "Choose where Rakazo runs.": "Выберите, где будет работать Rakazo.",
+  "Sign-in callback rejected. Return to AgentForge to retry.":
+    "Ответ на вход отклонён. Вернитесь в AgentForge, чтобы повторить попытку.",
+  "You can close this tab and return to AgentForge.":
+    "Можно закрыть эту вкладку и вернуться в AgentForge.",
+  "Set up AgentForge": "Настройка AgentForge",
+  "Quit AgentForge": "Завершить AgentForge",
+  "Welcome to AgentForge": "Добро пожаловать в AgentForge",
+  "Choose where AgentForge runs.": "Выберите, где будет работать AgentForge.",
   Instance: "Экземпляр",
   "This computer": "Этот компьютер",
   "Existing instance": "Существующий экземпляр",
@@ -96,14 +97,14 @@ export const RU_MESSAGES: Record<string, string> = {
   Continue: "Продолжить",
   Retry: "Повторить",
   "Getting ready…": "Подготовка…",
-  "Downloading Rakazo…": "Загрузка Rakazo…",
-  "Starting Rakazo…": "Запуск Rakazo…",
+  "Downloading AgentForge…": "Загрузка AgentForge…",
+  "Starting AgentForge…": "Запуск AgentForge…",
   "Almost ready…": "Почти готово…",
-  "Rakazo is ready.": "Rakazo готов.",
+  "AgentForge is ready.": "AgentForge готов.",
   "{size} downloaded": "Загружено {size}",
   "Connecting…": "Подключение…",
   "Checking…": "Проверка…",
-  "Rakazo answered at {url}.": "Rakazo ответил по адресу {url}.",
+  "AgentForge answered at {url}.": "AgentForge ответил по адресу {url}.",
   "Enter a server address first.": "Сначала введите адрес сервера.",
   "Could not save that address.": "Не удалось сохранить этот адрес.",
   "Could not save that address. Try again.": "Не удалось сохранить этот адрес. Повторите попытку.",
@@ -114,18 +115,18 @@ export const RU_MESSAGES: Record<string, string> = {
   "Could not run the connection check. Try again.":
     "Не удалось проверить подключение. Повторите попытку.",
   "Setup bridge unavailable.": "Мост настройки недоступен.",
-  "Setup could not start. Quit Rakazo and try again.":
-    "Не удалось начать настройку. Завершите Rakazo и повторите попытку.",
+  "Setup could not start. Quit AgentForge and try again.":
+    "Не удалось начать настройку. Завершите AgentForge и повторите попытку.",
   "Enter a server address.": "Введите адрес сервера.",
   "Enter a valid http:// or https:// address.":
     "Введите действительный адрес http:// или https://.",
   "Enter a valid server address. Public servers require HTTPS; a new local instance must use localhost.":
     "Введите действительный адрес сервера. Публичным серверам нужен HTTPS; новый локальный экземпляр должен использовать localhost.",
   "Invalid custom headers": "Недопустимые пользовательские заголовки",
-  "That address redirects elsewhere. Enter the final Rakazo server address.":
-    "Этот адрес перенаправляет в другое место. Введите конечный адрес сервера Rakazo.",
-  "That address did not respond like a Rakazo server.":
-    "Этот адрес ответил не так, как сервер Rakazo.",
+  "That address redirects elsewhere. Enter the final AgentForge server address.":
+    "Этот адрес перенаправляет в другое место. Введите конечный адрес сервера AgentForge.",
+  "That address did not respond like a AgentForge server.":
+    "Этот адрес ответил не так, как сервер AgentForge.",
   "The server answered with HTTP {status}.": "Сервер ответил с кодом HTTP {status}.",
   "Timed out reaching that address.": "Истекло время ожидания ответа по этому адресу.",
   "Nothing is listening at that address yet.": "По этому адресу пока ничего не отвечает.",
@@ -150,8 +151,8 @@ export const RU_MESSAGES: Record<string, string> = {
     "Не удалось сохранить настройку. Предыдущий экземпляр восстановлен.",
   "Connected, but could not save setup for the next launch. Try Continue again.":
     "Подключение установлено, но настройку не удалось сохранить для следующего запуска. Нажмите «Продолжить» ещё раз.",
-  "The app-managed Rakazo services are not ready. Retry setup.":
-    "Службы Rakazo, которыми управляет приложение, не готовы. Повторите настройку.",
+  "The app-managed AgentForge services are not ready. Retry setup.":
+    "Службы AgentForge, которыми управляет приложение, не готовы. Повторите настройку.",
   "Docker is installed, but Docker Compose is missing. Install Docker Desktop or the docker-compose-plugin.":
     "Docker установлен, но Docker Compose отсутствует. Установите Docker Desktop или docker-compose-plugin.",
   "Could not check Docker Compose. Check the output below, then retry.":
@@ -172,10 +173,10 @@ export const RU_MESSAGES: Record<string, string> = {
     "Docker перестал отвечать. Запустите Docker и повторите попытку.",
   "Docker Compose is missing. Install Docker Desktop or the docker-compose-plugin, then retry.":
     "Docker Compose отсутствует. Установите Docker Desktop или docker-compose-plugin и повторите попытку.",
-  "Downloading Rakazo images failed. Check the output below, then retry.":
-    "Не удалось загрузить образы Rakazo. Посмотрите вывод ниже и повторите попытку.",
-  "Rakazo services did not start. Check the output below, then retry.":
-    "Службы Rakazo не запустились. Посмотрите вывод ниже и повторите попытку.",
+  "Downloading AgentForge images failed. Check the output below, then retry.":
+    "Не удалось загрузить образы AgentForge. Посмотрите вывод ниже и повторите попытку.",
+  "AgentForge services did not start. Check the output below, then retry.":
+    "Службы AgentForge не запустились. Посмотрите вывод ниже и повторите попытку.",
   "The stack started but the web app did not answer. Retry, and check the output below.":
     "Стек запущен, но веб-приложение не ответило. Повторите попытку и посмотрите вывод ниже.",
   "Could not prepare the local stack. Retry.":
@@ -199,15 +200,15 @@ export const RU_MESSAGES: Record<string, string> = {
   "Chat Details": "Сведения о чате",
   Help: "Справка",
   "Keyboard Shortcuts": "Сочетания клавиш",
-  "Downloading Rakazo failed. Check the internet connection, then retry.":
-    "Не удалось загрузить Rakazo. Проверьте подключение к интернету и повторите попытку.",
+  "Downloading AgentForge failed. Check the internet connection, then retry.":
+    "Не удалось загрузить AgentForge. Проверьте подключение к интернету и повторите попытку.",
   "Could not move your data from Docker. Check the output below, then retry.":
     "Не удалось перенести данные из Docker. Посмотрите вывод ниже и повторите попытку.",
   "The computer runtime already running is too old. Update or quit it, then retry.":
     "Уже запущенная среда выполнения компьютеров слишком старая. Обновите или закройте её, затем повторите попытку.",
-  "Your Rakazo data is in a different computer runtime. Quit the one running, then retry.":
-    "Ваши данные Rakazo находятся в другой среде выполнения компьютеров. Закройте запущенную среду, затем повторите попытку.",
-  "Run Rakazo without Docker?": "Запускать Rakazo без Docker?",
+  "Your AgentForge data is in a different computer runtime. Quit the one running, then retry.":
+    "Ваши данные AgentForge находятся в другой среде выполнения компьютеров. Закройте запущенную среду, затем повторите попытку.",
+  "Run AgentForge without Docker?": "Запускать AgentForge без Docker?",
   "Your bots and data move over. Docker is stopped, not removed.":
     "Ваши боты и данные будут перенесены. Docker будет остановлен, но не удалён.",
   Move: "Перенести",
@@ -216,12 +217,12 @@ export const RU_MESSAGES: Record<string, string> = {
   "Your data stays on this computer.": "Ваши данные остаются на этом компьютере.",
   "Connect to a server you or your team already run.":
     "Подключитесь к серверу, который уже работает у вас или вашей команды.",
-  "Rakazo needs Docker Desktop to run on this computer.":
-    "Чтобы Rakazo работал на этом компьютере, нужен Docker Desktop.",
-  "Rakazo needs Docker to run on this computer.":
-    "Чтобы Rakazo работал на этом компьютере, нужен Docker.",
-  "Docker Desktop is a free app that runs Rakazo in the background. Install it and open it once.":
-    "Docker Desktop — бесплатное приложение, которое запускает Rakazo в фоне. Установите и один раз откройте его.",
+  "AgentForge needs Docker Desktop to run on this computer.":
+    "Чтобы AgentForge работал на этом компьютере, нужен Docker Desktop.",
+  "AgentForge needs Docker to run on this computer.":
+    "Чтобы AgentForge работал на этом компьютере, нужен Docker.",
+  "Docker Desktop is a free app that runs AgentForge in the background. Install it and open it once.":
+    "Docker Desktop — бесплатное приложение, которое запускает AgentForge в фоне. Установите и один раз откройте его.",
   "Install Docker Engine and start it.": "Установите Docker Engine и запустите его.",
   "Download Docker Desktop": "Скачать Docker Desktop",
   "Install Docker": "Установить Docker",
@@ -230,14 +231,14 @@ export const RU_MESSAGES: Record<string, string> = {
   "Starting {app}…": "Запуск {app}…",
   "Docker is installed but not running. Start the Docker service to continue.":
     "Docker установлен, но не запущен. Запустите службу Docker, чтобы продолжить.",
-  "Rakazo stopped unexpectedly.": "Rakazo неожиданно остановился.",
+  "AgentForge stopped unexpectedly.": "AgentForge неожиданно остановился.",
   Reload: "Перезагрузить",
   "Mac app control": "Управление приложениями Mac",
   "Set up Mac app control": "Настройка управления приложениями Mac",
-  "Commands already work. To use apps, allow Accessibility and Screen Recording for Rakazo in System Settings, then restart Rakazo.":
-    "Команды уже работают. Чтобы использовать приложения, разрешите Rakazo доступ к Универсальному доступу и Записи экрана в Системных настройках, затем перезапустите Rakazo.",
+  "Commands already work. To use apps, allow Accessibility and Screen Recording for AgentForge in System Settings, then restart AgentForge.":
+    "Команды уже работают. Чтобы использовать приложения, разрешите AgentForge доступ к Универсальному доступу и Записи экрана в Системных настройках, затем перезапустите AgentForge.",
   "Open System Settings": "Открыть Системные настройки",
-  "Restart Rakazo": "Перезапустить Rakazo",
+  "Restart AgentForge": "Перезапустить AgentForge",
   "Not Now": "Не сейчас",
-  "Restart Rakazo to finish setup": "Перезапустите Rakazo, чтобы завершить настройку",
+  "Restart AgentForge to finish setup": "Перезапустите AgentForge, чтобы завершить настройку",
 };

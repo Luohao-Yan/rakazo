@@ -16,7 +16,7 @@ Under **Advanced**:
 - **Show tool activity**: list the tools a bot used under its reply. Off by default.
 - **Load web images automatically**: show images from outside sites in chat.
 
-When you open an outside link from a chat, Rakazo asks first. Choose **Always open** for a site you
+When you open an outside link from a chat, AgentForge asks first. Choose **Always open** for a site you
 trust; those sites are listed under **Trusted sites**, where you can remove them.
 
 ## Sign-in and security
@@ -48,24 +48,24 @@ in a bot chat and choose **Settings: Usage**.
 In **Settings → General**:
 
 - **Export data** downloads a zip of your account: every space's chats, files and bot workspaces.
-- **Import data** loads an export, for example to move between rakazo.com and your own server.
+- **Import data** loads an export, for example to move between agentforge.example.com and your own server.
 - **Import an agent** brings in an OpenClaw, Hermes or ChatGPT assistant. See
   [Import an agent](./import-an-agent.md).
 - **Delete account** emails you a code, then permanently deletes your account and data.
 
-## Billing on rakazo.com
+## Billing on agentforge.example.com
 
-rakazo.com is free to try; the sidebar shows when your free period ends. To keep going, choose a
+agentforge.example.com is free to try; the sidebar shows when your free period ends. To keep going, choose a
 plan:
 
 - **Use my subscription or API key**: connect a supported [model subscription](./model-subscriptions.md)
   or [model provider](./models.md) key. Your provider's allowance and billing apply.
-- **Use Rakazo credits**: model usage is paid from **Monthly credits** included in the plan. Choose
+- **Use AgentForge credits**: model usage is paid from **Monthly credits** included in the plan. Choose
   **Add credits** for more. Monthly credits expire at renewal; credits you add don't.
 
 Both plans come in monthly or yearly, and include monthly hours on your bots' computers.
 **Settings → Billing** shows your plan, when it renews and the computer hours left. Choose
-**Manage** to change it. See [pricing](https://rakazo.com/pricing) for current plans.
+**Manage** to change it. See [pricing](https://agentforge.example.com/pricing) for current plans.
 
 Cloud computers start at Standard size. On plans that offer larger sizes, the account owner can
 choose a size for each computer in **Settings → Computers → Cloud computers**. The change applies

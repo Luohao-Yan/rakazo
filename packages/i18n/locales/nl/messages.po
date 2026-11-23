@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: rakazo-web\n"
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: Rakazo\n"
+"Last-Translator: AgentForge\n"
 "Language-Team: Dutch\n"
 "Plural-Forms: \n"
 
@@ -73,6 +73,11 @@ msgstr "{0} (verwijderd)"
 #: apps/web/src/pages/shell/composer/use-composer-actions.ts
 msgid "{0} (max {ATTACHMENT_MAX_COUNT} attachments)"
 msgstr "{0} (max. {ATTACHMENT_MAX_COUNT} bijlagen)"
+
+#. placeholder {0}: device.name
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "{0} (offline)"
+msgstr "{0} (offline)"
 
 #. placeholder {0}: file.name
 #. placeholder {1}: attachmentSizeLabel(attachmentMaxBytes(bootstrapMe))
@@ -230,6 +235,10 @@ msgstr "{bot} hier. Hoi {name}."
 msgid "{botCount, plural, one {Delete {name} and its # bot?} other {Delete {name} and its # bots?}}"
 msgstr "{botCount, plural, one {{name} en de # bot verwijderen?} other {{name} en de # bots verwijderen?}}"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "{boundName} (offline)"
+msgstr "{boundName} (offline)"
+
 #: apps/mobile/app/(settings)/account.tsx
 msgid "{calls} calls, {tokens} tokens"
 msgstr "{calls} aanroepen, {tokens} tokens"
@@ -241,10 +250,6 @@ msgstr "{channel} {id}"
 #: apps/mobile/lib/platform/app-version.ts
 msgid "{channel} {id}, {date}"
 msgstr "{channel} {id}, {date}"
-
-#: apps/web/src/pages/shell/sidebar/sidebar-roster.tsx
-msgid "{chatCount, plural, one {# chat} other {# chats}}"
-msgstr "{chatCount, plural, one {# chat} other {# chats}}"
 
 #: apps/web/src/components/vault/VaultItemEditor.tsx
 msgid "{commandVariable} is reserved and cannot be used as a command variable. Choose another name."
@@ -875,7 +880,7 @@ msgid "1 free month earned"
 msgstr "1 gratis maand verdiend"
 
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "1 hour"
 msgstr "1 uur"
 
@@ -891,12 +896,20 @@ msgstr "1 tool"
 msgid "1 unread"
 msgstr "1 ongelezen"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "100K"
+msgstr "100K"
+
 #: apps/mobile/app/(settings)/model-connection.tsx
 msgid "2. Get a sign-in code"
 msgstr "2. Aanmeldcode ophalen"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "200K"
+msgstr "200K"
+
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "3 hours"
 msgstr "3 uur"
 
@@ -945,6 +958,7 @@ msgid "About {label}"
 msgstr "Over {label}"
 
 #: apps/web/src/pages/shell/bots/agent-import-plan.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
 msgid "About you"
 msgstr "Over jou"
 
@@ -1003,9 +1017,9 @@ msgstr "Accountmenu voor {name}"
 msgid "Accounts"
 msgstr "Accounts"
 
-#. placeholder {0}: bot.name
+#. placeholder {0}: group.spaceName
+#. placeholder {0}: item.chat.name
 #. placeholder {0}: page.title
-#. placeholder {0}: section.name
 #: apps/web/src/components/pages/PagesList.tsx
 #: apps/web/src/pages/integrations/McpServersOverlay.tsx
 #: apps/web/src/pages/shell/chat/bot-context-menu.tsx
@@ -1022,6 +1036,10 @@ msgstr "Acties voor {label}"
 msgid "Actions for {name}"
 msgstr "Acties voor {name}"
 
+#: apps/web/src/pages/shell/shell-dialogs.tsx
+msgid "Actions for space"
+msgstr "Acties voor ruimte"
+
 #: apps/mobile/app/routine.tsx
 #: apps/web/src/pages/routines/RoutineEditor.tsx
 #: apps/web/src/pages/settings/BillingSettingsPanel.tsx
@@ -1037,6 +1055,8 @@ msgstr "Actief: {name}"
 #: apps/mobile/components/vault/vault-item-sheet.tsx
 #: apps/mobile/lib/inbox/use-inbox-header.ts
 #: apps/web/src/components/vault/VaultItemActivity.tsx
+#: apps/web/src/pages/shell/app-rail.tsx
+#: apps/web/src/pages/shell/sidebar/shell-sidebar.tsx
 #: apps/web/src/pages/shell/sidebar/sidebar-header.tsx
 msgid "Activity"
 msgstr "Activiteit"
@@ -1333,6 +1353,20 @@ msgstr "Agent uit een andere app"
 msgid "Agent messages"
 msgstr "Agentberichten"
 
+#: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
+#: apps/web/src/pages/shell/bots/avatar-studio-popover.tsx
+msgid "AgentForge"
+msgstr "AgentForge"
+
+#: apps/web/src/pages/model-settings/ModelRoleSettings.tsx
+#: apps/web/src/pages/onboarding/use-onboarding-model.ts
+msgid "AgentForge credits"
+msgstr "AgentForge-tegoed"
+
+#: apps/mobile/lib/billing/self-hosted-support.ts
+msgid "AgentForge is free to self-host. If you'd like to support it, subscribers can email support@agentforge.example.com for help."
+msgstr "AgentForge is gratis te self-hosten. Wil je het steunen? Abonnees kunnen voor hulp mailen naar support@agentforge.example.com."
+
 #: apps/mobile/app/(settings)/_layout.tsx
 #: apps/mobile/app/(settings)/ai-data-sharing.tsx
 #: apps/mobile/app/(settings)/general.tsx
@@ -1412,7 +1446,11 @@ msgstr "Toestaan"
 msgid "Allow {name} on mobile"
 msgstr "{name} op mobiel toestaan"
 
-#: apps/mobile/app/bot-settings.tsx
+#: apps/web/src/lib/calls/dictation.ts
+msgid "Allow AgentForge to use Speech Recognition and the microphone in System Settings."
+msgstr "Sta AgentForge toe om Spraakherkenning en de microfoon te gebruiken in Systeeminstellingen."
+
+#: apps/mobile/components/bots/bot-permissions-section.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 msgid "Allow cross-space bot communication"
 msgstr "Communicatie tussen bots in verschillende ruimtes toestaan"
@@ -1435,9 +1473,9 @@ msgstr "Sta microfoontoegang toe om te dicteren."
 msgid "Allow once"
 msgstr "Een keer toestaan"
 
-#: apps/web/src/lib/calls/dictation.ts
-msgid "Allow Rakazo to use Speech Recognition and the microphone in System Settings."
-msgstr "Sta Rakazo toe om Spraakherkenning en de microfoon te gebruiken in Systeeminstellingen."
+#: apps/web/src/pages/model-settings/http-endpoints-switch.tsx
+msgid "Allow plain-HTTP endpoints"
+msgstr "Onversleutelde HTTP-eindpunten toestaan"
 
 #: apps/mobile/lib/calls/call-session.ts
 #: apps/mobile/lib/composer/composer-dictation.ts
@@ -1593,6 +1631,10 @@ msgstr "Anthropic API"
 msgid "Anthropic Messages"
 msgstr "Anthropic Messages"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Any connected computer"
+msgstr "Elke verbonden computer"
+
 #: apps/web/src/pages/auth/Paywall.tsx
 msgid "Any model, with your own key"
 msgstr "Elk model, met je eigen sleutel"
@@ -1686,6 +1728,11 @@ msgstr "Nu toepassen"
 msgid "Approval boundaries"
 msgstr "Goedkeuringsgrenzen"
 
+#: apps/mobile/components/bots/bot-permissions-section.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Approval mode"
+msgstr "Goedkeuringsmodus"
+
 #: apps/mobile/app/(settings)/models.tsx
 #: apps/web/src/pages/model-settings/ModelSettingsOverlay.tsx
 msgid "Approval model"
@@ -1732,7 +1779,7 @@ msgstr "Apps"
 
 #: apps/mobile/components/bots/bot-profile-menu.tsx
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Archive"
 msgstr "Archiveren"
 
@@ -1760,6 +1807,7 @@ msgstr "Artefact"
 #: apps/mobile/app/_layout.tsx
 #: apps/mobile/app/(settings)/account.tsx
 #: apps/mobile/app/bot-profile.tsx
+#: apps/web/src/pages/shell/app-rail.tsx
 #: apps/web/src/pages/shell/sidebar/sidebar-footer.tsx
 #: apps/web/src/pages/space/Artifacts.tsx
 msgid "Artifacts"
@@ -1767,6 +1815,7 @@ msgstr "Artefacten"
 
 #: apps/mobile/components/settings/approval-settings-rows.tsx
 #: apps/web/src/components/settings/ApprovalRulesSettings.tsx
+#: packages/i18n/src/approval-mode.ts
 msgid "Ask"
 msgstr "Vragen"
 
@@ -1856,8 +1905,14 @@ msgstr "Autoriseer deze server zodat agents zijn tools kunnen gebruiken. Er word
 
 #: apps/mobile/components/settings/approval-settings-rows.tsx
 #: apps/web/src/components/settings/ApprovalRulesSettings.tsx
+#: packages/i18n/src/approval-mode.ts
 msgid "Auto"
 msgstr "Auto"
+
+#: apps/mobile/components/bots/bot-permissions-section.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Auto needs an approval model; until one is set, this bot asks."
+msgstr "Auto heeft een goedkeuringsmodel nodig; tot er een is ingesteld, vraagt deze bot het."
 
 #: apps/mobile/app/_layout.tsx
 #: apps/mobile/app/meeting-calendar.tsx
@@ -1870,6 +1925,11 @@ msgstr "Automatisch deelnemen"
 #: apps/web/src/pages/settings/ExternalConversationSettings.tsx
 msgid "Automated senders"
 msgstr "Geautomatiseerde afzenders"
+
+#: apps/mobile/lib/bots/bot-settings-choices.ts
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Automatic (default)"
+msgstr "Automatisch (standaard)"
 
 #: apps/web/src/pages/routines/routine-editor/trigger-cards.tsx
 msgid "Available after saving"
@@ -1951,6 +2011,15 @@ msgstr "Terug naar meetings"
 msgid "Back to sign in"
 msgstr "Terug naar aanmelden"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Background tasks this bot can run at the same time. 3 by default."
+msgstr "Achtergrondtaken die deze bot tegelijk kan uitvoeren. Standaard 3."
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
+msgid "Background work"
+msgstr "Achtergrondwerk"
+
 #: apps/web/src/components/models/ProviderSettingsForm.tsx
 msgid "Base URL"
 msgstr "Basis-URL"
@@ -1978,6 +2047,14 @@ msgstr "Bearer"
 #: apps/web/src/pages/plugins/source-form.tsx
 msgid "Bearer token"
 msgstr "Bearer-token"
+
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+msgid "Between chats the bot tidies its memory from your own words."
+msgstr "Tussen chats door ruimt de bot zijn geheugen op met jouw eigen woorden."
+
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Between conversations, the bot rewrites its notes from your own words."
+msgstr "Tussen gesprekken door herschrijft de bot zijn notities met jouw eigen woorden."
 
 #: apps/mobile/app/(settings)/_layout.tsx
 #: apps/mobile/app/(settings)/account.tsx
@@ -2056,6 +2133,7 @@ msgstr "bot"
 #: apps/web/src/pages/shell/chat/message-view.tsx
 #: apps/web/src/pages/shell/chat/transcript.tsx
 #: apps/web/src/pages/shell/composer/chat-composer-area.tsx
+#: apps/web/src/pages/space/GroupFilesList.tsx
 #: packages/i18n/src/identity-display.ts
 #: packages/i18n/src/search.ts
 msgid "Bot"
@@ -2446,6 +2524,11 @@ msgstr "Abonnement wijzigen"
 msgid "Change server"
 msgstr "Server wijzigen"
 
+#. placeholder {0}: dream.changedPaths.join(", ")
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Changed: {0}"
+msgstr "Gewijzigd: {0}"
+
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
 msgid "Changing…"
 msgstr "Bezig met wijzigen…"
@@ -2501,6 +2584,7 @@ msgid "ChatGPT subscription"
 msgstr "ChatGPT-abonnement"
 
 #: apps/web/src/pages/shell/app-rail.tsx
+#: apps/web/src/pages/shell/sidebar/shell-sidebar.tsx
 #: packages/i18n/src/identity-display.ts
 msgid "Chats"
 msgstr "Chats"
@@ -2608,8 +2692,8 @@ msgstr "Map kiezen"
 
 #: apps/web/src/components/billing/CreditChoice.tsx
 #: apps/web/src/components/billing/SubscriptionGate.tsx
-msgid "Choose how to use Rakazo"
-msgstr "Kies hoe je Rakazo gebruikt"
+msgid "Choose how to use AgentForge"
+msgstr "Kies hoe je AgentForge gebruikt"
 
 #: apps/web/src/pages/shell/bots/agent-import.tsx
 msgid "Choose your {home} folder, or a backup of it."
@@ -2667,7 +2751,7 @@ msgstr "Gesprek van {0} wissen?"
 #: apps/mobile/app/bot-settings.tsx
 #: apps/mobile/components/bots/bot-profile-menu.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Clear conversation"
 msgstr "Gesprek wissen"
 
@@ -2753,6 +2837,7 @@ msgid "Close model settings"
 msgstr "Modelinstellingen sluiten"
 
 #: apps/web/src/pages/shell/sidebar/shell-sidebar.tsx
+#: apps/web/src/pages/shell/sidebar/sidebar-header.tsx
 msgid "Close navigation"
 msgstr "Navigatie sluiten"
 
@@ -2827,6 +2912,10 @@ msgstr "{0} inklappen"
 msgid "Collapse {name}"
 msgstr "{name} inklappen"
 
+#: apps/web/src/pages/shell/app-rail.tsx
+msgid "Collapse sidebar"
+msgstr "Zijbalk inklappen"
+
 #: apps/mobile/components/bots/bot-look-picker.tsx
 #: apps/web/src/pages/shell/bots/avatar-studio-popover.tsx
 msgid "Color"
@@ -2887,6 +2976,11 @@ msgstr "Communicatie"
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
 msgid "Compact"
 msgstr "Compact"
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Compact conversation"
+msgstr "Gesprek inkorten"
 
 #: apps/mobile/components/bots/bot-context-cards.tsx
 #: apps/mobile/lib/personal-calendar/device-calendar.ts
@@ -2960,6 +3054,10 @@ msgstr "Model voor computergebruik"
 #: apps/web/src/pages/model-settings/ModelSettingsOverlay.tsx
 msgid "Computer-use model…"
 msgstr "Model voor computergebruik…"
+
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
+msgid "Computer, needs attention"
+msgstr "Computer, aandacht nodig"
 
 #: apps/mobile/app/(settings)/_layout.tsx
 #: apps/mobile/app/(settings)/account.tsx
@@ -3061,6 +3159,7 @@ msgid "Connect API key"
 msgstr "API-sleutel koppelen"
 
 #: apps/mobile/components/inbox/inbox-footer.tsx
+#: apps/web/src/pages/shell/app-rail.tsx
 #: apps/web/src/pages/shell/keyboard-shortcuts-dialog.tsx
 #: apps/web/src/pages/shell/sidebar/sidebar-footer.tsx
 #: apps/web/src/pages/shell/use-palette-actions.ts
@@ -3106,8 +3205,8 @@ msgstr "Verbind je AI"
 
 #. js-lingui-explicit-id
 #: packages/i18n/src/run-error.ts
-msgid "Connect your own API key in Models or choose Rakazo credits in Billing."
-msgstr "Verbind je eigen API-sleutel bij Modellen of kies Rakazo-tegoed bij Facturatie."
+msgid "Connect your own API key in Models or choose AgentForge credits in Billing."
+msgstr "Verbind je eigen API-sleutel bij Modellen of kies AgentForge-tegoed bij Facturatie."
 
 #. js-lingui-explicit-id
 #: packages/i18n/src/plugin-catalog.ts
@@ -3256,6 +3355,11 @@ msgstr "Doorgaan met passkey"
 msgid "Control"
 msgstr "Ctrl"
 
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-conversation-settings.tsx
+msgid "Conversation"
+msgstr "Gesprek"
+
 #: apps/mobile/app/(settings)/messaging.tsx
 #: apps/web/src/pages/settings/MessagingSettingsPanel.tsx
 msgid "Conversations"
@@ -3283,7 +3387,7 @@ msgstr "Gesprekken, namen, herinneringen, zoekopdrachten en bot- en Space-ID's w
 #: apps/web/src/pages/routines/routine-editor/trigger-cards.tsx
 #: apps/web/src/pages/shell/bots/agent-import.tsx
 #: apps/web/src/pages/shell/chat/message-hover-actions.tsx
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Copied"
 msgstr "Gekopieerd"
 
@@ -3302,7 +3406,7 @@ msgid "Copy"
 msgstr "Kopiëren"
 
 #. placeholder {0}: state.artifact.name
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Copy {0}"
 msgstr "{0} kopiëren"
 
@@ -3858,6 +3962,14 @@ msgstr "Eerdere berichten laden mislukt"
 msgid "Could not load earlier versions"
 msgstr "Eerdere versies laden mislukt"
 
+#: apps/web/src/pages/shell/bots/bot-library.tsx
+msgid "Could not load files"
+msgstr "Bestanden konden niet worden geladen"
+
+#: apps/web/src/pages/space/GroupFilesList.tsx
+msgid "Could not load files."
+msgstr "Bestanden konden niet worden geladen."
+
 #: apps/mobile/app/group-settings.tsx
 msgid "Could not load group"
 msgstr "Groep laden mislukt"
@@ -3963,7 +4075,7 @@ msgid "Could not load the log."
 msgstr "Log laden mislukt."
 
 #: apps/mobile/app/artifact.tsx
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Could not load this artifact."
 msgstr "Dit artefact laden mislukt."
 
@@ -4237,6 +4349,7 @@ msgstr "Routine uitvoeren mislukt"
 #: apps/web/src/pages/integrations/McpServersOverlay.tsx
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
 #: apps/web/src/pages/settings/ExternalConversationSettings.tsx
+#: apps/web/src/pages/shell/bots/bot-conversation-settings.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/shell/create-delete-dialogs.tsx
 #: apps/web/src/pages/shell/sidebar/use-chat-snooze.ts
@@ -4249,6 +4362,10 @@ msgstr "Opslaan mislukt"
 #: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
 msgid "Could not save {0}"
 msgstr "{0} opslaan mislukt"
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+msgid "Could not save agent settings"
+msgstr "Agentinstellingen konden niet worden opgeslagen"
 
 #: apps/web/src/components/settings/ApprovalRulesSettings.tsx
 msgid "Could not save Auto Review"
@@ -4331,6 +4448,10 @@ msgstr "De gegevens opslaan mislukt"
 #: apps/mobile/lib/inbox/use-inbox.ts
 msgid "Could not save the default space"
 msgstr "De standaardspace opslaan mislukt"
+
+#: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+msgid "Could not save the dream limit"
+msgstr "Droomlimiet kon niet worden opgeslagen"
 
 #: apps/mobile/lib/api/api-server.ts
 msgid "Could not save the previous server session"
@@ -4425,6 +4546,10 @@ msgstr "Spreken mislukt"
 #: apps/mobile/lib/voice/voice.ts
 msgid "Could not speak that."
 msgstr "Dat kon niet uitgesproken worden."
+
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+msgid "Could not start a dream"
+msgstr "Droom kon niet worden gestart"
 
 #: apps/mobile/components/integrations/use-connection-actions.ts
 msgid "Could not start MCP OAuth"
@@ -4582,6 +4707,10 @@ msgstr "Inzendingen laden mislukt"
 msgid "Couldn't load this page. Try again."
 msgstr "Deze pagina kon niet worden geladen. Probeer het opnieuw."
 
+#: apps/web/src/pages/model-settings/http-endpoints-switch.tsx
+msgid "Couldn't load this setting"
+msgstr "Deze instelling kon niet worden geladen"
+
 #: apps/web/src/pages/settings/PaymentWalletSettingsPanel.tsx
 msgid "Couldn't load your wallet"
 msgstr "Je wallet laden mislukt"
@@ -4611,6 +4740,10 @@ msgstr "Labs bijwerken mislukt"
 #: apps/web/src/pages/settings/MessagingSettingsPanel.tsx
 msgid "Couldn't update messaging settings"
 msgstr "Berichtinstellingen bijwerken mislukt"
+
+#: apps/web/src/pages/model-settings/http-endpoints-switch.tsx
+msgid "Couldn't update this setting"
+msgstr "Deze instelling kon niet worden bijgewerkt"
 
 #: apps/mobile/lib/i18n/device-timezone.ts
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
@@ -4772,6 +4905,11 @@ msgstr "Huidig wachtwoord"
 msgid "Current plan"
 msgstr "Huidig abonnement"
 
+#: apps/mobile/lib/bots/bot-settings-choices.ts
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Custom amount"
+msgstr "Aangepaste hoeveelheid"
+
 #: apps/mobile/components/integrations/use-custom-source-form.ts
 msgid "Custom connector"
 msgstr "Eigen connector"
@@ -4815,7 +4953,7 @@ msgstr "Botavatar aanpassen"
 msgid "Daily"
 msgstr "Dagelijks"
 
-#: apps/mobile/app/bot-settings.tsx
+#: apps/mobile/components/bots/bot-permissions-section.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 msgid "Daily check-ins on unfinished work"
 msgstr "Dagelijks navragen over onafgemaakt werk"
@@ -4880,6 +5018,7 @@ msgstr "Geweigerd"
 #: apps/mobile/app/bot-settings.tsx
 #: apps/mobile/components/bots/bot-look-picker.tsx
 #: apps/mobile/components/models/model-role-settings.tsx
+#: apps/mobile/lib/bots/bot-settings-choices.ts
 #: apps/web/src/components/computers/ComputerProviderSettings.tsx
 #: apps/web/src/pages/model-settings/deployment-model-settings.tsx
 #: apps/web/src/pages/model-settings/ModelRoleSettings.tsx
@@ -4945,7 +5084,7 @@ msgstr "Standaardbereik"
 #: apps/web/src/pages/routines/RoutineEditor.tsx
 #: apps/web/src/pages/settings/OrganizationSettingsPanel.tsx
 #: apps/web/src/pages/settings/SpaceSettingOverrides.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 #: apps/web/src/pages/shell/create-delete-dialogs.tsx
 #: apps/web/src/pages/shell/sidebar/archived-chats.tsx
 #: apps/web/src/pages/space/Artifacts.tsx
@@ -5040,6 +5179,7 @@ msgstr "Sectie verwijderen"
 
 #: apps/mobile/components/inbox/inbox-render-item.tsx
 #: apps/web/src/pages/settings/SpaceSettingsPanel.tsx
+#: apps/web/src/pages/shell/shell-dialogs.tsx
 msgid "Delete space"
 msgstr "Space verwijderen"
 
@@ -5123,7 +5263,9 @@ msgstr "Geweigerd"
 msgid "Deny"
 msgstr "Weigeren"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
 #: apps/web/src/pages/space/Board.tsx
+#: apps/web/src/pages/space/KnowledgeSection.tsx
 msgid "Description"
 msgstr "Beschrijving"
 
@@ -5146,6 +5288,7 @@ msgstr "Desktopupdate"
 
 #: apps/mobile/components/thread/thread-error-notice.tsx
 #: apps/web/src/pages/routines/RoutineRunHistory.tsx
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/shell/composer/composer-error.tsx
 msgid "Details"
 msgstr "Details"
@@ -5378,7 +5521,7 @@ msgid "Downgrade at renewal"
 msgstr "Downgraden bij verlenging"
 
 #: apps/mobile/app/artifact.tsx
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 #: apps/web/src/pages/space/KnowledgeSection.tsx
 msgid "Download"
 msgstr "Downloaden"
@@ -5421,13 +5564,44 @@ msgstr "Concept-skill"
 msgid "Drag, drop, or paste an image"
 msgstr "Sleep, laat los of plak een afbeelding"
 
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Dream now"
+msgstr "Nu dromen"
+
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Dreaming now uses one model call."
+msgstr "Nu dromen gebruikt één modelaanroep."
+
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+msgid "Dreaming uses one model call."
+msgstr "Dromen gebruikt één modelaanroep."
+
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Dreams"
+msgstr "Dromen"
+
+#: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+msgid "Dreams kept"
+msgstr "Bewaarde dromen"
+
+#: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+msgid "Dreams per bot"
+msgstr "Dromen per bot"
+
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Duplicate"
 msgstr "Dupliceren"
 
 #: apps/web/src/pages/integrations/McpServerForm.tsx
 msgid "Each name can be used once."
 msgstr "Elke naam kan maar één keer worden gebruikt."
+
+#: apps/mobile/lib/bots/bot-settings-choices.ts
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Earlier"
+msgstr "Eerder"
 
 #: packages/i18n/src/page-review.ts
 msgid "Earlier revision"
@@ -5443,6 +5617,7 @@ msgstr "Eerdere revisie"
 #: apps/web/src/pages/integrations/McpServersOverlay.tsx
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
 #: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+#: apps/web/src/pages/shell/bots/instruction-settings.tsx
 msgid "Edit"
 msgstr "Bewerken"
 
@@ -5459,7 +5634,7 @@ msgstr "Avatar bewerken"
 msgid "Edit name"
 msgstr "Naam bewerken"
 
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Edit Profile"
 msgstr "Profiel bewerken"
 
@@ -5537,8 +5712,8 @@ msgid "Ends {day}"
 msgstr "Eindigt op {day}"
 
 #: apps/web/src/pages/shell/composer/github-star-prompt.tsx
-msgid "Enjoying Rakazo?"
-msgstr "Bevalt Rakazo?"
+msgid "Enjoying AgentForge?"
+msgstr "Bevalt AgentForge?"
 
 #: packages/i18n/src/user-error.ts
 msgid "Enter a password"
@@ -5639,6 +5814,7 @@ msgstr "elke {n} {unit}"
 msgid "Every {n} hours at :{minute}"
 msgstr "Elke {n} uur om :{minute}"
 
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/space/KnowledgeSection.tsx
 msgid "Every bot in this space reads these notes and keeps them up to date."
 msgstr "Alle bots in deze space lezen deze notities en houden ze bij."
@@ -5699,6 +5875,10 @@ msgstr "{0} uitklappen"
 #: apps/mobile/components/inbox/inbox-rows.tsx
 msgid "Expand {name}"
 msgstr "{name} uitklappen"
+
+#: apps/web/src/pages/shell/app-rail.tsx
+msgid "Expand sidebar"
+msgstr "Zijbalk uitklappen"
 
 #: apps/web/src/components/messages/markdown-copy.tsx
 msgid "Expand table"
@@ -5817,6 +5997,15 @@ msgstr "Te vergelijken velden (optioneel)"
 msgid "File"
 msgstr "Bestand"
 
+#: apps/web/src/pages/shell/bots/bot-library.tsx
+#: apps/web/src/pages/space/GroupPanel.tsx
+msgid "Files"
+msgstr "Bestanden"
+
+#: apps/web/src/pages/shell/bots/bot-library.tsx
+msgid "Files {botName} makes and receives show here."
+msgstr "Bestanden die {botName} maakt en ontvangt, verschijnen hier."
+
 #: apps/web/src/pages/routines/routine-editor/trigger-cards.tsx
 msgid "Files or folders on the computer"
 msgstr "Bestanden of mappen op de computer"
@@ -5824,6 +6013,10 @@ msgstr "Bestanden of mappen op de computer"
 #: apps/web/src/pages/routines/routine-editor/trigger-cards.tsx
 msgid "Files or folders, one per line"
 msgstr "Bestanden of mappen, één per regel"
+
+#: apps/web/src/pages/space/GroupFilesList.tsx
+msgid "Files shared in this chat appear here."
+msgstr "Bestanden die in deze chat zijn gedeeld, verschijnen hier."
 
 #: apps/web/src/pages/space/Artifacts.tsx
 msgid "Files your bots create, like reports, docs and images, collect here."
@@ -6091,7 +6284,6 @@ msgstr "Groep niet gevonden"
 #: apps/mobile/app/group-settings.tsx
 #: apps/mobile/components/thread/header/chat-header-title.tsx
 #: apps/mobile/components/thread/header/thread-header-right.tsx
-#: apps/web/src/pages/space/GroupPanel.tsx
 msgid "Group settings"
 msgstr "Groepsinstellingen"
 
@@ -6202,6 +6394,10 @@ msgstr "{field} verbergen"
 msgid "Hide {label}"
 msgstr "{label} verbergen"
 
+#: apps/web/src/pages/shell/sidebar/sidebar-header.tsx
+msgid "Hide chat list"
+msgstr "Chatlijst verbergen"
+
 #: apps/mobile/components/inbox/inbox-header.tsx
 msgid "Hide chats"
 msgstr "Chats verbergen"
@@ -6236,6 +6432,10 @@ msgstr "Webhooksleutel verbergen"
 #: packages/i18n/src/thinking-level.ts
 msgid "High"
 msgstr "Hoog"
+
+#: apps/web/src/pages/space/KnowledgeSection.tsx
+msgid "History"
+msgstr "Geschiedenis"
 
 #: apps/web/src/pages/shell/composer/hold-to-talk.tsx
 msgid "Hold to talk"
@@ -6276,13 +6476,16 @@ msgstr "Hoe groot is je team?"
 msgid "How did you hear about us?"
 msgstr "Hoe heb je over ons gehoord?"
 
+#: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+msgid "How many dreams each bot keeps, from {MIN_DREAM_RETENTION} to {MAX_DREAM_RETENTION}. Older ones are deleted with their hidden chats."
+msgstr "Hoeveel dromen elke bot bewaart, van {MIN_DREAM_RETENTION} tot {MAX_DREAM_RETENTION}. Oudere worden verwijderd samen met hun verborgen chats."
+
 #: apps/mobile/components/routines/routine-schedule-editor.tsx
 #: apps/web/src/pages/routines/RoutineSchedule.tsx
 msgid "How often"
 msgstr "Hoe vaak"
 
 #: apps/mobile/app/bot-settings.tsx
-#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
 msgid "How other bots see it"
 msgstr "Hoe andere bots deze zien"
 
@@ -6290,8 +6493,11 @@ msgstr "Hoe andere bots deze zien"
 msgid "How to check"
 msgstr "Hoe te controleren"
 
-#: apps/mobile/app/(settings)/signup-survey.tsx
 #: apps/web/src/components/account/SignupSurvey.tsx
+msgid "How will you use AgentForge?"
+msgstr "Hoe ga je AgentForge gebruiken?"
+
+#: apps/mobile/app/(settings)/signup-survey.tsx
 msgid "How will you use Rakazo?"
 msgstr "Hoe ga je Rakazo gebruiken?"
 
@@ -6487,6 +6693,10 @@ msgstr "Instructies voor deze ruimte"
 msgid "Instructions updated"
 msgstr "Instructies bijgewerkt"
 
+#: apps/web/src/pages/shell/bots/instruction-settings.tsx
+msgid "Instructions view"
+msgstr "Instructieweergave"
+
 #: apps/web/src/pages/plugins/domain-search.tsx
 msgid "Integration domain"
 msgstr "Integratiedomein"
@@ -6565,7 +6775,7 @@ msgstr "Uitgenodigd"
 msgid "Isolated"
 msgstr "Geïsoleerd"
 
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Isolated preview: no access to your account"
 msgstr "Geïsoleerd voorbeeld: geen toegang tot je account"
 
@@ -6670,6 +6880,10 @@ msgstr "Herinneringen bewaren"
 #: apps/web/src/pages/integrations/McpServerForm.tsx
 msgid "Keep tool results whole"
 msgstr "Toolresultaten volledig houden"
+
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Keeps the latest 50 messages and summarizes older ones."
+msgstr "Bewaart de laatste 50 berichten en vat oudere samen."
 
 #: apps/web/src/pages/routines/routine-editor/trigger-cards.tsx
 msgid "Key options"
@@ -6784,6 +6998,10 @@ msgstr "Links"
 #: apps/web/src/components/computers/ComputerDeviceSettings.tsx
 msgid "Let bots use this computer"
 msgstr "Bots deze computer laten gebruiken"
+
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
+msgid "Library"
+msgstr "Bibliotheek"
 
 #: apps/mobile/app/(settings)/general.tsx
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
@@ -6953,6 +7171,7 @@ msgstr "Spraakanbieders laden…"
 #: apps/web/src/pages/settings/PeerMessagesOverlay.tsx
 #: apps/web/src/pages/shell/bots/agent-import.tsx
 #: apps/web/src/pages/shell/chat/transcript.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 #: apps/web/src/pages/space/Artifacts.tsx
 #: packages/i18n/src/computer-usage.ts
 msgid "Loading…"
@@ -7034,7 +7253,6 @@ msgid "Make member"
 msgstr "Lid maken"
 
 #: apps/web/src/pages/settings/BillingSettingsPanel.tsx
-#: apps/web/src/pages/settings/SpacesSettingsPanel.tsx
 msgid "Manage"
 msgstr "Beheren"
 
@@ -7060,7 +7278,7 @@ msgstr "MCP-servers beheren"
 msgid "Manage model"
 msgstr "Model beheren"
 
-#: apps/mobile/app/bot-settings.tsx
+#: apps/mobile/components/bots/bot-permissions-section.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 msgid "Manage other bots"
 msgstr "Andere bots beheren"
@@ -7084,7 +7302,7 @@ msgid "Manual setup required"
 msgstr "Handmatige installatie vereist"
 
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Mark as Read"
 msgstr "Markeren als gelezen"
 
@@ -7094,7 +7312,7 @@ msgid "Mark as unread"
 msgstr "Markeren als ongelezen"
 
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Mark as Unread"
 msgstr "Markeren als ongelezen"
 
@@ -7111,7 +7329,7 @@ msgstr "Marketing"
 msgid "Max"
 msgstr "Max"
 
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Maximize"
 msgstr "Maximaliseren"
 
@@ -7204,13 +7422,20 @@ msgstr "Leden ({0})"
 msgid "Members ({count})"
 msgstr "Leden ({count})"
 
+#: apps/web/src/pages/model-settings/http-endpoints-switch.tsx
+msgid "Members can connect model servers that do not use TLS. API keys are sent to those servers unencrypted; only enable this on a trusted network."
+msgstr "Leden kunnen modelservers verbinden die geen TLS gebruiken. API-sleutels worden onversleuteld naar die servers gestuurd; schakel dit alleen in op een vertrouwd netwerk."
+
 #: apps/mobile/app/(settings)/_layout.tsx
 #: apps/mobile/app/(settings)/account.tsx
 #: apps/mobile/app/(settings)/ai-data-sharing.tsx
+#: apps/mobile/app/bot-settings.tsx
 #: apps/mobile/components/bots/bot-context-cards.tsx
 #: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
 #: apps/web/src/pages/settings/settings-nav.ts
 #: apps/web/src/pages/shell/bots/agent-import-plan.tsx
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
+#: apps/web/src/pages/space/GroupPanel.tsx
 #: apps/web/src/pages/space/KnowledgeSection.tsx
 msgid "Memory"
 msgstr "Geheugen"
@@ -7222,6 +7447,11 @@ msgstr "Geheugen {position}"
 #: apps/web/src/pages/shell/bots/agent-import-plan.tsx
 msgid "Memory for {title}"
 msgstr "Geheugen voor {title}"
+
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Memory is off, so dreams are paused."
+msgstr "Geheugen staat uit, dus dromen zijn gepauzeerd."
 
 #: apps/web/src/pages/shell/composer/composer-parts.tsx
 msgid "Mentions"
@@ -7338,10 +7568,6 @@ msgstr "Minimaal"
 #: apps/web/src/components/WindowChrome.tsx
 msgid "Minimize"
 msgstr "Minimaliseren"
-
-#: apps/web/src/pages/shell/sidebar/sidebar-header.tsx
-msgid "Minimize bots"
-msgstr "Bots minimaliseren"
 
 #: apps/web/src/components/call/CallCard.tsx
 msgid "Minimize call"
@@ -7511,7 +7737,7 @@ msgstr "Verplaats ze naar je gedeelde geheugen."
 #: apps/mobile/components/inbox/inbox-swipe-row.ios.tsx
 #: apps/mobile/lib/board/board-list.ios.tsx
 #: apps/mobile/lib/board/board-list.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Move to"
 msgstr "Verplaatsen naar"
 
@@ -7596,6 +7822,11 @@ msgstr "Geef je bot een naam"
 msgid "Names and terms (optional)"
 msgstr "Namen en termen (optioneel)"
 
+#: apps/mobile/lib/bots/bot-settings-choices.ts
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Near the limit"
+msgstr "Bijna aan de limiet"
+
 #: apps/web/src/lib/chat/roster-status.ts
 msgid "Needs an answer"
 msgstr "Heeft een antwoord nodig"
@@ -7649,6 +7880,7 @@ msgstr "Vereist: {names}"
 
 #: apps/mobile/components/settings/approval-settings-rows.tsx
 #: apps/web/src/components/settings/ApprovalRulesSettings.tsx
+#: packages/i18n/src/approval-mode.ts
 msgid "Never ask"
 msgstr "Nooit vragen"
 
@@ -7748,7 +7980,7 @@ msgstr "Nieuwe routine"
 #: apps/mobile/components/inbox/bot-organize-modal.tsx
 #: apps/mobile/components/inbox/inbox-swipe-row.ios.tsx
 #: apps/mobile/lib/inbox/use-inbox-chat-actions.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 #: apps/web/src/pages/shell/create-delete-dialogs.tsx
 msgid "New section"
 msgstr "Nieuwe sectie"
@@ -7808,7 +8040,7 @@ msgid "Next thinking level"
 msgstr "Volgend denkniveau"
 
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Next week"
 msgstr "Volgende week"
 
@@ -7860,6 +8092,31 @@ msgstr "Nog geen opmerkingen."
 #: packages/i18n/src/computer-usage.ts
 msgid "No computer hours used yet"
 msgstr "Nog geen computeruren gebruikt"
+
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+msgid "No dreams yet"
+msgstr "Nog geen dromen"
+
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "No dreams yet."
+msgstr "Nog geen dromen."
+
+#: apps/web/src/pages/space/GroupFilesList.tsx
+msgid "No files match “{query}”."
+msgstr "Geen bestanden gevonden voor ‘{query}’."
+
+#: apps/web/src/pages/space/KnowledgeSection.tsx
+msgid "No history yet."
+msgstr "Nog geen geschiedenis."
+
+#: apps/web/src/pages/shell/bots/instruction-settings.tsx
+msgid "No instructions"
+msgstr "Geen instructies"
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "No limit"
+msgstr "Geen limiet"
 
 #: apps/mobile/components/cards/OutgoingDraftCard.tsx
 #: apps/mobile/components/thread/message-bubble.tsx
@@ -7921,6 +8178,10 @@ msgstr "Nog geen berichten"
 #: apps/web/src/pages/model-settings/ModelSettingsOverlay.tsx
 msgid "No model catalog is available."
 msgstr "Er is geen modelcatalogus beschikbaar."
+
+#: apps/web/src/pages/space/KnowledgeSection.tsx
+msgid "No notes match."
+msgstr "Geen notities gevonden."
 
 #: apps/web/src/pages/shell/bots/use-agent-import-source.ts
 msgid "No OpenClaw, Hermes or agent document found."
@@ -8085,8 +8346,8 @@ msgid "Not in {organizationName}. They'll only see this Space."
 msgstr "Niet in {organizationName}. Ziet alleen deze space."
 
 #: apps/web/src/pages/shell/bots/import-status.ts
-msgid "Not in Rakazo's catalog"
-msgstr "Niet in de catalogus van Rakazo"
+msgid "Not in AgentForge's catalog"
+msgstr "Niet in de catalogus van AgentForge"
 
 #: apps/mobile/app/(settings)/integrations.tsx
 #: apps/web/src/pages/plugins/plugin-browse.tsx
@@ -8136,12 +8397,12 @@ msgstr "Niet verzonden. Tik om opnieuw te proberen"
 
 #: apps/web/src/pages/shell/bots/agent-import-plan.tsx
 #: apps/web/src/pages/shell/bots/import-status.ts
-msgid "Not supported in Rakazo"
-msgstr "Niet ondersteund in Rakazo"
+msgid "Not supported in AgentForge"
+msgstr "Niet ondersteund in AgentForge"
 
 #: apps/web/src/pages/shell/bots/agent-import-plan.tsx
-msgid "Not used by Rakazo"
-msgstr "Niet gebruikt door Rakazo"
+msgid "Not used by AgentForge"
+msgstr "Niet gebruikt door AgentForge"
 
 #. js-lingui-explicit-id
 #: packages/i18n/src/plugin-catalog.ts
@@ -8280,6 +8541,10 @@ msgstr "Alleen de maker van de bot kan de webhooksleutel instellen."
 msgid "Only the owner of this account can choose a plan."
 msgstr "Alleen de eigenaar van dit account kan een abonnement kiezen."
 
+#: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+msgid "Only the Space owner can change how many dreams are kept."
+msgstr "Alleen de eigenaar van de ruimte kan wijzigen hoeveel dromen worden bewaard."
+
 #: apps/web/src/pages/shell/bots/agent-import-plan.tsx
 msgid "Only this bot"
 msgstr "Alleen deze bot"
@@ -8324,6 +8589,13 @@ msgstr "{name} openen"
 #: apps/web/src/components/pages/PageCard.tsx
 msgid "Open {title}"
 msgstr "{title} openen"
+
+#: apps/web/src/components/pages/PublicPageShell.tsx
+#: apps/web/src/pages/auth/Invite.tsx
+#: apps/web/src/pages/auth/JoinOrganization.tsx
+#: apps/web/src/pages/SharedPage.tsx
+msgid "Open AgentForge"
+msgstr "AgentForge openen"
 
 #: apps/web/src/pages/shell/chat/chat-header.tsx
 msgid "Open call"
@@ -8372,13 +8644,6 @@ msgstr "Link openen"
 #: apps/web/src/pages/shell/chat/chat-header.tsx
 msgid "Open navigation"
 msgstr "Navigatie openen"
-
-#: apps/web/src/components/pages/PublicPageShell.tsx
-#: apps/web/src/pages/auth/Invite.tsx
-#: apps/web/src/pages/auth/JoinOrganization.tsx
-#: apps/web/src/pages/SharedPage.tsx
-msgid "Open Rakazo"
-msgstr "Rakazo openen"
 
 #: apps/web/src/components/models/SubscriptionSignInSteps.tsx
 msgid "Open settings"
@@ -8483,6 +8748,10 @@ msgstr "OTA {id}"
 msgid "OTA {id}, {date}"
 msgstr "OTA {id}, {date}"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Other bots read this when deciding whom to ask."
+msgstr "Andere bots lezen dit om te bepalen wie ze moeten vragen."
+
 #: packages/i18n/src/computer-usage.ts
 msgid "Other computers"
 msgstr "Andere computers"
@@ -8565,7 +8834,6 @@ msgstr "Paginatitel"
 #: apps/web/src/components/pages/PagesList.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/shell/command-palette.tsx
-#: apps/web/src/pages/space/GroupPanel.tsx
 msgid "Pages"
 msgstr "Pagina's"
 
@@ -8698,7 +8966,8 @@ msgstr "Betaling mislukt"
 msgid "Pending"
 msgstr "In afwachting"
 
-#: apps/mobile/app/bot-settings.tsx
+#: apps/mobile/components/bots/bot-permissions-section.tsx
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
 msgid "Permissions"
 msgstr "Machtigingen"
 
@@ -8765,7 +9034,7 @@ msgstr "Kies een tool om te controleren"
 #: apps/mobile/components/inbox/bot-organize-modal.tsx
 #: apps/mobile/lib/inbox/inbox-swipe.ts
 #: apps/web/src/components/pages/PagesList.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Pin"
 msgstr "Vastzetten"
 
@@ -8857,7 +9126,8 @@ msgstr "Transcript voorbereiden…"
 #: apps/mobile/components/integrations/add-custom-integration.tsx
 #: apps/web/src/components/integrations/skills-dialog.tsx
 #: apps/web/src/pages/plugins/github-import.tsx
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/shell/bots/instruction-settings.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Preview"
 msgstr "Voorbeeld"
 
@@ -8871,7 +9141,7 @@ msgstr "{0} bekijken"
 msgid "Preview draft"
 msgstr "Concept bekijken"
 
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Preview isn't available for this file type. Download it to view it."
 msgstr "Voor dit bestandstype is geen voorbeeld beschikbaar. Download het bestand om het te bekijken."
 
@@ -8932,6 +9202,7 @@ msgstr "Productiviteit"
 
 #: apps/mobile/app/_layout.tsx
 #: apps/mobile/components/thread/header/chat-header-title.tsx
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
 msgid "Profile"
 msgstr "Profiel"
 
@@ -8945,6 +9216,11 @@ msgstr "Programma: {name}"
 #: apps/web/src/pages/onboarding/model-step.tsx
 msgid "Project ID"
 msgstr "Project-ID"
+
+#: apps/mobile/app/bot-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "projects/website"
+msgstr "projects/website"
 
 #: apps/web/src/components/teach/TeachRecordingChrome.tsx
 msgid "Protected input"
@@ -9018,25 +9294,17 @@ msgstr "Selectie citeren"
 #: apps/mobile/app/(settings)/ai-data-sharing.tsx
 #: apps/mobile/app/(settings)/general.tsx
 #: apps/mobile/app/bot-settings.tsx
-#: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
-#: apps/web/src/pages/shell/bots/avatar-studio-popover.tsx
 msgid "Rakazo"
 msgstr "Rakazo"
 
 #: apps/mobile/app/(settings)/billing.tsx
 #: apps/mobile/components/models/model-role-settings.tsx
-#: apps/web/src/pages/model-settings/ModelRoleSettings.tsx
-#: apps/web/src/pages/onboarding/use-onboarding-model.ts
 msgid "Rakazo credits"
 msgstr "Rakazo-tegoed"
 
-#: apps/mobile/lib/billing/self-hosted-support.ts
-msgid "Rakazo is free to self-host. If you'd like to support it, subscribers can email support@rakazo.com for help."
-msgstr "Rakazo is gratis te self-hosten. Wil je het steunen? Abonnees kunnen voor hulp mailen naar support@rakazo.com."
-
 #: apps/web/src/components/models/ProviderSettingsForm.tsx
-msgid "rakazo-shared and IDs starting with bot- are reserved for Rakazo."
-msgstr "rakazo-shared en ID's die beginnen met bot- zijn gereserveerd voor Rakazo."
+msgid "rakazo-shared and IDs starting with bot- are reserved for AgentForge."
+msgstr "rakazo-shared en ID's die beginnen met bot- zijn gereserveerd voor AgentForge."
 
 #: apps/mobile/app/(settings)/account.tsx
 msgid "Rate Rakazo"
@@ -9094,8 +9362,8 @@ msgid "Recall from banks"
 msgstr "Ophalen uit banken"
 
 #: apps/web/src/components/models/ProviderSettingsForm.tsx
-msgid "Recall from this peer; save to Rakazo’s own peers."
-msgstr "Ophalen uit deze peer; opslaan in Rakazo’s eigen peers."
+msgid "Recall from this peer; save to AgentForge’s own peers."
+msgstr "Ophalen uit deze peer; opslaan in AgentForge’s eigen peers."
 
 #: apps/web/src/components/models/ProviderSettingsForm.tsx
 msgid "Recall only"
@@ -9458,7 +9726,7 @@ msgstr "Naam wijzigen"
 #: apps/mobile/components/inbox/inbox-render-item.tsx
 #: apps/mobile/components/inbox/inbox-swipe-row.ios.tsx
 #: apps/mobile/lib/inbox/use-inbox-chat-actions.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 #: apps/web/src/pages/shell/create-delete-dialogs.tsx
 #: apps/web/src/pages/shell/sidebar/sidebar-roster.tsx
 msgid "Rename section"
@@ -9671,6 +9939,7 @@ msgstr "Herstarten om bij te werken"
 #: apps/web/src/components/computers/ComputerHomeVersions.tsx
 #: apps/web/src/pages/shell/bots/instruction-settings.tsx
 #: apps/web/src/pages/shell/sidebar/archived-chats.tsx
+#: apps/web/src/pages/space/KnowledgeSection.tsx
 msgid "Restore"
 msgstr "Herstellen"
 
@@ -9762,6 +10031,11 @@ msgstr "Nu opnieuw proberen"
 msgid "Retry screen"
 msgstr "Scherm opnieuw proberen"
 
+#: apps/web/src/pages/integrations/McpOAuthCallback.tsx
+#: apps/web/src/pages/integrations/SlackInstallCallback.tsx
+msgid "Return to AgentForge"
+msgstr "Terug naar AgentForge"
+
 #. placeholder {0}: call.botName
 #: apps/web/src/components/call/CallCard.tsx
 msgid "Return to call with {0}"
@@ -9770,11 +10044,6 @@ msgstr "Terug naar het gesprek met {0}"
 #: apps/mobile/app/thread.tsx
 msgid "Return to inbox"
 msgstr "Terug naar postvak IN"
-
-#: apps/web/src/pages/integrations/McpOAuthCallback.tsx
-#: apps/web/src/pages/integrations/SlackInstallCallback.tsx
-msgid "Return to Rakazo"
-msgstr "Terug naar Rakazo"
 
 #: apps/mobile/app/page.tsx
 #: apps/web/src/components/pages/PageViewHost.tsx
@@ -9992,6 +10261,10 @@ msgstr "Opslaan"
 msgid "Save and sign in"
 msgstr "Opslaan en aanmelden"
 
+#: apps/web/src/pages/settings/MemorySettingsOverlay.tsx
+msgid "Save limit"
+msgstr "Limiet opslaan"
+
 #: apps/mobile/app/(settings)/memory-note.tsx
 msgid "Save mine"
 msgstr "Mijn versie opslaan"
@@ -10174,9 +10447,21 @@ msgstr "Bots, acties en instellingen zoeken"
 msgid "Search by domain"
 msgstr "Zoeken op domein"
 
+#: apps/web/src/pages/space/GroupFilesList.tsx
+msgid "Search files"
+msgstr "Bestanden zoeken"
+
+#: apps/web/src/pages/space/GroupFilesList.tsx
+msgid "Search files…"
+msgstr "Bestanden zoeken…"
+
 #: apps/web/src/components/integrations/IntegrationSetup.tsx
 msgid "Search integrations.sh"
 msgstr "integrations.sh doorzoeken"
+
+#: apps/web/src/pages/space/KnowledgeSection.tsx
+msgid "Search memory"
+msgstr "Geheugen doorzoeken"
 
 #: apps/web/src/components/models/FoundModelPicker.tsx
 #: apps/web/src/pages/model-settings/compatible-model-fields.tsx
@@ -10195,6 +10480,7 @@ msgid "Search public MCP directory for “{term}”"
 msgstr "Openbare MCP-directory doorzoeken naar “{term}”"
 
 #: apps/web/src/pages/shell/sidebar/shell-sidebar.tsx
+#: apps/web/src/pages/shell/sidebar/sidebar-header.tsx
 msgid "Search runs"
 msgstr "Runs zoeken"
 
@@ -10398,14 +10684,11 @@ msgstr "Instellen"
 #: apps/web/src/pages/settings/SettingsOverlay.tsx
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/shell/keyboard-shortcuts-dialog.tsx
+#: apps/web/src/pages/shell/shell-dialogs.tsx
 #: apps/web/src/pages/shell/sidebar/sidebar-footer.tsx
+#: apps/web/src/pages/space/GroupPanel.tsx
 msgid "Settings"
 msgstr "Instellingen"
-
-#. placeholder {0}: group.spaceName
-#: apps/web/src/pages/shell/sidebar/sidebar-roster.tsx
-msgid "Settings for {0}"
-msgstr "Instellingen voor {0}"
 
 #: apps/mobile/app/(settings)/space.tsx
 #: apps/mobile/app/(settings)/spaces.tsx
@@ -10510,6 +10793,7 @@ msgstr "Delen, iedereen met de link kan hem bekijken"
 msgid "Shared"
 msgstr "Gedeeld"
 
+#: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/space/KnowledgeSection.tsx
 msgid "Shared memory"
 msgstr "Gedeeld geheugen"
@@ -10544,9 +10828,9 @@ msgstr "{label} tonen"
 msgid "Show all"
 msgstr "Alles tonen"
 
-#: apps/web/src/pages/shell/sidebar/sidebar-header.tsx
-msgid "Show bots"
-msgstr "Bots tonen"
+#: apps/web/src/pages/shell/app-rail.tsx
+msgid "Show chat list"
+msgstr "Chatlijst tonen"
 
 #: apps/mobile/components/thread/header/chat-route-header.tsx
 msgid "Show chats"
@@ -10560,7 +10844,7 @@ msgstr "Sleutel tonen"
 msgid "Show keyboard"
 msgstr "Toetsenbord tonen"
 
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Show list"
 msgstr "Lijst tonen"
 
@@ -10572,6 +10856,7 @@ msgstr "Lijst tonen"
 #: apps/web/src/components/pages/PageReviewHost.tsx
 #: apps/web/src/components/pages/PagesList.tsx
 #: apps/web/src/pages/plugins/plugin-browse.tsx
+#: apps/web/src/pages/space/GroupFilesList.tsx
 #: apps/web/src/pages/space/KnowledgeSection.tsx
 #: apps/web/src/pages/space/ScratchpadSection.tsx
 msgid "Show more"
@@ -10648,8 +10933,11 @@ msgstr "Aanmelden bij {host}"
 msgid "Sign in at {host}, then paste the code it shows you here."
 msgstr "Meld je aan bij {host} en plak hier de code die je te zien krijgt."
 
-#: apps/mobile/app/sign-in.tsx
 #: apps/web/src/pages/auth/Auth.tsx
+msgid "Sign in to AgentForge"
+msgstr "Aanmelden bij AgentForge"
+
+#: apps/mobile/app/sign-in.tsx
 msgid "Sign in to Rakazo"
 msgstr "Aanmelden bij Rakazo"
 
@@ -10821,7 +11109,7 @@ msgstr "Schuif omhoog om te vergrendelen"
 
 #: apps/mobile/components/inbox/bot-organize-modal.tsx
 #: apps/mobile/components/inbox/inbox-swipe-row.ios.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Snooze"
 msgstr "Snoozen"
 
@@ -10922,6 +11210,7 @@ msgstr "Space aangemaakt"
 #: apps/mobile/lib/models/chat-model.ts
 #: apps/web/src/pages/shell/bots/bot-panel.tsx
 #: apps/web/src/pages/shell/composer/composer-model-picker.tsx
+#: packages/i18n/src/approval-mode.ts
 msgid "Space default"
 msgstr "Spacestandaard"
 
@@ -11062,6 +11351,7 @@ msgid "Starting"
 msgstr "Bezig met starten"
 
 #: apps/mobile/app/(settings)/model-connection.tsx
+#: apps/mobile/components/bots/bot-dreams-section.tsx
 #: apps/web/src/components/models/SubscriptionSignInSteps.tsx
 #: apps/web/src/components/teach/TeachComputerOverlay.tsx
 #: apps/web/src/lib/chat/roster-status.ts
@@ -11193,16 +11483,35 @@ msgstr "Samenvattingen"
 msgid "Summaries and facts"
 msgstr "Samenvattingen en feiten"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Summarizes when the prompt reaches 80% of the model's context window."
+msgstr "Vat samen wanneer de prompt 80% van het contextvenster van het model bereikt."
+
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Summarizes when the prompt reaches half the model's context window."
+msgstr "Vat samen wanneer de prompt de helft van het contextvenster van het model bereikt."
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+msgid "Summarizes when the prompt reaches the chosen share of the model's context window."
+msgstr "Vat samen wanneer de prompt het gekozen deel van het contextvenster van het model bereikt."
+
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Summarizes when the prompt reaches this many tokens."
+msgstr "Vat samen wanneer de prompt dit aantal tokens bereikt."
+
 #: packages/i18n/src/cron.ts
 msgid "Sunday"
 msgstr "zondag"
+
+#: apps/mobile/lib/billing/self-hosted-support.ts
+msgid "Support AgentForge"
+msgstr "AgentForge steunen"
 
 #: apps/mobile/lib/billing/self-hosted-support.ts
 msgid "Support for $25 / month"
 msgstr "Support voor $25 / maand"
 
 #: apps/mobile/app/(settings)/account.tsx
-#: apps/mobile/lib/billing/self-hosted-support.ts
 msgid "Support Rakazo"
 msgstr "Rakazo steunen"
 
@@ -11295,6 +11604,15 @@ msgstr "Tik om te openen"
 msgid "Target"
 msgstr "Doel"
 
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+msgid "Task limit"
+msgstr "Taaklimiet"
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Tasks at once"
+msgstr "Taken tegelijk"
+
 #: apps/web/src/components/teach/TeachComputerOverlay.tsx
 msgid "Teach a task"
 msgstr "Een taak aanleren"
@@ -11374,6 +11692,11 @@ msgstr "Die URL mist een host"
 msgid "That voice isn't offered by this server, so it used {served} instead."
 msgstr "Deze server biedt die stem niet aan, dus is in plaats daarvan {served} gebruikt."
 
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "The agent stops after this many tool calls in one turn. Empty means no limit."
+msgstr "De agent stopt na dit aantal tool-aanroepen in één beurt. Leeg betekent geen limiet."
+
 #: apps/mobile/components/thread/failed-send-bubble.tsx
 #: apps/web/src/pages/shell/composer/composer-error.tsx
 msgid "The bot can use the file but won't see the picture."
@@ -11403,6 +11726,10 @@ msgstr "De bot kon niet antwoorden omdat de weeklimiet van zijn provider is bere
 #: apps/web/src/components/messages/SecretAskCard.tsx
 msgid "The bot's browser stays signed in for everyone in this space"
 msgstr "De browser van de bot blijft ingelogd voor iedereen in deze space"
+
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "The bot's commands and files start here. Leave empty for the default folder."
+msgstr "De opdrachten en bestanden van de bot beginnen hier. Laat leeg voor de standaardmap."
 
 #: apps/web/src/lib/calls/dictation.ts
 msgid "The browser keeps dropping the microphone. Start dictation again to retry."
@@ -11503,8 +11830,11 @@ msgstr "Er is een probleem met de server. Probeer het zo nog eens."
 msgid "The shared link stops working"
 msgstr "De gedeelde link werkt dan niet meer"
 
-#: apps/mobile/app/meeting-transcript.tsx
 #: apps/web/src/pages/shell/meetings/meeting-transcript.tsx
+msgid "The transcript will be removed from AgentForge."
+msgstr "Het transcript wordt uit AgentForge verwijderd."
+
+#: apps/mobile/app/meeting-transcript.tsx
 msgid "The transcript will be removed from Rakazo."
 msgstr "Het transcript wordt uit Rakazo verwijderd."
 
@@ -11577,6 +11907,10 @@ msgstr "Deze authenticatorsleutel kan niet worden gelezen."
 #: apps/web/src/pages/shell/bots/use-agent-import-source.ts
 msgid "This backup could not be read."
 msgstr "Deze back-up kon niet worden gelezen."
+
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "This bot"
+msgstr "Deze bot"
 
 #. js-lingui-explicit-id
 #: packages/i18n/src/vault.ts
@@ -11672,8 +12006,8 @@ msgid "This draft isn't available"
 msgstr "Dit concept is niet beschikbaar"
 
 #: apps/web/src/lib/bots/agent-import-errors.ts
-msgid "This export is newer than Rakazo can read. Update Rakazo and try again."
-msgstr "Deze export is nieuwer dan Rakazo kan lezen. Werk Rakazo bij en probeer het opnieuw."
+msgid "This export is newer than AgentForge can read. Update AgentForge and try again."
+msgstr "Deze export is nieuwer dan AgentForge kan lezen. Werk AgentForge bij en probeer het opnieuw."
 
 #: apps/web/src/lib/bots/agent-import-errors.ts
 msgid "This export is too large to import."
@@ -11845,8 +12179,11 @@ msgstr "Deze space heeft een eigen kluis, dus de bots ervan kunnen geen accounti
 msgid "This Space keeps its own vault. Its bots save and use items there, not here: open the Space's settings, then Vault."
 msgstr "Deze space heeft een eigen kluis. De bots ervan bewaren en gebruiken items daar, niet hier: open de instellingen van de space en dan Kluis."
 
-#: apps/mobile/app/(settings)/model-connection.tsx
 #: apps/web/src/pages/model-settings/connection-controls.tsx
+msgid "This subscription sign-in is not available in AgentForge yet. Use a deployment credential or choose another provider."
+msgstr "Deze abonnementsaanmelding is nog niet beschikbaar in AgentForge. Gebruik een implementatiegegeven of kies een andere aanbieder."
+
+#: apps/mobile/app/(settings)/model-connection.tsx
 msgid "This subscription sign-in is not available in Rakazo yet. Use a deployment credential or choose another provider."
 msgstr "Deze abonnementsaanmelding is nog niet beschikbaar in Rakazo. Gebruik een implementatiegegeven of kies een andere aanbieder."
 
@@ -11938,12 +12275,14 @@ msgstr "Vandaag"
 msgid "Toggle sidebar"
 msgstr "Zijbalk tonen/verbergen"
 
+#: apps/mobile/components/bots/bot-agent-settings.tsx
 #: apps/web/src/pages/settings/UsageSettingsPanel.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
 msgid "Tokens"
 msgstr "Tokens"
 
 #: apps/mobile/lib/inbox/inbox-swipe.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Tomorrow"
 msgstr "Morgen"
 
@@ -11966,6 +12305,11 @@ msgstr "Toolargumenten moeten een JSON-object zijn"
 #: apps/web/src/lib/routines/routine-draft.ts
 msgid "Tool arguments must be JSON"
 msgstr "Toolargumenten moeten JSON zijn"
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Tool calls per turn"
+msgstr "Tool-aanroepen per beurt"
 
 #: apps/web/src/pages/routines/routine-editor/trigger-cards.tsx
 msgid "Tool name"
@@ -12093,6 +12437,7 @@ msgstr "Vertrouwde sites"
 #: apps/web/src/pages/SharedPage.tsx
 #: apps/web/src/pages/shell/meetings/meeting-calendar.tsx
 #: apps/web/src/pages/space/ActivityList.tsx
+#: apps/web/src/pages/space/GroupFilesList.tsx
 #: apps/web/src/pages/space/SpaceSearch.tsx
 msgid "Try again"
 msgstr "Opnieuw proberen"
@@ -12169,13 +12514,18 @@ msgstr "Typ je antwoord"
 #: apps/mobile/components/inbox/bot-organize-modal.tsx
 #: apps/mobile/components/inbox/inbox-swipe-row.ios.tsx
 #: apps/mobile/lib/inbox/inbox-spaces.ts
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 #: apps/web/src/pages/shell/sidebar/use-sidebar-view.ts
 msgid "Unassigned"
 msgstr "Niet toegewezen"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Unavailable computer"
+msgstr "Niet beschikbare computer"
+
 #: apps/mobile/components/cards/change-undo.tsx
 #: apps/web/src/components/messages/AskCard.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
 msgid "Undo"
 msgstr "Ongedaan maken"
 
@@ -12206,7 +12556,7 @@ msgstr "Dempen opheffen"
 #: apps/mobile/components/inbox/bot-organize-modal.tsx
 #: apps/mobile/lib/inbox/inbox-swipe.ts
 #: apps/web/src/components/pages/PagesList.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 msgid "Unpin"
 msgstr "Vastzetten opheffen"
 
@@ -12225,7 +12575,7 @@ msgstr "Onverzonden berichten"
 
 #: apps/mobile/components/inbox/bot-organize-modal.tsx
 #: apps/mobile/components/inbox/inbox-swipe-row.ios.tsx
-#: apps/web/src/pages/shell/chat/bot-context-menu.tsx
+#: apps/web/src/pages/shell/chat/chat-menu-items.tsx
 #: apps/web/src/pages/shell/sidebar/snoozed-chats.tsx
 msgid "Unsnooze"
 msgstr "Snooze opheffen"
@@ -12273,6 +12623,10 @@ msgstr "Komende meetings"
 msgid "Update"
 msgstr "Bijwerken"
 
+#: apps/web/src/lib/integrations/meeting-calendar-connect.ts
+msgid "Update AgentForge to connect your calendar from the desktop app."
+msgstr "Werk AgentForge bij om je agenda te koppelen vanuit de desktop-app."
+
 #: apps/mobile/components/computers/computer-update-progress.tsx
 #: apps/web/src/components/computers/ComputerUpdateProgress.tsx
 msgid "Update failed"
@@ -12294,10 +12648,6 @@ msgstr "Instructies bijwerken?"
 #: apps/web/src/components/computers/ComputerUpdateProgress.tsx
 msgid "Update progress"
 msgstr "Updatevoortgang"
-
-#: apps/web/src/lib/integrations/meeting-calendar-connect.ts
-msgid "Update Rakazo to connect your calendar from the desktop app."
-msgstr "Werk Rakazo bij om je agenda te koppelen vanuit de desktop-app."
 
 #: apps/mobile/lib/api/client-update.ts
 #: apps/web/src/lib/platform/client-update.ts
@@ -12411,6 +12761,25 @@ msgstr "Gebruik een eigen server"
 msgid "Use a found model"
 msgstr "Een gevonden model gebruiken"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Use a relative folder path without \"..\" segments."
+msgstr "Gebruik een relatief mappad zonder \"..\"-segmenten."
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Use a whole number from {MIN_CUSTOM_CONVERSATION_COMPACTION_TOKENS} to {MAX_CUSTOM_CONVERSATION_COMPACTION_TOKENS}."
+msgstr "Gebruik een heel getal van {MIN_CUSTOM_CONVERSATION_COMPACTION_TOKENS} tot {MAX_CUSTOM_CONVERSATION_COMPACTION_TOKENS}."
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Use a whole number from 1 to {MAX_CONCURRENT_HELPERS_LIMIT}."
+msgstr "Gebruik een heel getal van 1 tot {MAX_CONCURRENT_HELPERS_LIMIT}."
+
+#: apps/mobile/components/bots/bot-agent-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Use a whole number from 1 to {MAX_TOOL_CALLS_PER_TURN_LIMIT}."
+msgstr "Gebruik een heel getal van 1 tot {MAX_TOOL_CALLS_PER_TURN_LIMIT}."
+
 #: apps/web/src/pages/settings/SpaceSettingOverrides.tsx
 msgid "Use account settings"
 msgstr "Accountinstellingen gebruiken"
@@ -12418,6 +12787,10 @@ msgstr "Accountinstellingen gebruiken"
 #: apps/web/src/pages/settings/SpaceSettingOverrides.tsx
 msgid "Use account settings for {label}"
 msgstr "Accountinstellingen gebruiken voor {label}"
+
+#: apps/web/src/components/billing/ModelCredits.tsx
+msgid "Use AgentForge credits"
+msgstr "AgentForge-tegoed gebruiken"
 
 #: packages/i18n/src/user-error.ts
 msgid "Use an account with the same email address"
@@ -12435,6 +12808,11 @@ msgstr "Gebruik de standaardserver"
 #: apps/web/src/components/integrations/plugin-marketplace.tsx
 msgid "Use in this bot"
 msgstr "Gebruiken in deze bot"
+
+#: apps/mobile/app/bot-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Use its own memory"
+msgstr "Eigen geheugen gebruiken"
 
 #: apps/mobile/app/(settings)/memory-note.tsx
 msgid "Use latest"
@@ -12467,9 +12845,13 @@ msgid "Use Protected input for passwords."
 msgstr "Gebruik Beveiligde invoer voor wachtwoorden."
 
 #: apps/mobile/app/(settings)/billing.tsx
-#: apps/web/src/components/billing/ModelCredits.tsx
 msgid "Use Rakazo credits"
 msgstr "Rakazo-tegoed gebruiken"
+
+#: apps/mobile/app/bot-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Use shared notes"
+msgstr "Gedeelde notities gebruiken"
 
 #: apps/mobile/components/settings/space-bots-model.tsx
 msgid "Use space default"
@@ -12506,6 +12888,10 @@ msgstr "Gebruikersnaam"
 msgid "Uses files that are not imported"
 msgstr "Gebruikt bestanden die niet worden geïmporteerd"
 
+#: apps/mobile/components/bots/bot-dreams-section.tsx
+msgid "Uses one model call."
+msgstr "Gebruikt één modelaanroep."
+
 #: apps/mobile/lib/cards/import-setup.ts
 #: apps/web/src/pages/shell/bots/import-status.ts
 msgid "Uses paths on your computer"
@@ -12518,6 +12904,10 @@ msgstr "Gebruikt de eigen {hostCredentialSource}-gegevens van deze server om toe
 #: apps/mobile/app/(settings)/model-connection.tsx
 msgid "Uses this server's own {source} credentials to access {provider}."
 msgstr "Gebruikt de eigen {source}-gegevens van deze server om toegang te krijgen tot {provider}."
+
+#: apps/web/src/pages/space/KnowledgeSection.tsx
+msgid "Using {usedTokens} of {tokenCap} tokens."
+msgstr "{usedTokens} van {tokenCap} tokens in gebruik."
 
 #: apps/web/src/components/billing/ModelCredits.tsx
 msgid "Using your API key"
@@ -12575,7 +12965,7 @@ msgstr "Verifiëren en toevoegen"
 msgid "Verifying…"
 msgstr "Bezig met verifiëren…"
 
-#: apps/web/src/pages/space/Artifacts.tsx
+#: apps/web/src/pages/space/artifact-preview-pane.tsx
 msgid "Version"
 msgstr "Versie"
 
@@ -12715,9 +13105,12 @@ msgstr "Wekelijks"
 msgid "Welcome back"
 msgstr "Welkom terug"
 
+#: apps/web/src/components/account/SignupSurvey.tsx
+msgid "Welcome to AgentForge"
+msgstr "Welkom bij AgentForge"
+
 #: apps/mobile/app/(settings)/_layout.tsx
 #: apps/mobile/app/sign-in.tsx
-#: apps/web/src/components/account/SignupSurvey.tsx
 msgid "Welcome to Rakazo"
 msgstr "Welkom bij Rakazo"
 
@@ -12729,8 +13122,11 @@ msgstr "En zijn herinneringen?"
 msgid "What can this space use?"
 msgstr "Wat kan deze space gebruiken?"
 
-#: apps/mobile/app/(settings)/signup-survey.tsx
 #: apps/web/src/components/account/SignupSurvey.tsx
+msgid "What do you most want AgentForge to help with?"
+msgstr "Waarmee wil je het liefst hulp van AgentForge?"
+
+#: apps/mobile/app/(settings)/signup-survey.tsx
 msgid "What do you most want Rakazo to help with?"
 msgstr "Waarmee wil je het liefst hulp van Rakazo?"
 
@@ -12754,6 +13150,14 @@ msgstr "Wat moet deze routine elke keer doen?"
 #: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
 msgid "What this bot is for"
 msgstr "Waarvoor deze bot is"
+
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "What this bot learned about you. Tell it in the chat to change a note."
+msgstr "Wat deze bot over jou heeft geleerd. Zeg het in de chat om een notitie te wijzigen."
+
+#: apps/web/src/pages/space/KnowledgeSection.tsx
+msgid "What this note holds"
+msgstr "Wat deze notitie bevat"
 
 #: apps/web/src/components/models/ProviderSettingsForm.tsx
 msgid "What to recall"
@@ -12900,6 +13304,15 @@ msgstr "Werkt met je ChatGPT- of Claude-abonnement."
 msgid "Workspace"
 msgstr "Werkruimte"
 
+#: apps/mobile/app/bot-settings.tsx
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Workspace folder"
+msgstr "Werkruimtemap"
+
+#: apps/mobile/app/bot-settings.tsx
+msgid "Workspace folder must be a relative path without \"..\" segments."
+msgstr "De werkruimtemap moet een relatief pad zonder \"..\"-segmenten zijn."
+
 #: apps/mobile/lib/pages/page-review-comments.tsx
 #: apps/web/src/components/pages/PageReviewComments.tsx
 msgid "Write a comment"
@@ -12937,7 +13350,8 @@ msgstr "Gisteren"
 #: apps/web/src/pages/settings/AccountSettingsOverlay.tsx
 #: apps/web/src/pages/shell/chat/message-view.tsx
 #: apps/web/src/pages/shell/composer/chat-composer-area.tsx
-#: apps/web/src/pages/shell/sidebar/shell-sidebar.tsx
+#: apps/web/src/pages/shell/sidebar/shell-sidebar-footer.tsx
+#: apps/web/src/pages/space/GroupFilesList.tsx
 msgid "You"
 msgstr "Jij"
 
@@ -13005,6 +13419,10 @@ msgstr "Je kaart wordt vandaag belast met het naar rato berekende verschil."
 msgid "Your card was not charged"
 msgstr "Je kaart is niet belast"
 
+#: apps/web/src/pages/shell/bots/bot-settings-sections.tsx
+msgid "Your computer"
+msgstr "Jouw computer"
+
 #: apps/mobile/app/computer.tsx
 #: apps/web/src/pages/shell/computers/use-computer-controls.tsx
 msgid "Your computer's disk is nearly full. Free up space by removing build output and caches you no longer need."
@@ -13040,6 +13458,10 @@ msgstr "Jouw modelaanbieder"
 #: apps/web/src/pages/auth/Auth.tsx
 msgid "Your name"
 msgstr "Jouw naam"
+
+#: apps/web/src/pages/shell/bots/bot-memory-tabs.tsx
+msgid "Your name, timezone, important people and long-term preferences, shared by every bot in this space. Tell the bot to change them."
+msgstr "Jouw naam, tijdzone, belangrijke mensen en langetermijnvoorkeuren, gedeeld door elke bot in deze ruimte. Zeg het tegen de bot om ze te wijzigen."
 
 #. js-lingui-explicit-id
 #: packages/i18n/src/run-error.ts

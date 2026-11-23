@@ -300,7 +300,7 @@ export function SidebarFooter({
             ) : null}
             <a
               className={`${buttonVariants({ variant: "ghost", size: "lg" })} w-full justify-start gap-2.5 font-normal`}
-              href="https://github.com/elie222/rakazo/blob/main/docs/self-host.md"
+              href="https://github.com/Luohao-Yan/rakazo/blob/main/docs/self-host.md"
               target="_blank"
               rel="noreferrer"
             >

@@ -53,8 +53,8 @@ vi.mock("@rakazo/ui-web", async (importOriginal) => {
     DialogTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
   };
 });
-vi.mock("../../components/pages/PagesList", () => ({
-  PagesList: ({ groupId }: { groupId: string }) => <p>Pages for {groupId}</p>,
+vi.mock("./GroupFilesList", () => ({
+  GroupFilesList: ({ groupId }: { groupId: string }) => <p>Files for {groupId}</p>,
 }));
 vi.mock("./KnowledgeSection", () => ({
   SpaceMemorySection: () => <p>Shared memory notes</p>,
@@ -200,10 +200,10 @@ afterEach(async () => {
 });
 
 describe("GroupPanel", () => {
-  it("opens on the group's pages, with shared memory and settings a tab away", async () => {
+  it("opens on the group's files, with shared memory and settings a tab away", async () => {
     await render();
-    expect(button("Pages").getAttribute("aria-selected")).toBe("true");
-    expect(container.textContent).toContain("Pages for group-1");
+    expect(button("Files").getAttribute("aria-selected")).toBe("true");
+    expect(container.textContent).toContain("Files for group-1");
     await click("Memory");
     expect(button("Memory").getAttribute("aria-selected")).toBe("true");
     expect(container.textContent).toContain("Shared memory notes");

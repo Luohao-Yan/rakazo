@@ -92,7 +92,7 @@ already set in the deployment's `.env` for the updater is used as it is; a value
 Fetch the script and units for the release you run, then enable the timer:
 
 ```bash
-base=https://raw.githubusercontent.com/elie222/rakazo/vX.Y.Z/infra
+base=https://raw.githubusercontent.com/Luohao-Yan/rakazo/vX.Y.Z/infra
 sudo curl -fsSL "$base/compose/backup-prod.sh" -o /usr/local/sbin/rakazo-backup
 sudo chmod 755 /usr/local/sbin/rakazo-backup
 for unit in rakazo-backup.service rakazo-backup.timer; do
@@ -116,7 +116,7 @@ snapshots only. Its script is not part of this install. Where you keep the ident
 it and run it on an encrypted snapshot you copied there:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/elie222/rakazo/vX.Y.Z/infra/compose/backup-drill.sh
+curl -fsSLO https://raw.githubusercontent.com/Luohao-Yan/rakazo/vX.Y.Z/infra/compose/backup-drill.sh
 bash backup-drill.sh ./<stamp> rakazo-backup.key
 ```
 
@@ -367,7 +367,7 @@ settings. Uploaded backups stay in the bucket.
 
 ## Moving an account between installs
 
-To move from Rakazo Cloud to your own install (or back), use **Settings → Export data** on the
+To move from AgentForge Cloud to your own install (or back), use **Settings → Export data** on the
 old install and **Import data** on the new one. The export is a zip of every space you belong
 to: bots, chats, files, memory, routines, skills, bot workspace files and, in spaces you own,
 the board. Content is decrypted inside the zip, so keep it private. Importing creates new

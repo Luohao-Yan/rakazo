@@ -2,7 +2,7 @@
 
 状态：设计草案。本文档对照 Codync 的成熟实现（`/Users/yanluohao/develop/Codync`，参考
 `docs/design/bot-memory.md`、`docs/features/context-and-memory.md`、`host/src/chat/memory/dream.rs`、
-`apps/desktop/src/renderer/views/bots/MemoryView.tsx`），列出 Rakazo 当前记忆 / 梦境实现的缺口，
+`apps/desktop/src/renderer/views/bots/MemoryView.tsx`），列出 AgentForge 当前记忆 / 梦境实现的缺口，
 给出逐项设计、执行计划与验收清单。
 
 范围：记忆写入规则与上限、整理（tidy）、时间回顾（review）、梦境撤销、记忆来源与历史、记忆
@@ -15,7 +15,7 @@
 
 ## 1. 现状与差距
 
-| 能力          | Codync                                             | Rakazo 现状                                                                                           | 差距                        |
+| 能力          | Codync                                             | AgentForge 现状                                                                                       | 差距                        |
 | ------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------------- |
 | 记忆上限      | token 口径：共享 400、每 bot 1200、单行 150 tokens | 字节口径：`BOT_MEMORY_MAX_BYTES = 4 KB`（`packages/contracts/src/bots/bot-memory.ts:71`），单行无上限 | 中文被少算；无单行限制      |
 | 一行一事实    | 写入时强制                                         | 提示词要求，`appendMemoryFact` 不去重多行                                                             | 可写多行、重复事实          |

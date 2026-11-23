@@ -149,7 +149,7 @@ async function main() {
  * that clears app data during that teardown has its fresh launch killed with the old task.
  */
 async function settleApp() {
-  execFileSync("adb", ["shell", "am", "force-stop", "com.rakazo.app"], { stdio: "inherit" });
+  execFileSync("adb", ["shell", "am", "force-stop", "com.agentforge.app"], { stdio: "inherit" });
   await new Promise((resolve) => setTimeout(resolve, 10_000));
 }
 
@@ -214,7 +214,7 @@ function startDeviceControlServer(
         "shell",
         "am start -a android.intent.action.SEND -t text/plain",
         "--es android.intent.extra.TEXT 'Shared from another app'",
-        "-n com.rakazo.app/.MainActivity",
+        "-n com.agentforge.app/.MainActivity",
       ]),
     "/ring": () => ringFromResearcher(prisma, fixture),
     "/connect-voice": () =>
@@ -286,7 +286,7 @@ async function pushPickerFiles() {
     "base64",
   );
   await writeFile(path.join(dir, PICKER_FILES.image), png);
-  await writeFile(path.join(dir, PICKER_FILES.pdf), onePagePdf("Rakazo fixture PDF"));
+  await writeFile(path.join(dir, PICKER_FILES.pdf), onePagePdf("AgentForge fixture PDF"));
   const targets = [
     [PICKER_FILES.image, "/sdcard/Pictures"],
     [PICKER_FILES.pdf, "/sdcard/Download"],

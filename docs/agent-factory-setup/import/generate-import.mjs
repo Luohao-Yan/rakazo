@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds a grok-bot-export v1 document (see packages/core/src/agent-import/grok-bot.ts
-// in Rakazo) from the kit sources:
+// in AgentForge) from the kit sources:
 //   - bots/<name>.md      -> bot instructions (kept in sync via ## 使命 section)
 //   - skills/<name>.skill.md -> skill body (frontmatter name/description read, body embedded)
 // Output: agent-factory-export.json, importable in Settings → General →

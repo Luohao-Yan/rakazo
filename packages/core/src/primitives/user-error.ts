@@ -3,7 +3,7 @@ import { MCP_OAUTH_REDIRECT_MISMATCH } from "@rakazo/contracts";
 /** Only reviewed, public documentation links belong here; never use URLs from an error body. */
 const ERROR_GUIDES: Readonly<Record<string, string>> = {
   [MCP_OAUTH_REDIRECT_MISMATCH]:
-    "https://rakazo.com/docs/troubleshooting/#mcp-oauth-redirect-mismatch",
+    "https://agentforge.example.com/docs/troubleshooting/#mcp-oauth-redirect-mismatch",
 };
 
 /** The `code` an error or response body carries, if any. */

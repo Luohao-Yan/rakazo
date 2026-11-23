@@ -1,4 +1,4 @@
-import type { RakazoDesktopOAuthCallback } from "@rakazo/contracts";
+import type { AgentForgeDesktopOAuthCallback } from "@rakazo/contracts";
 
 export type OAuthCallbackFromOptions = {
   /** SSO callbacks must reach the API, including a loopback API on a separate port. */
@@ -67,7 +67,7 @@ export function mcpLoopbackRefusalFrom(url: string): { code: null; state: string
 export function oauthCallbackFrom(
   url: string,
   options: OAuthCallbackFromOptions = {},
-): RakazoDesktopOAuthCallback | undefined {
+): AgentForgeDesktopOAuthCallback | undefined {
   if (options.frameName === "rakazo-sso-oauth") return undefined;
   let target: URL;
   try {

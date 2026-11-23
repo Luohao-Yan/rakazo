@@ -6,10 +6,10 @@ import path from "node:path";
 import type { HostScreen } from "@rakazo/adapters/host-screen";
 import { startUserDeviceClient } from "@rakazo/adapters/user-device-client";
 import type {
+  AgentForgeDesktopDevice,
   DesktopLocalStackState,
   DesktopReachability,
   DesktopSetup,
-  RakazoDesktopDevice,
 } from "@rakazo/contracts";
 import { bestEffort } from "@rakazo/logging";
 import type { BrowserWindow, Session } from "electron";
@@ -38,7 +38,7 @@ import { installServerHeaders } from "./setup/server-request-headers.js";
 import {
   DEFAULT_LOCAL_WEB_URL,
   desktopStackImageTag,
-  isRakazoHealth,
+  isAgentForgeHealth,
   managedLocalOpenUrl,
   maySendDesktopStackToken,
   normalizeServerUrl,
@@ -217,7 +217,7 @@ async function probeServer(
         ok: false,
         status: response.status,
         url,
-        error: t("That address redirects elsewhere. Enter the final Rakazo server address."),
+        error: t("That address redirects elsewhere. Enter the final AgentForge server address."),
       };
     }
     if (!response.ok) {
@@ -229,12 +229,12 @@ async function probeServer(
       };
     }
     const health = await readProbeJson(response);
-    if (!isRakazoHealth(health)) {
+    if (!isAgentForgeHealth(health)) {
       return {
         ok: false,
         status: response.status,
         url,
-        error: t("That address did not respond like a Rakazo server."),
+        error: t("That address did not respond like a AgentForge server."),
       };
     }
     return {
@@ -263,7 +263,7 @@ async function offerDockerMove(userStackDir: string): Promise<StackChoice> {
     return "docker";
   const options: Electron.MessageBoxOptions = {
     type: "question",
-    message: t("Run Rakazo without Docker?"),
+    message: t("Run AgentForge without Docker?"),
     detail: t("Your bots and data move over. Docker is stopped, not removed."),
     buttons: [t("Move"), t("Keep Docker")],
     defaultId: 0,
@@ -594,16 +594,16 @@ app.whenReady().then(async () => {
         type: "info",
         title: t("Mac app control"),
         message: readyForRestart
-          ? t("Restart Rakazo to finish setup")
+          ? t("Restart AgentForge to finish setup")
           : t("Set up Mac app control"),
         detail: readyForRestart
           ? undefined
           : t(
-              "Commands already work. To use apps, allow Accessibility and Screen Recording for Rakazo in System Settings, then restart Rakazo.",
+              "Commands already work. To use apps, allow Accessibility and Screen Recording for AgentForge in System Settings, then restart AgentForge.",
             ),
         buttons: readyForRestart
-          ? [t("Restart Rakazo"), t("Not Now")]
-          : [t("Open System Settings"), t("Restart Rakazo"), t("Not Now")],
+          ? [t("Restart AgentForge"), t("Not Now")]
+          : [t("Open System Settings"), t("Restart AgentForge"), t("Not Now")],
         defaultId: 0,
         cancelId: readyForRestart ? 1 : 2,
         noLink: true,
@@ -838,7 +838,7 @@ app.whenReady().then(async () => {
   /** The remote server the app window shows; null for the local stack, or once the window moved on. */
   const remoteDeviceOrigin = (event: IpcCaller) =>
     sentFrom("app", event) ? remoteServerOrigin() : null;
-  const deviceState = async (origin: string | null): Promise<RakazoDesktopDevice | null> => {
+  const deviceState = async (origin: string | null): Promise<AgentForgeDesktopDevice | null> => {
     const state = origin === null ? null : desktop.userDevices?.state(origin);
     return state ? { ...state, name: await deviceName() } : null;
   };

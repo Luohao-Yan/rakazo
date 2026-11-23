@@ -64,7 +64,7 @@ import {
   ComputerIdentityError,
   countSpaceContainers,
   findBotContainer,
-  isRakazoContainer,
+  isAgentForgeContainer,
   managedContainer,
 } from "./identity.js";
 import { withBotLifecycleLock, withComputerScreenLock, withSpaceComputerLock } from "./locks.js";
@@ -337,7 +337,7 @@ app.post("/computers", async (c) => {
           removeOwnedComputer(
             docker.getContainer(name),
             (id) => docker.getContainer(id).remove({ force: true }),
-            (info) => isRakazoContainer(info, body.botId, body.spaceId),
+            (info) => isAgentForgeContainer(info, body.botId, body.spaceId),
             (id) => clearComputerScreenRegistry(computerScreens, computerScreenBoots, id),
           );
         try {

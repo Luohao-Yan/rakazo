@@ -74,7 +74,7 @@ export function pageViewerDocument(input: {
       : "",
     inset,
     "</head>",
-    `<body><div id="root"></div><script>RakazoPage.mount(${boot})</script></body></html>`,
+    `<body><div id="root"></div><script>AgentForgePage.mount(${boot})</script></body></html>`,
   ].join("");
 }
 

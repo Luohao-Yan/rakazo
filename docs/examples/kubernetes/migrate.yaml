@@ -17,7 +17,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: migrate
-          image: ghcr.io/elie222/rakazo/app@sha256:cec37eeb8230131ebf3e8aaf752e09439558d05e3581c6990734e8b4b515adeb
+          image: ghcr.io/luohao-yan/rakazo/app@sha256:cec37eeb8230131ebf3e8aaf752e09439558d05e3581c6990734e8b4b515adeb
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

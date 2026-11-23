@@ -82,7 +82,7 @@
 - `prefers-reduced-transparency: reduce` 时只关掉模糊，保留颜色渐变。
 - 没有滚动监听，也没有“滚动后才出现”的状态。
 
-## 3. 调研：Rakazo 现状
+## 3. 调研：AgentForge 现状
 
 ### 3.1 Web 与 Electron
 

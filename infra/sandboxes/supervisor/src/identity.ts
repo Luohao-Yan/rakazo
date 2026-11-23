@@ -16,7 +16,7 @@ export async function findBotContainer(botId: string, spaceId: string) {
   for (const item of listed) {
     const container = docker.getContainer(item.Id);
     const info = await container.inspect();
-    if (isRakazoContainer(info, botId, spaceId)) return container;
+    if (isAgentForgeContainer(info, botId, spaceId)) return container;
   }
   return undefined;
 }
@@ -24,7 +24,7 @@ export async function findBotContainer(botId: string, spaceId: string) {
 /** Count managed computers for a space, including legacy workspaceId / unlabeled-managed. */
 export async function countSpaceContainers(spaceId: string): Promise<number> {
   // Do not filter by rakazo.managed=true: legacy computers are still managed via
-  // COMPUTER_IMAGE + rakazo.workspaceId (same rule as isRakazoContainer).
+  // COMPUTER_IMAGE + rakazo.workspaceId (same rule as isAgentForgeContainer).
   const listed = await docker.listContainers({ all: true });
   let count = 0;
   for (const item of listed) {
@@ -45,7 +45,7 @@ async function isManagedSpaceContainer(
     if (labels["rakazo.managed"] === "true" || item.Image === COMPUTER_IMAGE) return true;
     // Space matches but Image may be an ID after the tag moved — confirm via inspect.
   }
-  // Missing list Labels: inspect with the same managed rule as isRakazoContainer.
+  // Missing list Labels: inspect with the same managed rule as isAgentForgeContainer.
   try {
     const info = await docker.getContainer(item.Id).inspect();
     const infoLabels = info.Config?.Labels ?? {};
@@ -65,12 +65,12 @@ export async function managedContainer(id: string, botId?: string, spaceId?: str
   if (!botId || !spaceId) throw new ComputerIdentityError("missing computer identity");
   const container = docker.getContainer(id);
   const info = await container.inspect();
-  if (!isRakazoContainer(info, botId, spaceId))
+  if (!isAgentForgeContainer(info, botId, spaceId))
     throw new ComputerIdentityError("computer identity mismatch");
   return { container, info };
 }
 
-export function isRakazoContainer(
+export function isAgentForgeContainer(
   info: Docker.ContainerInspectInfo,
   botId: string,
   spaceId: string,

@@ -25,7 +25,7 @@
 
 ## 1. 背景与结论
 
-反馈是：Linger 的侧边栏比 Rakazo 原版好很多，希望把这种体验带到 Rakazo。
+反馈是：Linger 的侧边栏比 AgentForge 原版好很多，希望把这种体验带到 AgentForge。
 
 Linger 真正好的地方不是颜色或图标，而是三层清楚的结构：
 
@@ -33,14 +33,14 @@ Linger 真正好的地方不是颜色或图标，而是三层清楚的结构：
 2. 一块可收起的二级列表，负责当前目的地的内容。
 3. 一排固定在 rail 底部的账户入口，和内容列表解耦。
 
-Rakazo 现在把一级目的地、聊天列表、搜索、创建、活动和账户都塞进同一个侧栏。功能不少，但层级靠按钮和折叠分组维持，扫一眼很难回答“我现在在哪、还能去哪”。
+AgentForge 现在把一级目的地、聊天列表、搜索、创建、活动和账户都塞进同一个侧栏。功能不少，但层级靠按钮和折叠分组维持，扫一眼很难回答“我现在在哪、还能去哪”。
 
-推荐方案：**采用 Linger 的“主 rail + 二级列表”结构，但按 Rakazo 的信息架构和设计系统重做。**
+推荐方案：**采用 Linger 的“主 rail + 二级列表”结构，但按 AgentForge 的信息架构和设计系统重做。**
 
 - 主 rail：Chats、Activity、Artifacts、Board（实验室开启时）、Integrations，底部账户头像。
 - 二级列表：Chats 显示现有 bot/group roster；Activity 显示现有活动列表；其余目的地不显示二级列表。
 - 主 rail 可在 56px 图标态和 220px 标签态之间切换；二级列表可独立收起；两者都记住用户选择。
-- 保留 Rakazo 现有的 token、shadcn 组件、lucide 图标、单色系统和移动端抽屉，不复制 Linger 的配色、字体、hugeicons 或 Room/Library/Wiki 模型。
+- 保留 AgentForge 现有的 token、shadcn 组件、lucide 图标、单色系统和移动端抽屉，不复制 Linger 的配色、字体、hugeicons 或 Room/Library/Wiki 模型。
 - 头部高度继续使用现有 60px，避免与刚完成的顶部渐变模糊（84px clearance）产生联动改动。
 
 ## 2. 调研：Linger 的侧边栏
@@ -107,7 +107,7 @@ Linger 的侧栏由两个并列的导航组成：
 - **列表可收起**：读长文或看 Board 时把列表让出来，但 rail 还在。
 - **行密度稳定**：每行同一高度、同一头像尺寸、同一标题/预览节奏。
 
-## 3. 调研：Rakazo 现状
+## 3. 调研：AgentForge 现状
 
 ### 3.1 结构
 
@@ -138,7 +138,7 @@ Linger 的侧栏由两个并列的导航组成：
 
 ### 3.2 现有尺寸与状态
 
-| 项                 | Rakazo      | 说明                                    |
+| 项                 | AgentForge  | 说明                                    |
 | ------------------ | ----------- | --------------------------------------- |
 | App rail           | 72px        | 仅 Chats / Board                        |
 | 侧栏默认宽         | 316px       | 可拖拽                                  |
@@ -168,18 +168,18 @@ Linger 的侧栏由两个并列的导航组成：
 
 ## 4. 差距分析
 
-| 维度      | Linger                           | Rakazo 现状                                 | 结论                             |
-| --------- | -------------------------------- | ------------------------------------------- | -------------------------------- |
-| 一级导航  | 独立 rail，始终可见              | App rail + 侧栏按钮混合                     | **采用** rail 结构               |
-| 二级列表  | 独立、可收起、可拖拽             | 单侧栏                                      | **采用**独立列表                 |
-| 账户入口  | rail 底部固定                    | 列表底部                                    | **采用**固定账户                 |
-| 列表行    | 56px，头像 + 标题 + 预览 + 状态  | 已接近                                      | **保留并统一规范**               |
-| 搜索/创建 | 列表头                           | 侧栏头                                      | **迁移**到列表头                 |
-| 活动      | 一级目的地                       | 侧栏模式                                    | **提升**为一级目的地             |
-| 主题      | 自定义暖色/蓝点                  | 单色 token                                  | **不复制**，按 Rakazo token 重做 |
-| 图标      | hugeicons                        | lucide                                      | **不复制**，统一 lucide          |
-| IA        | Messages/Library/Wiki/Connectors | Chats/Activity/Artifacts/Board/Integrations | **适配**，不照搬                 |
-| 桌面壳    | 灰色 frame + 白卡                | 现有 shadcn 侧栏                            | **不复制**，只借鉴层级           |
+| 维度      | Linger                           | AgentForge 现状                             | 结论                                 |
+| --------- | -------------------------------- | ------------------------------------------- | ------------------------------------ |
+| 一级导航  | 独立 rail，始终可见              | App rail + 侧栏按钮混合                     | **采用** rail 结构                   |
+| 二级列表  | 独立、可收起、可拖拽             | 单侧栏                                      | **采用**独立列表                     |
+| 账户入口  | rail 底部固定                    | 列表底部                                    | **采用**固定账户                     |
+| 列表行    | 56px，头像 + 标题 + 预览 + 状态  | 已接近                                      | **保留并统一规范**                   |
+| 搜索/创建 | 列表头                           | 侧栏头                                      | **迁移**到列表头                     |
+| 活动      | 一级目的地                       | 侧栏模式                                    | **提升**为一级目的地                 |
+| 主题      | 自定义暖色/蓝点                  | 单色 token                                  | **不复制**，按 AgentForge token 重做 |
+| 图标      | hugeicons                        | lucide                                      | **不复制**，统一 lucide              |
+| IA        | Messages/Library/Wiki/Connectors | Chats/Activity/Artifacts/Board/Integrations | **适配**，不照搬                     |
+| 桌面壳    | 灰色 frame + 白卡                | 现有 shadcn 侧栏                            | **不复制**，只借鉴层级               |
 
 ## 5. 信息架构
 
@@ -577,7 +577,7 @@ Linger 的侧栏由两个并列的导航组成：
 - `apps/web/src/components/ui/use-sidebar-width.ts`
 - `apps/web/src/app/globals.css:4562`
 
-### Rakazo
+### AgentForge
 
 - `apps/web/src/pages/shell/app-rail.tsx:37`
 - `apps/web/src/pages/shell/sidebar/shell-sidebar.tsx:60`

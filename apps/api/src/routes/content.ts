@@ -64,6 +64,7 @@ export function contentRoutes(ctx: RouterContext) {
       }),
       listSpace: authed.artifacts.listSpace.handler(async ({ context, input }) => {
         if (input.botId) await repos.getBot(context.actor, input.botId);
+        if (input.groupId) await groupRepos.getGroupTarget(context.actor, input.groupId);
         return listSpaceArtifacts(deps, context.actor, input);
       }),
       listVersions: authed.artifacts.listVersions.handler(async ({ context, input }) => {

@@ -14,10 +14,10 @@ import {
 } from "@rakazo/ui-web";
 import { X } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { PagesList } from "../../components/pages/PagesList";
 import { errorText } from "../../lib/query/user-error";
 import { useEventListener } from "../../lib/use-event-listener";
 import { DeleteItemDialog } from "../shell/create-delete-dialogs";
+import { GroupFilesList } from "./GroupFilesList";
 import { SpaceMemorySection } from "./KnowledgeSection";
 
 function validSelection(name: string, selected: readonly string[]) {
@@ -235,12 +235,13 @@ export function CreateGroupForm({
   );
 }
 
-/** The group panel's one page at a time: what the team made, what it shares, and who is in it. */
-export type GroupPanelTab = "pages" | "memory" | "settings";
+/** The group panel's one view at a time: what it shared, what it remembers, and who is in it. */
+export type GroupPanelTab = "files" | "memory" | "settings";
 
 /**
- * A group's panel: the team above its pages, shared notes and settings. Pages open first, so
- * what the team built has a home; renaming or changing members is one tap away.
+ * A group's panel: the team above the files its chat shared, its shared notes and settings. Files
+ * open first, so what was made or attached has a home; renaming or changing members is one tap
+ * away.
  */
 export function GroupPanel({
   group,
@@ -262,7 +263,7 @@ export function GroupPanel({
 }) {
   const { t } = useLingui();
   const nameId = useId();
-  const [tab, setTab] = useState<GroupPanelTab>("pages");
+  const [tab, setTab] = useState<GroupPanelTab>("files");
   const [name, setName] = useState(group.name);
   const [selected, setSelected] = useState(group.members.map((member) => member.botId));
   // The panel can open on a cached group. A refreshed one replaces whatever was not edited, so a
@@ -355,8 +356,8 @@ export function GroupPanel({
       ) : null}
       <Tabs value={tab} onValueChange={(value) => setTab(value as GroupPanelTab)}>
         <TabsList className="mx-auto max-w-full overflow-x-auto">
-          <TabsTrigger value="pages" data-testid="group-tab-pages">
-            <Trans>Pages</Trans>
+          <TabsTrigger value="files" data-testid="group-tab-files">
+            <Trans>Files</Trans>
           </TabsTrigger>
           <TabsTrigger value="memory" data-testid="group-tab-memory">
             <Trans>Memory</Trans>
@@ -365,8 +366,8 @@ export function GroupPanel({
             <Trans>Settings</Trans>
           </TabsTrigger>
         </TabsList>
-        <TabsContent keepMounted value="pages" className="pt-4">
-          <PagesList groupId={group.id} />
+        <TabsContent keepMounted value="files" className="pt-4">
+          <GroupFilesList groupId={group.id} bots={bots} />
         </TabsContent>
         <TabsContent keepMounted value="memory" className="pt-4">
           <SpaceMemorySection />

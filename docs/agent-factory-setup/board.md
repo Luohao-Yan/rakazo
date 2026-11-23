@@ -1,6 +1,6 @@
 # Board 映射与票模板
 
-Rakazo Board 是固定 6 列（contracts 写死）：`todo / doing / review / blocked / done / closed`。业务阶段映射如下，不改代码。
+AgentForge Board 是固定 6 列（contracts 写死）：`todo / doing / review / blocked / done / closed`。业务阶段映射如下，不改代码。
 
 ## 列映射
 

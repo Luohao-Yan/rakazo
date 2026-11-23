@@ -130,9 +130,12 @@ describe("classifyUpdaterFailure", () => {
       classifyUpdaterFailure(
         new Error("Cannot update while running on a read-only volume. The application is on a…"),
       ),
-    ).toEqual({ kind: "read-only", message: "Move Rakazo to Applications to install updates." });
+    ).toEqual({
+      kind: "read-only",
+      message: "Move AgentForge to Applications to install updates.",
+    });
     for (const message of [
-      "ditto: /private/update/Rakazo.app/x.js.map: No space left on device\nditto: Couldn't read pkzip signature.",
+      "ditto: /private/update/AgentForge.app/x.js.map: No space left on device\nditto: Couldn't read pkzip signature.",
       "未能完成该操作。设备上无剩余空间: 设备上无剩余空间",
       "No se pudo completar la operación. No queda espacio en el dispositivo: No queda espacio en el dispositivo",
     ]) {
@@ -267,7 +270,7 @@ describe("reduceUpdateState", () => {
       apply([{ type: "check-start" }, { type: "failed", error: readOnly, userInitiated: false }]),
     ).toMatchObject({
       phase: "unsupported",
-      message: "Move Rakazo to Applications to install updates.",
+      message: "Move AgentForge to Applications to install updates.",
     });
   });
 
@@ -741,7 +744,7 @@ describe("DesktopUpdateController", () => {
   });
 
   describe("with a download verifier", () => {
-    const downloaded = { version: "0.2.0", downloadedFile: "/cache/Rakazo-0.2.0.AppImage" };
+    const downloaded = { version: "0.2.0", downloadedFile: "/cache/AgentForge-0.2.0.AppImage" };
 
     function verifiedUpdater() {
       let fake: ReturnType<typeof fakeUpdater>;

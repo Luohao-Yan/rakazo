@@ -66,9 +66,9 @@ when the computer is in an error state.
 
 In the [desktop app](./desktop-app.md), bots can also run commands and use apps on the computer the
 app is installed on. Turn on **Let bots use this computer** in **Settings → Computers** under
-**Your devices**. This works with Rakazo Cloud, an HTTPS server you connect to, and a
+**Your devices**. This works with AgentForge Cloud, an HTTPS server you connect to, and a
 loopback server.
-Using apps on screen works on Mac and Windows; on a Mac, allow Rakazo under **Accessibility** and
+Using apps on screen works on Mac and Windows; on a Mac, allow AgentForge under **Accessibility** and
 **Screen Recording** in System Settings.
 
 When your account has more than one computer paired, a bot's **Your computer** setting (on its

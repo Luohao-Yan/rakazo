@@ -1,13 +1,13 @@
 import { getHomeCopy, HOME_CHANNELS, HOME_FEATURE_KINDS, HOME_MODEL_PROVIDERS } from "./i18n/home";
 import { DEFAULT_LOCALE, isLocale } from "./i18n/locales";
-import { APP_URL } from "./site";
+import { APP_URL, GITHUB_URL, SITE_URL } from "./site";
 
 export const AGENT_DISCOVERY_LINKS =
   '</llms.txt>; rel="describedby"; type="text/plain", </.well-known/ai-catalog.json>; rel="ai-catalog"; type="application/ai-catalog+json"';
 
 const home = getHomeCopy("en");
 
-export const HOME_MARKDOWN = `# Rakazo
+export const HOME_MARKDOWN = `# AgentForge
 
 ${home.hero.eyebrow}
 
@@ -57,44 +57,44 @@ ${getHomeCopy("en")
 
 ${home.cta.copy}
 
-- [Agent setup prompt](https://github.com/elie222/rakazo/blob/main/SETUP_PROMPT.md)
-- [Self-hosting guide](https://rakazo.com/self-hosted-ai-agent/)
-- [Full self-hosting reference](https://github.com/elie222/rakazo/blob/main/docs/self-host.md)
-- [OpenClaw comparison](https://rakazo.com/openclaw-alternative/)
-- [Source code](https://github.com/elie222/rakazo)
+- [Agent setup prompt](${GITHUB_URL}/blob/main/SETUP_PROMPT.md)
+- [Self-hosting guide](${SITE_URL}/self-hosted-ai-agent/)
+- [Full self-hosting reference](${GITHUB_URL}/blob/main/docs/self-host.md)
+- [OpenClaw comparison](${SITE_URL}/openclaw-alternative/)
+- [Source code](${GITHUB_URL})
 
 ## Site index
 
-- [Agent instructions](https://rakazo.com/llms.txt)
-- [Self-hosted AI agent](https://rakazo.com/self-hosted-ai-agent/)
-- [OpenClaw comparison](https://rakazo.com/openclaw-alternative/)
-- [Alternatives](https://rakazo.com/alternatives/)
-- [Docs](https://rakazo.com/docs/)
-- [Integrations](https://rakazo.com/integrations/)
-- [Sandboxes for AI agents](https://rakazo.com/sandboxes/)
-- [Integration platforms for AI agents](https://rakazo.com/integration-platforms/)
-- [Voice providers for AI agents](https://rakazo.com/voice-providers/)
-- [Blog](https://rakazo.com/blog/)
-- [Grok Bot alternatives](https://rakazo.com/grok-bot-alternative/)
-- [Pricing](https://rakazo.com/pricing/): free to self-host, or hosted with your own model or Rakazo credits.
-- [Enterprise](https://rakazo.com/enterprise/): SSO, SCIM, audit log, encryption at rest, and approval rules on your own infrastructure.
-- [Download](https://rakazo.com/download/): desktop, mobile, and web apps.
-- [About](https://rakazo.com/about/)
-- [Brand](https://rakazo.com/brand/)
-- [Support](https://rakazo.com/support/)
-- [Privacy](https://rakazo.com/privacy/)
-- [Terms](https://rakazo.com/terms/)
-- [Sitemap](https://rakazo.com/sitemap-index.xml)
+- [Agent instructions](${SITE_URL}/llms.txt)
+- [Self-hosted AI agent](${SITE_URL}/self-hosted-ai-agent/)
+- [OpenClaw comparison](${SITE_URL}/openclaw-alternative/)
+- [Alternatives](${SITE_URL}/alternatives/)
+- [Docs](${SITE_URL}/docs/)
+- [Integrations](${SITE_URL}/integrations/)
+- [Sandboxes for AI agents](${SITE_URL}/sandboxes/)
+- [Integration platforms for AI agents](${SITE_URL}/integration-platforms/)
+- [Voice providers for AI agents](${SITE_URL}/voice-providers/)
+- [Blog](${SITE_URL}/blog/)
+- [Grok Bot alternatives](${SITE_URL}/grok-bot-alternative/)
+- [Pricing](${SITE_URL}/pricing/): free to self-host, or hosted with your own model or AgentForge credits.
+- [Enterprise](${SITE_URL}/enterprise/): SSO, SCIM, audit log, encryption at rest, and approval rules on your own infrastructure.
+- [Download](${SITE_URL}/download/): desktop, mobile, and web apps.
+- [About](${SITE_URL}/about/)
+- [Brand](${SITE_URL}/brand/)
+- [Support](${SITE_URL}/support/)
+- [Privacy](${SITE_URL}/privacy/)
+- [Terms](${SITE_URL}/terms/)
+- [Sitemap](${SITE_URL}/sitemap-index.xml)
 `;
 
 export const NOT_FOUND_MARKDOWN = `# Page not found
 
-The requested Rakazo page does not exist.
+The requested AgentForge page does not exist.
 
-- [Agent instructions](https://rakazo.com/llms.txt)
-- [Site map](https://rakazo.com/sitemap-index.xml)
-- [Home](https://rakazo.com/)
-- [Self-hosting guide](https://rakazo.com/self-hosted-ai-agent/)
+- [Agent instructions](${SITE_URL}/llms.txt)
+- [Site map](${SITE_URL}/sitemap-index.xml)
+- [Home](${SITE_URL}/)
+- [Self-hosting guide](${SITE_URL}/self-hosted-ai-agent/)
 `;
 
 type MediaPreference = {

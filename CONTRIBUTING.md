@@ -1,6 +1,6 @@
-# Contributing to Rakazo
+# Contributing to AgentForge
 
-Thanks for helping improve Rakazo. Keep changes focused and testable.
+Thanks for helping improve AgentForge. Keep changes focused and testable.
 
 ## Run locally
 
@@ -130,8 +130,8 @@ capability config, fixtures, logs, or snapshots; use the encrypted secret store 
 
 ## Contact
 
-| Address                                           | Use for                                               |
-| ------------------------------------------------- | ----------------------------------------------------- |
-| [security@rakazo.com](mailto:security@rakazo.com) | Vulnerabilities only — see [SECURITY.md](SECURITY.md) |
-| [support@rakazo.com](mailto:support@rakazo.com)   | User and support questions                            |
-| [elie@rakazo.com](mailto:elie@rakazo.com)         | Maintainer                                            |
+| Address                                                                       | Use for                                               |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------- |
+| [security@agentforge.example.com](mailto:security@agentforge.example.com)     | Vulnerabilities only — see [SECURITY.md](SECURITY.md) |
+| [support@agentforge.example.com](mailto:support@agentforge.example.com)       | User and support questions                            |
+| [maintainer@agentforge.example.com](mailto:maintainer@agentforge.example.com) | Maintainer                                            |

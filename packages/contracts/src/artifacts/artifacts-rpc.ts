@@ -62,6 +62,9 @@ export const artifactsRpc = {
       .input(
         z.object({
           botId: Id.optional(),
+          groupId: Id.optional(),
+          /** Files whose name or description contains this text. */
+          query: z.string().trim().min(1).max(200).optional(),
           /** Only files bots attached, leaving out uploads. */
           madeByBots: z.boolean().optional(),
           cursor: z.string().optional(),

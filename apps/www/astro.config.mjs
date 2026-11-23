@@ -13,7 +13,7 @@ import { resolveWwwPort } from "./www-port.mjs";
 const wwwPort = resolveWwwPort();
 
 export default defineConfig({
-  site: "https://rakazo.com",
+  site: process.env.PUBLIC_SITE_URL?.trim() || "http://localhost:4321",
   output: "static",
   i18n: {
     defaultLocale: "en",

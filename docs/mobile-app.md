@@ -4,14 +4,14 @@ Chat with your bots, answer their questions, watch their computers and take call
 
 ## Install
 
-- iPhone, iPhone Duo and iPad: [App Store](https://apps.apple.com/app/rakazo/id6801531099).
-- Android: [Google Play](https://play.google.com/store/apps/details?id=com.rakazo.app).
+- iPhone, iPhone Duo and iPad: [App Store](https://apps.apple.com/app/agentforge/id0000000000).
+- Android: [Google Play](https://play.google.com/store/apps/details?id=com.agentforge.app).
 
 You can also choose **Get the mobile app** from the account menu in the web or desktop app.
 
 ## Sign in
 
-Sign in with your rakazo.com account. To use your own server instead, tap **Use a custom server** on
+Sign in with your agentforge.example.com account. To use your own server instead, tap **Use a custom server** on
 the sign-in screen and enter its address. For a server on your local network, follow
 [Connecting a phone on the same network](./self-host-clients.md#connecting-a-phone-on-the-same-network);
 over Tailscale, follow [Connecting a phone over Tailscale](./self-host-clients.md#connecting-a-phone-over-tailscale).
@@ -60,7 +60,7 @@ working status while a bot runs.
 
 ## Shortcuts and Siri
 
-On iPhone, Rakazo adds actions to Shortcuts, Siri and the Action button:
+On iPhone, AgentForge adds actions to Shortcuts, Siri and the Action button:
 
 - **Message Bot** and **Ask Bot**: send a message. Ask Bot also returns the reply.
 - **Record Message**: talk, then pause or press again to send it to the bot whose chat you opened last.
@@ -69,8 +69,8 @@ On iPhone, Rakazo adds actions to Shortcuts, Siri and the Action button:
 
 ## Share to a bot
 
-On iOS, open another app's share sheet and choose **Rakazo** to share text, a link, images or files.
+On iOS, open another app's share sheet and choose **AgentForge** to share text, a link, images or files.
 Pick a bot to open the chat with the shared content in the draft, then review it before sending.
 
-On Android, share text, images, audio, video, PDFs or files from another app to Rakazo.
+On Android, share text, images, audio, video, PDFs or files from another app to AgentForge.
 Pick a bot to open the chat with the shared content in the draft, then review it before sending.

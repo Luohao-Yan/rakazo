@@ -1,7 +1,7 @@
 # Agent Factory 配置包（v0 · 零代码）
 
-> 目标：在 Rakazo 上搭一条「需求进来 → Agent 团队自动干完 → 人只拍板」的交付流水线。
-> 原则：流程是 SOP，不是状态机。所有机制均使用 Rakazo 现成原语，v0 不写一行内核代码。
+> 目标：在 AgentForge 上搭一条「需求进来 → Agent 团队自动干完 → 人只拍板」的交付流水线。
+> 原则：流程是 SOP，不是状态机。所有机制均使用 AgentForge 现成原语，v0 不写一行内核代码。
 
 ## 架构一览
 
@@ -40,7 +40,7 @@ Ops 部署 + 变更说明 ──► 票 done/closed，文档回写
 
 三个真门禁：规格批准、上线批准、异常决策。其余流转全部自动化。产品方向由人类拍板，`pm` 负责整理与执行。
 
-## 使用的 Rakazo 原语
+## 使用的 AgentForge 原语
 
 - **Board（Labs）**：需求对象 = 票；列 = 阶段；指派给 bot 即开工。单账户在 **Settings → Labs** 开启；自托管用 `TICKET_BOARD_ENABLED=true` 配在 API 和 worker。
 - **群聊**：协作现场；`@mention` 唤醒指定员工；群内 bot 可互发消息交接。

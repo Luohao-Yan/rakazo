@@ -1,6 +1,6 @@
 # 技能池与权限预设
 
-Rakazo 技能（AgentSkill）是**空间级共享**的：同一空间所有 bot 可见。因此「谁用什么技能」由各自的 instructions 约束；敏感执行能力由审批与工具禁用兜底。
+AgentForge 技能（AgentSkill）是**空间级共享**的：同一空间所有 bot 可见。因此「谁用什么技能」由各自的 instructions 约束；敏感执行能力由审批与工具禁用兜底。
 
 ## 技能池目录
 

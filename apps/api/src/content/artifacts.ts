@@ -18,6 +18,7 @@ import {
   attachmentStoredName,
   ClientError,
   decodeAttachmentBase64,
+  escapeSearchWildcards,
   inferAttachmentMimeType,
   messageBlockForArtifact,
   promptTextForAttachments,
@@ -404,6 +405,8 @@ type ArtifactListCursor = {
   createdAt: string;
   id: string;
   botId: string | null;
+  groupId: string | null;
+  query: string;
   madeByBots: boolean;
   // Freezes the version set for this page sequence.
   asOf: string;
@@ -438,6 +441,9 @@ function decodeArtifactListCursor(value: string): ArtifactListCursor {
     throw new ArtifactListCursorError();
   }
   const botId = cursorBotId(record.botId);
+  const groupId = cursorBotId(record.groupId ?? null);
+  const query = record.query ?? "";
+  if (typeof query !== "string") throw new ArtifactListCursorError();
   const madeByBots = record.madeByBots ?? false;
   if (typeof madeByBots !== "boolean") throw new ArtifactListCursorError();
   const createdAt = new Date(record.createdAt);
@@ -449,6 +455,8 @@ function decodeArtifactListCursor(value: string): ArtifactListCursor {
     createdAt: createdAt.toISOString(),
     id: record.id,
     botId,
+    groupId,
+    query,
     madeByBots,
     asOf: asOf.toISOString(),
   };
@@ -462,21 +470,41 @@ function cursorBotId(value: unknown): string | null {
 export async function listSpaceArtifacts(
   deps: { prisma: Pick<PrismaClient, "artifact" | "$queryRaw"> },
   actor: Actor,
-  input: { botId?: string; madeByBots?: boolean; cursor?: string; limit?: number },
+  input: {
+    botId?: string;
+    groupId?: string;
+    query?: string;
+    madeByBots?: boolean;
+    cursor?: string;
+    limit?: number;
+  },
 ) {
   const take = Math.min(Math.max(input.limit ?? 30, 1), 60);
   const scopeBotId = input.botId ?? null;
+  const scopeGroupId = input.groupId ?? null;
+  const query = input.query?.trim() ?? "";
   // The filter hides a whole file family once its newest version stops belonging to the bot:
   // group uploads land on a member's botId too, and they belong to the group, while a file
   // the bot made itself on a group run (runId) is still its own.
   const botFilter = scopeBotId
     ? Prisma.sql`AND latest."botId" = ${scopeBotId} AND (latest."groupId" IS NULL OR latest."runId" IS NOT NULL)`
     : Prisma.empty;
+  const groupFilter = scopeGroupId
+    ? Prisma.sql`AND latest."groupId" = ${scopeGroupId}`
+    : Prisma.empty;
   // Only the families this bot has a version in need their newest version picked and counted;
   // a busy Space keeps the rest out of the work entirely.
-  const botFamilyFilter = scopeBotId ? Prisma.sql`WHERE "botId" = ${scopeBotId}` : Prisma.empty;
-  const familyRestriction = scopeBotId
-    ? Prisma.sql`AND COALESCE("rootArtifactId", id) IN (SELECT "familyId" FROM families)`
+  const familyFilter = scopeBotId
+    ? Prisma.sql`WHERE "botId" = ${scopeBotId}${scopeGroupId ? Prisma.sql` AND "groupId" = ${scopeGroupId}` : Prisma.empty}`
+    : scopeGroupId
+      ? Prisma.sql`WHERE "groupId" = ${scopeGroupId}`
+      : Prisma.empty;
+  const familyRestriction =
+    scopeBotId || scopeGroupId
+      ? Prisma.sql`AND COALESCE("rootArtifactId", id) IN (SELECT "familyId" FROM families)`
+      : Prisma.empty;
+  const queryFilter = query
+    ? Prisma.sql`AND (latest.name ILIKE ${`%${escapeSearchWildcards(query)}%`} OR latest.description ILIKE ${`%${escapeSearchWildcards(query)}%`})`
     : Prisma.empty;
   const madeByBots = input.madeByBots ?? false;
   const madeByBotsFilter = madeByBots
@@ -488,7 +516,12 @@ export async function listSpaceArtifacts(
   if (input.cursor) {
     // Position is stored on the cursor so a deleted row cannot replay the first page.
     const cursor = decodeArtifactListCursor(input.cursor);
-    if (cursor.botId !== scopeBotId || cursor.madeByBots !== madeByBots)
+    if (
+      cursor.botId !== scopeBotId ||
+      cursor.groupId !== scopeGroupId ||
+      cursor.query !== query ||
+      cursor.madeByBots !== madeByBots
+    )
       throw new ArtifactListCursorError();
     asOf = new Date(cursor.asOf);
     cursorFilter = Prisma.sql`AND (latest."createdAt", latest.id) < (${new Date(cursor.createdAt)}, ${cursor.id})`;
@@ -501,7 +534,7 @@ export async function listSpaceArtifacts(
         AND "createdAt" <= ${asOf} AND "mimeType" NOT IN (${Prisma.join(HIDDEN_ARTIFACT_MIME_TYPES)})
     ),
     families AS (
-      SELECT DISTINCT COALESCE("rootArtifactId", id) AS "familyId" FROM scoped ${botFamilyFilter}
+      SELECT DISTINCT COALESCE("rootArtifactId", id) AS "familyId" FROM scoped ${familyFilter}
     ),
     latest AS (
       SELECT DISTINCT ON (COALESCE("rootArtifactId", id))
@@ -522,7 +555,7 @@ export async function listSpaceArtifacts(
            counts."versionCount"
     FROM latest
     JOIN counts ON counts."familyId" = COALESCE(latest."rootArtifactId", latest.id)
-    WHERE true ${madeByBotsFilter} ${botFilter} ${cursorFilter}
+    WHERE true ${madeByBotsFilter} ${botFilter} ${groupFilter} ${queryFilter} ${cursorFilter}
     ORDER BY latest."createdAt" DESC, latest.id DESC
     LIMIT ${take + 1}
   `);
@@ -552,6 +585,8 @@ export async function listSpaceArtifacts(
             createdAt: last.createdAt.toISOString(),
             id: last.id,
             botId: scopeBotId,
+            groupId: scopeGroupId,
+            query,
             madeByBots,
             asOf: asOf.toISOString(),
           })

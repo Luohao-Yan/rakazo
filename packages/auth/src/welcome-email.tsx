@@ -5,12 +5,14 @@ import { Link, Text } from "react-email";
 import { emailText, greeting, linkStyle, message, withNodes } from "./email.js";
 import { emailCopy } from "./email-copy/deployment-copy.js";
 
+const WEB_URL = process.env.RAKAZO_WEB_URL?.trim() || "http://localhost:3000";
+
 const APPS: Readonly<Record<string, string>> = {
   iPhone: IOS_APP_STORE_URL,
   Android: ANDROID_APP_STORE_URL,
-  Mac: "https://rakazo.com/api/download?platform=mac",
-  Windows: "https://rakazo.com/api/download?platform=windows",
-  Linux: "https://rakazo.com/api/download?platform=linux",
+  Mac: `${WEB_URL}/api/download?platform=mac`,
+  Windows: `${WEB_URL}/api/download?platform=windows`,
+  Linux: `${WEB_URL}/api/download?platform=linux`,
 };
 
 const stepStyle = { margin: "20px 0 4px" };
@@ -54,7 +56,7 @@ export function welcomeEmail(
       <Text style={{ marginTop: 0 }}>
         {withNodes(copy("community"), {
           discord: (
-            <Link href="https://discord.gg/RWwKa2Sn7h" style={linkStyle}>
+            <Link href="https://discord.gg/agentforge" style={linkStyle}>
               Discord
             </Link>
           ),
@@ -66,7 +68,7 @@ export function welcomeEmail(
       <Text style={{ marginTop: 0 }}>
         {withNodes(copy("star"), {
           star: (
-            <Link href="https://github.com/elie222/rakazo" style={linkStyle}>
+            <Link href="https://github.com/Luohao-Yan/rakazo" style={linkStyle}>
               {copy("starLink")}
             </Link>
           ),
@@ -76,6 +78,6 @@ export function welcomeEmail(
       <Text>{copy("signature")}</Text>
     </>,
     unsubscribeUrl,
-    { src: "https://rakazo.com/email/welcome.jpg", alt: "Rakazo" },
+    { src: "https://agentforge.example.com/email/welcome.jpg", alt: "AgentForge" },
   );
 }

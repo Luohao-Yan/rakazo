@@ -17,7 +17,7 @@ log="${STUB_DOCKER_LOG:?}"
 printf 'docker %s\n' "$*" >> "$log"
 if [[ "${1:-}" == image && "${2:-}" == inspect ]]; then
   case "${!#}" in
-    ghcr.io/elie222/rakazo/*) echo https://github.com/elie222/rakazo ;;
+    ghcr.io/luohao-yan/rakazo/*) echo https://github.com/Luohao-Yan/rakazo ;;
     registry.example.com:5000/rakazo-fork/*) echo https://github.com/example/rakazo-fork ;;
     missing:*) echo "No such image" >&2; exit 1 ;;
     *) echo ;;
@@ -32,8 +32,8 @@ for a in "$@"; do
     config)
       if [[ " $* " == *" --images "* ]]; then
         printf '%s\n' \
-          ghcr.io/elie222/rakazo/app:edge \
-          ghcr.io/elie222/rakazo/computer:edge \
+          ghcr.io/luohao-yan/rakazo/app:edge \
+          ghcr.io/luohao-yan/rakazo/computer:edge \
           'postgres:16@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5' \
           registry.example.com:5000/rakazo-fork/app:edge \
           missing:1
@@ -68,7 +68,7 @@ run_install() {
 setup_work "$tmp/ok"
 run_install "$tmp/ok" >/dev/null 2>&1 || fail "install failed"
 pruned="$(sed -n 's/^docker image prune //p' "$tmp/ok/docker.log" | sort | tr '\n' ' ')"
-expected="--force --filter label=org.opencontainers.image.source=https://github.com/elie222/rakazo --force --filter label=org.opencontainers.image.source=https://github.com/example/rakazo-fork "
+expected="--force --filter label=org.opencontainers.image.source=https://github.com/Luohao-Yan/rakazo --force --filter label=org.opencontainers.image.source=https://github.com/example/rakazo-fork "
 [[ "$pruned" == "$expected" ]] || fail "pruned [$pruned], expected [$expected]"
 ! grep -q '^docker image rm' "$tmp/ok/docker.log" || fail "images were removed one by one instead of pruned by origin"
 

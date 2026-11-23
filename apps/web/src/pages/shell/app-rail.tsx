@@ -340,7 +340,7 @@ function RailBrand() {
   return (
     <span className="flex h-8 min-w-0 flex-1 items-center gap-2" aria-hidden="true">
       <RailBrandMark />
-      <span className="min-w-0 flex-1 truncate text-center text-body font-medium">Rakazo</span>
+      <span className="min-w-0 flex-1 truncate text-center text-body font-medium">AgentForge</span>
     </span>
   );
 }

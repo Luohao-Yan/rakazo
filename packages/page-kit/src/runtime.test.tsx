@@ -32,7 +32,8 @@ it("mounts a page and reports its height where the browser has no ResizeObserver
   const code = pageViewerCode(
     `const App = () => (\n  <Page title="Hello">\n    <Text>Drawn</Text>\n  </Page>\n);\nexport default App;\n`,
   );
-  const page = (window as unknown as { RakazoPage: { mount: (boot: object) => void } }).RakazoPage;
+  const page = (window as unknown as { AgentForgePage: { mount: (boot: object) => void } })
+    .AgentForgePage;
   await act(async () => {
     page.mount({ code, theme: "light", errorTitle: "This page couldn't be shown." });
     await flush();
@@ -53,7 +54,8 @@ it("runs a saved page that declares its own component under a kit component's na
   );
   if (!checked.ok) throw new Error(checked.errors.join("\n"));
   document.body.replaceChildren();
-  const page = (window as unknown as { RakazoPage: { mount: (boot: object) => void } }).RakazoPage;
+  const page = (window as unknown as { AgentForgePage: { mount: (boot: object) => void } })
+    .AgentForgePage;
   await act(async () => {
     page.mount({ code: checked.code, theme: "light", errorTitle: "This page couldn't be shown." });
     await flush();
@@ -74,7 +76,7 @@ it("reports repeated headings separately and finds a pending anchor after a reve
   const posted = vi.spyOn(window.parent, "postMessage").mockImplementation(() => {});
   document.body.replaceChildren();
   await act(async () => {
-    window.RakazoPage!.mount({
+    window.AgentForgePage!.mount({
       code: pageViewerCode(`
         export default function Report() {
           return <><h2>Timeline</h2><div className="collapsed"><h2>Timeline</h2></div></>;

@@ -46,12 +46,21 @@ function listRow(id: string, familyId: string, createdAt = "2026-09-01T00:00:00.
   };
 }
 
-function cursor(input: { createdAt: string; id: string; botId: string | null; asOf?: string }) {
+function cursor(input: {
+  createdAt: string;
+  id: string;
+  botId: string | null;
+  groupId?: string | null;
+  query?: string;
+  asOf?: string;
+}) {
   return `v1.${Buffer.from(
     JSON.stringify({
       createdAt: input.createdAt,
       id: input.id,
       botId: input.botId,
+      groupId: input.groupId ?? null,
+      query: input.query ?? "",
       madeByBots: false,
       asOf: input.asOf ?? "2026-09-20T00:00:00.000Z",
     }),
@@ -275,6 +284,73 @@ describe("listSpaceArtifacts", () => {
     expect(text).not.toContain('"botId" IS NULL');
     expect(sql.values).toContain("bot-1");
     expect(sql.values).toContain("version-b");
+  });
+
+  it("lists only the files shared in the group", async () => {
+    const queryRaw = vi.fn().mockResolvedValue([]);
+    await listSpaceArtifacts(
+      {
+        prisma: { artifact: { findFirst: vi.fn() }, $queryRaw: queryRaw } as unknown as Pick<
+          PrismaClient,
+          "artifact" | "$queryRaw"
+        >,
+      },
+      actor,
+      { groupId: "group-1", limit: 2 },
+    );
+
+    const sql = queryRaw.mock.calls[0]?.[0] as { strings: string[]; values: unknown[] };
+    const text = sql.strings.join(" ");
+    expect(text).toContain('latest."groupId"');
+    expect(sql.values).toContain("group-1");
+  });
+
+  it("finds files by name or description without widening the search", async () => {
+    const queryRaw = vi.fn().mockResolvedValue([]);
+    await listSpaceArtifacts(
+      {
+        prisma: { artifact: { findFirst: vi.fn() }, $queryRaw: queryRaw } as unknown as Pick<
+          PrismaClient,
+          "artifact" | "$queryRaw"
+        >,
+      },
+      actor,
+      { groupId: "group-1", query: "100%_report", limit: 2 },
+    );
+
+    const sql = queryRaw.mock.calls[0]?.[0] as { strings: string[]; values: unknown[] };
+    const text = sql.strings.join(" ");
+    expect(text).toContain("latest.name ILIKE");
+    expect(text).toContain("latest.description ILIKE");
+    expect(sql.values).toContain("%100\\%\\_report%");
+  });
+
+  it("rejects a cursor from a different group or search", async () => {
+    const queryRaw = vi.fn();
+    const pageCursor = cursor({
+      createdAt: "2026-08-01T00:00:00.000Z",
+      id: "version-b",
+      botId: null,
+      groupId: "group-1",
+      query: "report",
+    });
+    const deps = {
+      prisma: { artifact: { findFirst: vi.fn() }, $queryRaw: queryRaw } as unknown as Pick<
+        PrismaClient,
+        "artifact" | "$queryRaw"
+      >,
+    };
+    await expect(
+      listSpaceArtifacts(deps, actor, { groupId: "group-2", cursor: pageCursor }),
+    ).rejects.toBeInstanceOf(ArtifactListCursorError);
+    await expect(
+      listSpaceArtifacts(deps, actor, {
+        groupId: "group-1",
+        query: "other",
+        cursor: pageCursor,
+      }),
+    ).rejects.toBeInstanceOf(ArtifactListCursorError);
+    expect(queryRaw).not.toHaveBeenCalled();
   });
 });
 

@@ -208,4 +208,41 @@ describePostgres("artifact upload nonce (PostgreSQL)", () => {
     const listed = await runAsTenant(actor, () => listSpaceArtifacts({ prisma }, actor, { botId }));
     expect(listed.items.map((item) => item.name)).not.toContain("chain.txt");
   });
+
+  it("lists only the group's files and searches them by name", async () => {
+    const group = await system.chatGroup.create({ data: { spaceId, userId, name: "Files" } });
+    const other = await system.chatGroup.create({ data: { spaceId, userId, name: "Other" } });
+    const row = (name: string, groupId: string | null, runId: string | null) => ({
+      spaceId,
+      userId,
+      botId,
+      groupId,
+      runId,
+      name,
+      mimeType: "text/plain",
+      size: 2,
+      hash: `${name}-hash`,
+      storageKey: `blob-${name}`,
+    });
+    await system.artifact.createMany({
+      data: [
+        row("crew-plan.txt", group.id, null),
+        row("crew-report.txt", group.id, `run-${suffix}-group`),
+        row("other.txt", other.id, null),
+        row("dm.txt", null, null),
+      ],
+    });
+
+    const listed = await runAsTenant(actor, () =>
+      listSpaceArtifacts({ prisma }, actor, { groupId: group.id }),
+    );
+    expect(new Set(listed.items.map((item) => item.name))).toEqual(
+      new Set(["crew-plan.txt", "crew-report.txt"]),
+    );
+
+    const searched = await runAsTenant(actor, () =>
+      listSpaceArtifacts({ prisma }, actor, { groupId: group.id, query: "report" }),
+    );
+    expect(searched.items.map((item) => item.name)).toEqual(["crew-report.txt"]);
+  });
 });

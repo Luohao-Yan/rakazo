@@ -128,7 +128,7 @@ export function ComputersUnavailableHint({
           ) : null}
           <a
             className={buttonVariants({ variant: "ghost", size: "sm" })}
-            href="https://github.com/elie222/rakazo/blob/main/docs/self-host-sandbox-providers.md"
+            href="https://github.com/Luohao-Yan/rakazo/blob/main/docs/self-host-sandbox-providers.md"
             target="_blank"
             rel="noreferrer"
           >

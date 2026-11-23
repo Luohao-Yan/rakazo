@@ -103,17 +103,20 @@ function tokens(text: string) {
 }
 
 // Returns one line per translation that drops or adds a placeholder or tag, or drops a plural `#`.
-export function findMismatches(po: string): string[] {
+// An explicit-id message carries a hashed id, so compare it against the source catalog's text.
+export function findMismatches(po: string, source: Record<string, string> = {}): string[] {
   return po
     .split("\n\n")
     .map(parseEntry)
     .filter((entry): entry is Entry => entry !== null && entry.msgstr !== "")
-    .filter(
-      ({ msgid, msgstr }) =>
-        tokens(msgid) !== tokens(msgstr) ||
-        (showsCount(msgid) && !showsCount(msgstr)) ||
-        msgstr.split("{").length !== msgstr.split("}").length,
-    )
+    .filter(({ key, msgid, msgstr }) => {
+      const reference = source[key] ?? msgid;
+      return (
+        tokens(reference) !== tokens(msgstr) ||
+        (showsCount(reference) && !showsCount(msgstr)) ||
+        msgstr.split("{").length !== msgstr.split("}").length
+      );
+    })
     .map(({ key, msgstr }) => `${JSON.stringify(key)} -> ${JSON.stringify(msgstr)}`);
 }
 
@@ -141,10 +144,11 @@ function main([command, ...args]: string[]) {
   }
   if (command === "check") {
     let failed = false;
+    const source = translationsOf(readFileSync(catalogPath(SOURCE_LOCALE), "utf8"));
     for (const locale of args.length ? args : targetLocales()) {
       const po = readFileSync(catalogPath(locale), "utf8");
       const gaps = listGaps(po).length;
-      const mismatches = findMismatches(po);
+      const mismatches = findMismatches(po, source);
       console.log(`${locale}: ${gaps} untranslated, ${mismatches.length} placeholder mismatches`);
       for (const line of mismatches) console.log(`  ${line}`);
       failed ||= gaps > 0 || mismatches.length > 0;

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { i18n } from "@lingui/core";
 import { I18nProvider } from "@lingui/react";
-import type { RakazoDesktop } from "@rakazo/contracts";
+import type { AgentForgeDesktop } from "@rakazo/contracts";
 import { flush } from "@rakazo/core/test-async";
 import { QueryClient } from "@tanstack/react-query";
 import type { ComponentProps, ReactNode } from "react";
@@ -94,8 +94,8 @@ afterEach(async () => {
 const laptop = { deviceId: "d1", name: "Laptop", connected: true };
 const desk = { deviceId: "d2", name: "Desk PC", connected: false };
 
-function desktopWith(device: NonNullable<RakazoDesktop["device"]>) {
-  window.rakazoDesktop = { platform: "darwin", device } as RakazoDesktop;
+function desktopWith(device: NonNullable<AgentForgeDesktop["device"]>) {
+  window.rakazoDesktop = { platform: "darwin", device } as AgentForgeDesktop;
 }
 
 /** The web build compiles macros onto the real hook, which throws without this provider. */
@@ -225,7 +225,7 @@ it("turns this computer on and off for the app-managed local server", async () =
     platform: "darwin",
     computer,
     device: { state: async () => null, setAllowed: vi.fn() },
-  } as unknown as RakazoDesktop;
+  } as unknown as AgentForgeDesktop;
   await renderSettings();
   const toggle = host.querySelector<HTMLInputElement>('[data-testid="this-computer-toggle"]')!;
   expect(toggle.checked).toBe(false);
@@ -249,7 +249,7 @@ it("stays hidden on a server that does not run bots on this computer", async () 
     platform: "darwin",
     computer: { managesHostChoice: true },
     device: { state: async () => null },
-  } as unknown as RakazoDesktop;
+  } as unknown as AgentForgeDesktop;
   await renderSettings();
   expect(host.innerHTML).toBe("");
 });
@@ -273,7 +273,7 @@ it("keeps the local switch when a later profile read fails", async () => {
     platform: "darwin",
     computer,
     device: { state: async () => null, setAllowed: vi.fn() },
-  } as unknown as RakazoDesktop;
+  } as unknown as AgentForgeDesktop;
   await renderSettings();
   await act(async () =>
     host.querySelector<HTMLInputElement>('[data-testid="this-computer-toggle"]')!.click(),

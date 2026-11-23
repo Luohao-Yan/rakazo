@@ -131,11 +131,11 @@ WHERE membership."id" IS NULL;
 `.github/workflows/publish-server-image.yml` 将镜像发布到 `ghcr.io/<owner>/<repo>/…`，由 `${{ github.repository }}` 推导，
 因此 fork 的 CI 会写入 fork 自己的命名空间。本仓库为：
 
-| 镜像                              | 内容                                                |
-| --------------------------------- | --------------------------------------------------- |
-| `ghcr.io/elie222/rakazo/app`      | api、worker、web 与沙箱监督进程，同一镜像、不同命令 |
-| `ghcr.io/elie222/rakazo/computer` | 用作各机器人计算机的 Linux 桌面                     |
-| `ghcr.io/elie222/rakazo/updater`  | 更新器 sidecar，并包含 Docker CLI                   |
+| 镜像                                 | 内容                                                |
+| ------------------------------------ | --------------------------------------------------- |
+| `ghcr.io/luohao-yan/rakazo/app`      | api、worker、web 与沙箱监督进程，同一镜像、不同命令 |
+| `ghcr.io/luohao-yan/rakazo/computer` | 用作各机器人计算机的 Linux 桌面                     |
+| `ghcr.io/luohao-yan/rakazo/updater`  | 更新器 sidecar，并包含 Docker CLI                   |
 
 `infra/compose/docker-compose.images.yml` 是无需检出仓库即可使用上述应用与计算机标签以及 Postgres 的路径。
 监督进程从应用镜像在内部网络运行（无单独发布的监督镜像，也不映射主机端口）。生产 Compose（`docker-compose.prod.yml`）
@@ -189,7 +189,7 @@ Fork 构建失败也会恢复更新前的分支与提交。数据库迁移不会
 
 ## 定时稳定版更新 {#scheduled-stable-updates}
 
-> **说明：** 以下能力在合并 [PR #5042](https://github.com/elie222/rakazo/pull/5042) 后与英文版一致；合并前仓库可能尚无 `RAKAZO_AUTO_UPDATE_INTERVAL_HOURS` 等配置项。
+> **说明：** 以下能力在合并 [PR #5042](https://github.com/Luohao-Yan/rakazo/pull/5042) 后与英文版一致；合并前仓库可能尚无 `RAKAZO_AUTO_UPDATE_INTERVAL_HOURS` 等配置项。
 
 生产 Compose 与无需检出的 `docker-compose.images.yml` 均提供可选的 `updater` profile。**仅启动 profile 不会启用定时调度**；
 它会授予 root 等价的 Docker 访问权限，除非需要更新工具，否则保持关闭。

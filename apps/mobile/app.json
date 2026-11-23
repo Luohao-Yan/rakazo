@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Rakazo",
+    "name": "AgentForge",
     "slug": "rakazo",
     "owner": "inbox-zero",
     "scheme": "rakazo",
@@ -26,29 +26,29 @@
         "expo-audio",
         {
           "enableBackgroundPlayback": false,
-          "microphonePermission": "Rakazo uses the microphone for voice calls with your bots."
+          "microphonePermission": "AgentForge uses the microphone for voice calls with your bots."
         }
       ],
       [
         "expo-speech-recognition",
         {
-          "speechRecognitionPermission": "Rakazo turns your speech into messages during voice calls.",
-          "microphonePermission": "Rakazo uses the microphone for voice calls with your bots."
+          "speechRecognitionPermission": "AgentForge turns your speech into messages during voice calls.",
+          "microphonePermission": "AgentForge uses the microphone for voice calls with your bots."
         }
       ],
       "expo-localization",
       [
         "expo-media-library",
         {
-          "savePhotosPermission": "Rakazo saves photos and videos you download from Artifacts to your photo library.",
+          "savePhotosPermission": "AgentForge saves photos and videos you download from Artifacts to your photo library.",
           "granularPermissions": []
         }
       ],
       [
         "expo-calendar",
         {
-          "calendarPermission": "Allow Rakazo to read and add events in calendars you choose for your bots.",
-          "remindersPermission": "Allow Rakazo to create and complete reminders in lists you choose for your bots."
+          "calendarPermission": "Allow AgentForge to read and add events in calendars you choose for your bots.",
+          "remindersPermission": "Allow AgentForge to create and complete reminders in lists you choose for your bots."
         }
       ],
       "@react-native-vector-icons/ionicons",
@@ -62,9 +62,9 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Rakazo uses your photo library so you can attach images to a bot message.",
-          "cameraPermission": "Rakazo uses the camera so you can attach photos to a bot message.",
-          "microphonePermission": "Rakazo uses the microphone for voice calls with your bots."
+          "photosPermission": "AgentForge uses your photo library so you can attach images to a bot message.",
+          "cameraPermission": "AgentForge uses the camera so you can attach photos to a bot message.",
+          "microphonePermission": "AgentForge uses the microphone for voice calls with your bots."
         }
       ],
       "./plugins/with-share-extension",
@@ -132,14 +132,14 @@
       "bundleIdentifier": "com.rakazo.app",
       "buildNumber": "1",
       "supportsTablet": true,
-      "icon": "../../packages/ui-tokens/assets/Rakazo.icon",
+      "icon": "../../packages/ui-tokens/assets/AgentForge.icon",
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
-        "NSCameraUsageDescription": "Rakazo uses the camera so you can attach photos to a bot message.",
-        "NSPhotoLibraryUsageDescription": "Rakazo uses your photo library so you can attach images to a bot message.",
-        "NSLocalNetworkUsageDescription": "Rakazo connects to a self-hosted Rakazo server on your local network.",
+        "NSCameraUsageDescription": "AgentForge uses the camera so you can attach photos to a bot message.",
+        "NSPhotoLibraryUsageDescription": "AgentForge uses your photo library so you can attach images to a bot message.",
+        "NSLocalNetworkUsageDescription": "AgentForge connects to a self-hosted AgentForge server on your local network.",
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
         },
@@ -176,11 +176,11 @@
             "ios": {
               "appExtensions": [
                 {
-                  "targetName": "RakazoWatch",
+                  "targetName": "AgentForgeWatch",
                   "bundleIdentifier": "com.rakazo.app.watchkitapp"
                 },
                 {
-                  "targetName": "RakazoWidgets",
+                  "targetName": "AgentForgeWidgets",
                   "bundleIdentifier": "com.rakazo.app.widgets"
                 },
                 {

@@ -9,22 +9,22 @@
 
 ## 1. 结论
 
-Linger 比 Rakazo 好，不是某一个页面的问题，而是四个系统同时更完整：
+Linger 比 AgentForge 好，不是某一个页面的问题，而是四个系统同时更完整：
 
 1. **层级**：一级、二级、内容三层清楚；当前在哪、还能去哪，一眼可答。
-2. **密度**：14px 正文、56px 行高、32px 控件、8px 圆角，节奏稳定；Rakazo 不少地方靠留白和字号硬撑层级。
-3. **反馈**：悬停、按下、聚焦、加载、流式输出都有明确但克制的反馈；Rakazo 有状态，但缺少统一的动效语法。
-4. **表面**：Linger 用语义表面、描边和阴影建立深度；Rakazo 多数时候只有一层背景和边框。
+2. **密度**：14px 正文、56px 行高、32px 控件、8px 圆角，节奏稳定；AgentForge 不少地方靠留白和字号硬撑层级。
+3. **反馈**：悬停、按下、聚焦、加载、流式输出都有明确但克制的反馈；AgentForge 有状态，但缺少统一的动效语法。
+4. **表面**：Linger 用语义表面、描边和阴影建立深度；AgentForge 多数时候只有一层背景和边框。
 
 推荐做法：**不复制 Linger 的品牌皮肤，复制它的系统。**
 
 - 采用：三层导航、56px 行、32px 控件、语义表面/阴影、统一的 150/200ms 动效、按下缩放、悬停揭示操作、加载延迟淡入、流式揭示、FLIP 重排。
-- 适配：Rakazo 的 token、shadcn/Base UI、lucide、单色系统、移动端原生优先。
+- 适配：AgentForge 的 token、shadcn/Base UI、lucide、单色系统、移动端原生优先。
 - 不采用：Linger 的暖色相、Geist/Noto Sans SC 字体、hugeicons、Room/Library/Wiki 信息架构、灰色外框 + 白色卡片桌面壳。
 
 ## 2. 调研方法
 
-- 逐项对比 Linger 与 Rakazo 的设计 token、基础控件、导航、列表行、菜单、加载/流式状态、动效和移动端。
+- 逐项对比 Linger 与 AgentForge 的设计 token、基础控件、导航、列表行、菜单、加载/流式状态、动效和移动端。
 - 只把“可迁移的交互模式”写进方案；品牌资产、字体、图标和具体 IA 属于产品决策，不默认照搬。
 - 所有尺寸以 Web 1rem = 16px、正文 14px 为基准；移动端另列触控尺寸。
 
@@ -32,13 +32,13 @@ Linger 比 Rakazo 好，不是某一个页面的问题，而是四个系统同�
 
 ### 3.1 字体与密度
 
-| 维度     | Linger                | Rakazo          | 判断                                              |
+| 维度     | Linger                | AgentForge      | 判断                                              |
 | -------- | --------------------- | --------------- | ------------------------------------------------- |
 | 正文字号 | 14px                  | 14px            | 一致                                              |
 | 行高     | 1.5（21px）           | 20px            | Linger 更松，长文更易读                           |
 | 字距     | 0.02em                | 0（正文）       | Linger 更“排版过”                                 |
 | 字重     | 400 / 470 / 580 / 640 | 400 / 500 / 600 | Linger 的可变字重更细腻，但系统字体做不到 470/580 |
-| 标题     | 18/20/24px，负字距    | 15/17/22/26px   | Rakazo 阶梯更多，但实际使用不统一                 |
+| 标题     | 18/20/24px，负字距    | 15/17/22/26px   | AgentForge 阶梯更多，但实际使用不统一             |
 | 列表行高 | 56px                  | 多数行接近 56px | 方向一致，需统一                                  |
 
 结论：
@@ -50,12 +50,12 @@ Linger 比 Rakazo 好，不是某一个页面的问题，而是四个系统同�
 
 ### 3.2 表面与深度
 
-| 维度 | Linger                                           | Rakazo                              | 判断                      |
-| ---- | ------------------------------------------------ | ----------------------------------- | ------------------------- |
-| 表面 | canvas / surface / surface-soft / sidebar / rail | background / card / muted / sidebar | Rakazo 够用，但使用不一致 |
-| 描边 | 1px 语义描边 + 柔和阴影                          | 多数只有 1px 边框                   | 缺少“抬起”的层级          |
-| 阴影 | outline / sm / md / lg / xl / button             | Tailwind 默认 + 少量自定义          | 需要一套语义阴影          |
-| 圆角 | 4 / 6 / 8 / 12 / 16                              | `--radius` 12 + 控件圆角            | 接近，统一即可            |
+| 维度 | Linger                                           | AgentForge                          | 判断                          |
+| ---- | ------------------------------------------------ | ----------------------------------- | ----------------------------- |
+| 表面 | canvas / surface / surface-soft / sidebar / rail | background / card / muted / sidebar | AgentForge 够用，但使用不一致 |
+| 描边 | 1px 语义描边 + 柔和阴影                          | 多数只有 1px 边框                   | 缺少“抬起”的层级              |
+| 阴影 | outline / sm / md / lg / xl / button             | Tailwind 默认 + 少量自定义          | 需要一套语义阴影              |
+| 圆角 | 4 / 6 / 8 / 12 / 16                              | `--radius` 12 + 控件圆角            | 接近，统一即可                |
 
 结论：
 
@@ -65,13 +65,13 @@ Linger 比 Rakazo 好，不是某一个页面的问题，而是四个系统同�
 
 ### 3.3 控件
 
-| 维度     | Linger                                     | Rakazo                                                    | 判断                                |
-| -------- | ------------------------------------------ | --------------------------------------------------------- | ----------------------------------- |
-| 控件高度 | 28 / 32 / 36 / 44                          | 24 / 28 / 32 / 36 / 48                                    | 接近                                |
-| 按下反馈 | `active:scale(0.97)`                       | `active:translate-y-px`                                   | Linger 的缩放更“有手感”             |
-| 焦点     | 2px ring                                   | 3px ring                                                  | Rakazo 更重，需统一                 |
-| 加载     | Button `loading` + spinner                 | 组合 Spinner                                              | 可复用，但缺少统一 loading 状态     |
-| 变体     | primary/secondary/ghost/subtle/danger/info | default/outline/secondary/ghost/destructive/text/floating | Rakazo 更全，但 floating 与默认混用 |
+| 维度     | Linger                                     | AgentForge                                                | 判断                                    |
+| -------- | ------------------------------------------ | --------------------------------------------------------- | --------------------------------------- |
+| 控件高度 | 28 / 32 / 36 / 44                          | 24 / 28 / 32 / 36 / 48                                    | 接近                                    |
+| 按下反馈 | `active:scale(0.97)`                       | `active:translate-y-px`                                   | Linger 的缩放更“有手感”                 |
+| 焦点     | 2px ring                                   | 3px ring                                                  | AgentForge 更重，需统一                 |
+| 加载     | Button `loading` + spinner                 | 组合 Spinner                                              | 可复用，但缺少统一 loading 状态         |
+| 变体     | primary/secondary/ghost/subtle/danger/info | default/outline/secondary/ghost/destructive/text/floating | AgentForge 更全，但 floating 与默认混用 |
 
 结论：
 
@@ -82,7 +82,7 @@ Linger 比 Rakazo 好，不是某一个页面的问题，而是四个系统同�
 
 ### 3.4 导航与层级
 
-| 维度   | Linger                 | Rakazo                  | 判断              |
+| 维度   | Linger                 | AgentForge              | 判断              |
 | ------ | ---------------------- | ----------------------- | ----------------- |
 | 一级   | 持久 rail              | App rail + 侧栏按钮混合 | 采用 rail         |
 | 二级   | 独立列表               | 单侧栏                  | 采用独立列表      |
@@ -102,7 +102,7 @@ Linger 的行语法：
 - 置顶、未读、运行中、失败用独立的小徽标/圆点，不改变行高。
 - 点击整行导航；操作按钮不触发导航。
 
-Rakazo 现状：
+AgentForge 现状：
 
 - roster 已有头像、标题、预览、未读点、运行/错误状态和右键菜单。
 - 悬停操作存在，但标题/操作的空间关系不统一；部分行用省略号，部分直接盖住。
@@ -117,15 +117,15 @@ Rakazo 现状：
 
 ### 3.6 动效
 
-| 动效   | Linger                 | Rakazo   | 判断                |
-| ------ | ---------------------- | -------- | ------------------- |
-| 微交互 | 150ms                  | 150ms    | 一致                |
-| 浮层   | 150ms ease-out         | 150ms    | 接近                |
-| 布局   | 200ms                  | 200ms    | 一致                |
-| 按下   | 0.97 缩放              | 1px 下移 | 改为缩放            |
-| 新消息 | 450ms 弹入 + 1.6s 揭示 | 流式揭示 | 统一为“弹入 + 揭示” |
-| 重排   | FLIP                   | 拖拽重排 | 加 FLIP             |
-| 加载   | 120ms 延迟淡入         | 直接出现 | 加延迟淡入          |
+| 动效   | Linger                 | AgentForge | 判断                |
+| ------ | ---------------------- | ---------- | ------------------- |
+| 微交互 | 150ms                  | 150ms      | 一致                |
+| 浮层   | 150ms ease-out         | 150ms      | 接近                |
+| 布局   | 200ms                  | 200ms      | 一致                |
+| 按下   | 0.97 缩放              | 1px 下移   | 改为缩放            |
+| 新消息 | 450ms 弹入 + 1.6s 揭示 | 流式揭示   | 统一为“弹入 + 揭示” |
+| 重排   | FLIP                   | 拖拽重排   | 加 FLIP             |
+| 加载   | 120ms 延迟淡入         | 直接出现   | 加延迟淡入          |
 
 结论：
 
@@ -136,9 +136,9 @@ Rakazo 现状：
 
 ### 3.7 菜单、弹层与表单
 
-- Linger 的 action menu 支持 hover 打开、子菜单、焦点管理和视口翻转；Rakazo 的 shadcn 菜单已经具备大部分能力。
-- 差距在**行内更多菜单的打开方式**：Linger 悬停即可展开，Rakazo 需要先点。
-- 表单方面，Linger 的字段高度/标签/错误提示节奏统一；Rakazo 有 `FieldGroup/Field/FieldLabel`，但仍有手写间距。
+- Linger 的 action menu 支持 hover 打开、子菜单、焦点管理和视口翻转；AgentForge 的 shadcn 菜单已经具备大部分能力。
+- 差距在**行内更多菜单的打开方式**：Linger 悬停即可展开，AgentForge 需要先点。
+- 表单方面，Linger 的字段高度/标签/错误提示节奏统一；AgentForge 有 `FieldGroup/Field/FieldLabel`，但仍有手写间距。
 
 结论：
 
@@ -149,7 +149,7 @@ Rakazo 现状：
 ### 3.8 加载、空状态与错误
 
 - Linger：路由加载延迟淡入；列表有骨架；空状态一句话；错误可重试。
-- Rakazo：有 `PageLoading`、`Spinner`、空状态，但各页面写法不一致。
+- AgentForge：有 `PageLoading`、`Spinner`、空状态，但各页面写法不一致。
 
 结论：
 
@@ -161,7 +161,7 @@ Rakazo 现状：
 ### 3.9 移动端
 
 - Linger 在移动端保留 44px 触控目标，并用 `@media (hover: none)` 让操作常驻。
-- Rakazo 的移动端 Web 仍有些 28/32px 控件。
+- AgentForge 的移动端 Web 仍有些 28/32px 控件。
 
 结论：
 
@@ -172,7 +172,7 @@ Rakazo 现状：
 ### 3.10 可访问性
 
 - 焦点可见、键盘顺序、`aria-current`、`aria-expanded`、`aria-label` 是底线。
-- Linger 的悬停菜单有焦点管理和 Escape 关闭；Rakazo 需要统一。
+- Linger 的悬停菜单有焦点管理和 Escape 关闭；AgentForge 需要统一。
 - 动效关闭后不能丢失状态。
 
 ## 4. 目标系统
@@ -356,7 +356,7 @@ Rakazo 现状：
 3. **建议**：采用按下 `scale(0.97)`，替换 `translate-y-px`。
 4. **建议**：行内更多菜单允许 hover 打开；破坏性操作仍需点击。
 5. **建议**：第一阶段不采用 Linger 的暖色相/Geist 字体，先把层级、密度和动效做对。
-6. **建议**：不采用 Linger 的灰色外框 + 白色卡片桌面壳；保持 Rakazo 现有平面，把深度用在浮层和当前行。
+6. **建议**：不采用 Linger 的灰色外框 + 白色卡片桌面壳；保持 AgentForge 现有平面，把深度用在浮层和当前行。
 
 ## 8. 不做
 
@@ -376,7 +376,7 @@ Rakazo 现状：
 - `apps/web/src/features/rooms/room-navigation.tsx`（rail）
 - `apps/web/src/features/rooms/room-secondary-navigation.tsx`（列表/行）
 
-### Rakazo
+### AgentForge
 
 - `packages/ui-tokens/src/index.ts`（语义色）
 - `packages/ui-web/src/styles.css`（type scale、字体）

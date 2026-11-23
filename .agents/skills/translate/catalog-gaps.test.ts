@@ -116,4 +116,29 @@ describe("catalog gaps", () => {
     });
     expect(findMismatches(good)).toEqual([]);
   });
+
+  it("checks explicit ids against the source catalog instead of the id", () => {
+    const source = `#. js-lingui-explicit-id
+#: src/billing.ts
+msgid "/RQB8K"
+msgstr "{count} months"
+
+#. js-lingui-explicit-id
+#: src/billing.ts
+msgid "Nlt+k3"
+msgstr "Trial ends {day}"
+`;
+    const translated = `#. js-lingui-explicit-id
+#: src/billing.ts
+msgid "/RQB8K"
+msgstr "{count} Monate"
+
+#. js-lingui-explicit-id
+#: src/billing.ts
+msgid "Nlt+k3"
+msgstr "Testphase endet am {day}"
+`;
+    expect(findMismatches(translated, translationsOf(source))).toEqual([]);
+    expect(findMismatches(translated.replace("{day}", ""), translationsOf(source))).toHaveLength(1);
+  });
 });

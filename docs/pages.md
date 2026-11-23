@@ -12,11 +12,11 @@ can ask for changes. The bot edits the same page rather than making a new one, s
 
 ## Find your pages
 
-On web and desktop, select the bot or group name at the top of the chat to open its panel.
+On web and desktop, select the bot name at the top of a bot chat to open its panel.
 
-- In a bot chat, **Pages** appears once the bot has built a page. If the preview doesn't show all
-  the pages, select its **Pages** heading to see the full list.
-- In a group chat, look for **Pages** in **Group settings**.
+**Pages** appears once the bot has built a page. If the preview doesn't show all the pages,
+select its **Pages** heading to see the full list. Pages built in a group chat open from their
+card in the chat.
 
 On mobile, tap the bot or group name at the top of the chat. Select **Pages** in **Profile**
 for a bot chat or in **Group settings** for a group chat.
@@ -33,7 +33,7 @@ On web and desktop, **Download PDF** saves a copy through your browser's print d
 
 ### Share with specific people
 
-Choose **Specific people** and enter each person's verified Rakazo account email. Send the
+Choose **Specific people** and enter each person's verified AgentForge account email. Send the
 review link, or have them open **Pages shared with you** from their account menu. They can
 read the page from the revision you shared onward and join its review. Remove a person from
 **Share** to revoke their access. Switching away from **Specific people** removes those grants. If someone verifies their
