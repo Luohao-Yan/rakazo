@@ -1,12 +1,23 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { ORPCError } from "@orpc/client";
-import type { AgentSkill, AgentSkillCatalogEntry, MemoryDocument } from "@rakazo/contracts";
-import { isDeletableMemoryDocument, isEmptyBotMemory } from "@rakazo/contracts";
+import type {
+  AgentSkill,
+  AgentSkillCatalogEntry,
+  MemoryDocument,
+  MemorySourceKind,
+} from "@rakazo/contracts";
+import {
+  isDeletableMemoryDocument,
+  isEmptyBotMemory,
+  MEMORY_INDEX_PATH,
+  MEMORY_TOKEN_CAPS,
+} from "@rakazo/contracts";
+import { memoryTokenCount } from "@rakazo/core";
 import { fetchFresh, writeSaved } from "@rakazo/core/query";
-import { Badge, Button, SectionHeading, Skeleton, Textarea } from "@rakazo/ui-web";
+import { Badge, Button, Input, SectionHeading, Skeleton, Textarea } from "@rakazo/ui-web";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@rakazo/ui-web/components/ui/tooltip";
 import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Download, Plus } from "lucide-react";
+import { Download, History, Plus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   AvailabilityControl,
@@ -14,6 +25,7 @@ import {
   reachesOtherSpaces,
   useOwnSpaces,
 } from "../../components/integrations/space-availability";
+import { formatRelativeTime } from "../../lib/locale/relative-time";
 import { downloadArtifactBytes } from "../../lib/pages/artifact-open";
 import { useSave, useSpaceQueries } from "../../lib/query/query";
 import { useSpaceRpc } from "../../lib/query/space-rpc";
@@ -30,14 +42,16 @@ function rowClass(open: boolean): string {
 /**
  * Bot memory. Skills belong to the person in a space, not to one bot, so they live in
  * the Skills dialog; memory shared across bots lives in the Memory settings overlay.
+ * The full mode lists every document and the empty state; the caller names the section.
+ * The compact preview folds into its parent list.
  */
-export function KnowledgeSection({ botId }: { botId: string }) {
+export function KnowledgeSection({ botId, full = false }: { botId: string; full?: boolean }) {
   return (
     <MemoryDocumentList
       key={botId}
       input={{ botId, scope: "bot" }}
       testId="bot-knowledge-memory"
-      compact
+      compact={!full}
     />
   );
 }
@@ -62,13 +76,29 @@ export function SpaceMemorySection() {
   );
 }
 
-type MemoryChange = { kind: "save" | "remove" | "download"; doc: MemoryDocument };
+type MemoryChange =
+  | { kind: "save"; doc: MemoryDocument }
+  | { kind: "restore"; doc: MemoryDocument; revisionId: string }
+  | { kind: "remove"; doc: MemoryDocument }
+  | { kind: "download"; doc: MemoryDocument };
+
+/** Who wrote a revision, in the words the history panel shows. */
+function revisionSourceLabel(
+  t: (parts: TemplateStringsArray, ...values: unknown[]) => string,
+  kind: MemorySourceKind,
+): string {
+  if (kind === "bot") return t`This bot`;
+  if (kind === "dream") return t`Dreaming`;
+  if (kind === "import") return t`Imported`;
+  if (kind === "undo") return t`Restored`;
+  return t`You`;
+}
 
 function isConflict(error: unknown): boolean {
   return error instanceof ORPCError && error.code === "CONFLICT";
 }
 
-function MemoryDocumentList({
+export function MemoryDocumentList({
   input,
   testId,
   compact = false,
@@ -93,24 +123,43 @@ function MemoryDocumentList({
     budgetOptions ?? { queryKey: ["memory-budget", "none"], queryFn: skipToken },
   );
   const budget = budgetInput && budgetQuery.data ? budgetQuery.data : null;
+  const usedTokens =
+    input.scope === "user"
+      ? docs.reduce((sum, doc) => sum + memoryTokenCount(doc.content), 0)
+      : memoryTokenCount(docs.find((doc) => doc.path === MEMORY_INDEX_PATH)?.content ?? "");
+  const tokenCap = input.scope === "user" ? MEMORY_TOKEN_CAPS.shared : MEMORY_TOKEN_CAPS.bot;
   const bytesLeftOut = budget
     ? budget.omitted.reduce((sum, entry) => sum + entry.totalBytes, 0) +
       budget.documents.reduce((sum, entry) => sum + entry.totalBytes - entry.includedBytes, 0)
     : 0;
   const kb = Math.ceil(bytesLeftOut / 1024);
   const [showAll, setShowAll] = useState(false);
+  const [query, setQuery] = useState("");
   // Once shown, memory stays visible while the panel is open, even if emptied.
   const [memoryShown, setMemoryShown] = useState(false);
-  const memoryVisible = memoryShown || docs.some((doc) => !isEmptyBotMemory(doc));
+  // Only a bot's untouched index is hidden; shared memory is always the user's to open.
+  const memoryVisible =
+    input.scope === "bot"
+      ? memoryShown || docs.some((doc) => !isEmptyBotMemory(doc))
+      : docs.length > 0;
   if (memoryVisible && !memoryShown) setMemoryShown(true);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [historyId, setHistoryId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [loadedRevision, setLoadedRevision] = useState<number | undefined>();
   const [conflicted, setConflicted] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const historyOptions = historyId
+    ? queries.memory.revisions.queryOptions({ input: { documentId: historyId } })
+    : null;
+  const historyQuery = useQuery(
+    historyOptions ?? { queryKey: ["memory-history", "none"], queryFn: skipToken },
+  );
   const change = useSave({
-    save: async ({ kind, doc }: MemoryChange, rpc) => {
-      if (kind === "download") {
+    save: async (context: MemoryChange, rpc) => {
+      if (context.kind === "download") {
+        const { doc } = context;
         const latest = (await fetchFresh(queryClient, list)).find((entry) => entry.id === doc.id);
         if (!latest) throw new Error("Document unavailable");
         downloadArtifactBytes(
@@ -120,14 +169,31 @@ function MemoryDocumentList({
         );
         return;
       }
-      if (kind === "remove") {
+      if (context.kind === "remove") {
+        const { doc } = context;
         await rpc.memory.remove({ documentId: doc.id });
         await setDocs((current) => current.filter((entry) => entry.id !== doc.id));
         return;
       }
+      if (context.kind === "restore") {
+        const { doc, revisionId } = context;
+        const restored = await rpc.memory.restore({
+          documentId: doc.id,
+          revisionId,
+          expectedRevision: doc.revision,
+        });
+        await setDocs((current) =>
+          current.map((entry) => (entry.id === restored.id ? restored : entry)),
+        );
+        setDraft(restored.content);
+        setLoadedRevision(restored.revision);
+        return;
+      }
+      const { doc } = context;
       const updated = await rpc.memory.update({
         documentId: doc.id,
         content: draft,
+        description: descriptionDraft.trim() || null,
         expectedRevision: loadedRevision,
       });
       await setDocs((current) =>
@@ -137,9 +203,15 @@ function MemoryDocumentList({
     stale: ({ kind }) =>
       kind === "download"
         ? []
-        : [list.queryKey, ...(budgetOptions ? [budgetOptions.queryKey] : [])],
+        : [
+            list.queryKey,
+            ...(budgetOptions ? [budgetOptions.queryKey] : []),
+            ...(historyId
+              ? [queries.memory.revisions.queryKey({ input: { documentId: historyId } })]
+              : []),
+          ],
     onSaved: (_saved, { kind }) => {
-      if (kind !== "download") closeDoc();
+      if (kind === "save") closeDoc();
     },
     onFailed: async (failure, { kind }) => {
       if (kind !== "save" || !isConflict(failure)) return;
@@ -170,14 +242,17 @@ function MemoryDocumentList({
   function openDoc(doc: MemoryDocument) {
     setLoadedRevision(doc.revision);
     setConflicted(false);
+    setHistoryId(null);
     setOpenId(doc.id);
     setDraft(doc.content);
+    setDescriptionDraft(doc.description ?? "");
     change.reset();
     setConfirmingDelete(false);
   }
 
   function closeDoc() {
     setOpenId(null);
+    setHistoryId(null);
     setConflicted(false);
     setConfirmingDelete(false);
   }
@@ -186,6 +261,15 @@ function MemoryDocumentList({
     if (confirmingDelete) change.run({ kind: "remove", doc });
     else setConfirmingDelete(true);
   }
+
+  const needle = query.trim().toLowerCase();
+  const matching = needle
+    ? docs.filter(
+        (doc) =>
+          doc.path.toLowerCase().includes(needle) || doc.content.toLowerCase().includes(needle),
+      )
+    : docs;
+  const shown = compact && !showAll ? matching.slice(0, 5) : matching;
 
   if (compact && !memoryVisible && !error) return null;
   return (
@@ -197,6 +281,21 @@ function MemoryDocumentList({
       ) : null}
       <div data-testid={testId} className={compact ? "rounded-xl bg-muted/50 p-4" : undefined}>
         {error ? <div className="pb-2 text-body-sm text-destructive">{error}</div> : null}
+        {docs.length > 0 ? (
+          <p className="pb-2 text-body-sm text-muted-foreground" data-testid="memory-token-note">
+            {t`Using ${usedTokens} of ${tokenCap} tokens.`}
+          </p>
+        ) : null}
+        {docs.length > 1 ? (
+          <Input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t`Search memory`}
+            aria-label={t`Search memory`}
+            className="mb-2"
+          />
+        ) : null}
         {kb > 0 ? (
           <p className="pb-2 text-body-sm text-muted-foreground" data-testid="memory-budget-note">
             {t`About ${kb} KB of memory no longer reaches the bot.`}
@@ -208,91 +307,167 @@ function MemoryDocumentList({
           </div>
         ) : null}
         {loading ? <Skeleton className="h-10 w-full" /> : null}
-        {!compact && !loading && docs.length === 0 && !error ? (
+        {!compact && !loading && !memoryVisible && !error ? (
           <div className="py-1 text-body-sm text-muted-foreground">
             <Trans>Nothing remembered yet</Trans>
           </div>
         ) : null}
-        <div>
-          {(compact && !showAll ? docs.slice(0, 5) : docs).map((doc) => (
-            <div key={doc.id} className="border-b border-border last:border-0">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  type="button"
-                  disabled={busy}
-                  onClick={() => (openId === doc.id ? closeDoc() : openDoc(doc))}
-                  className="-ms-2 h-auto min-w-0 flex-1 justify-start whitespace-normal px-2 py-2.5 text-start"
-                >
-                  <span
-                    className="min-w-0 truncate text-body font-normal text-foreground"
-                    dir="auto"
-                  >
-                    {doc.path}
-                  </span>
-                </Button>
-                <Tooltip>
-                  <TooltipTrigger
-                    render={<Button variant="ghost" size="icon-sm" />}
-                    aria-label={t`Download`}
+        {memoryVisible ? (
+          <div>
+            {needle && shown.length === 0 ? (
+              <p className="py-1 text-body-sm text-muted-foreground">
+                <Trans>No notes match.</Trans>
+              </p>
+            ) : null}
+            {shown.map((doc) => (
+              <div key={doc.id} className="border-b border-border last:border-0">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    type="button"
                     disabled={busy}
-                    onClick={() => change.run({ kind: "download", doc })}
+                    onClick={() => (openId === doc.id ? closeDoc() : openDoc(doc))}
+                    className="-ms-2 h-auto min-w-0 flex-1 justify-start whitespace-normal px-2 py-2.5 text-start"
                   >
-                    <Download className="size-4" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <Trans>Download</Trans>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              {openId === doc.id ? (
-                <div className="pb-2">
-                  <Textarea
-                    aria-label={doc.path}
-                    disabled={busy}
-                    value={draft}
-                    onChange={(event) => setDraft(event.target.value)}
-                    rows={Math.min(16, Math.max(4, draft.split("\n").length + 1))}
-                    className={fieldClass}
-                    dir="auto"
-                  />
-                  <div className="mt-2 flex gap-2">
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      type="button"
-                      disabled={busy || conflicted || draft === doc.content}
-                      onClick={() => change.run({ kind: "save", doc })}
+                    <span
+                      className="min-w-0 truncate text-body font-normal text-foreground"
+                      dir="auto"
                     >
-                      <Trans>Save</Trans>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      type="button"
+                      {doc.path}
+                    </span>
+                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={<Button variant="ghost" size="icon-sm" />}
+                      aria-label={t`Download`}
                       disabled={busy}
-                      onClick={closeDoc}
-                      size="sm"
+                      onClick={() => change.run({ kind: "download", doc })}
                     >
-                      <Trans>Cancel</Trans>
-                    </Button>
-                    {isDeletableMemoryDocument(doc.path) ? (
+                      <Download className="size-4" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <Trans>Download</Trans>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={<Button variant="ghost" size="icon-sm" />}
+                      aria-label={t`History`}
+                      disabled={busy}
+                      onClick={() => setHistoryId(historyId === doc.id ? null : doc.id)}
+                    >
+                      <History className="size-4" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <Trans>History</Trans>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                {doc.description ? (
+                  <p className="truncate px-2.5 pb-1 text-body-sm text-muted-foreground" dir="auto">
+                    {doc.description}
+                  </p>
+                ) : null}
+                {openId === doc.id ? (
+                  <div className="pb-2">
+                    <Input
+                      type="text"
+                      aria-label={t`Description`}
+                      placeholder={t`What this note holds`}
+                      value={descriptionDraft}
+                      disabled={busy}
+                      onChange={(event) => setDescriptionDraft(event.target.value)}
+                      className="mb-2"
+                      dir="auto"
+                    />
+                    <Textarea
+                      aria-label={doc.path}
+                      disabled={busy}
+                      value={draft}
+                      onChange={(event) => setDraft(event.target.value)}
+                      rows={Math.min(16, Math.max(4, draft.split("\n").length + 1))}
+                      className={fieldClass}
+                      dir="auto"
+                    />
+                    <div className="mt-2 flex gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        type="button"
+                        disabled={
+                          busy ||
+                          conflicted ||
+                          (draft === doc.content &&
+                            descriptionDraft.trim() === (doc.description ?? ""))
+                        }
+                        onClick={() => change.run({ kind: "save", doc })}
+                      >
+                        <Trans>Save</Trans>
+                      </Button>
                       <Button
                         variant="ghost"
                         type="button"
                         disabled={busy}
-                        onClick={() => remove(doc)}
+                        onClick={closeDoc}
                         size="sm"
-                        className="ml-auto text-destructive"
                       >
-                        {confirmingDelete ? <Trans>Confirm delete</Trans> : <Trans>Delete</Trans>}
+                        <Trans>Cancel</Trans>
                       </Button>
+                      {isDeletableMemoryDocument(doc.path) ? (
+                        <Button
+                          variant="ghost"
+                          type="button"
+                          disabled={busy}
+                          onClick={() => remove(doc)}
+                          size="sm"
+                          className="ml-auto text-destructive"
+                        >
+                          {confirmingDelete ? <Trans>Confirm delete</Trans> : <Trans>Delete</Trans>}
+                        </Button>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+                {historyId === doc.id ? (
+                  <div className="pb-2" data-testid="memory-history">
+                    {historyQuery.isPending ? <Skeleton className="h-8 w-full" /> : null}
+                    {historyQuery.data?.length ? (
+                      <ul className="space-y-1">
+                        {historyQuery.data.map((entry) => (
+                          <li key={entry.id} className="flex items-center justify-between gap-2">
+                            <span className="flex min-w-0 items-baseline gap-2 text-body-sm text-muted-foreground">
+                              <span className="shrink-0">
+                                {revisionSourceLabel(t, entry.sourceKind)}
+                              </span>
+                              <time dateTime={entry.createdAt} className="truncate">
+                                {formatRelativeTime(entry.createdAt)}
+                              </time>
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              type="button"
+                              disabled={busy}
+                              onClick={() =>
+                                change.run({ kind: "restore", doc, revisionId: entry.id })
+                              }
+                            >
+                              <Trans>Restore</Trans>
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : !historyQuery.isPending ? (
+                      <p className="text-body-sm text-muted-foreground">
+                        <Trans>No history yet.</Trans>
+                      </p>
                     ) : null}
                   </div>
-                </div>
-              ) : null}
-            </div>
-          ))}
-        </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
         {compact && docs.length > 5 && !showAll ? (
           <Button
             variant="ghost"

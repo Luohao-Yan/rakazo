@@ -208,6 +208,7 @@ export function ComposerActions({
   running,
   showTalk,
   talkDisabled,
+  sending,
   sendDisabled,
   stopDisabled,
   sendColors,
@@ -222,6 +223,7 @@ export function ComposerActions({
   /** Hold-to-talk shows beside Send while the draft is empty. */
   showTalk: boolean;
   talkDisabled: boolean;
+  sending: boolean;
   sendDisabled: boolean | undefined;
   stopDisabled: boolean;
   /** The bot's color, as your messages to it wear it; the send button matches them. */
@@ -239,7 +241,7 @@ export function ComposerActions({
       } as CSSProperties)
     : undefined;
   // An empty draft keeps the quiet disabled look either way; the bot's color shows once it can go.
-  const sendClassName = `shrink-0 rounded-full transition-transform active:scale-95 disabled:bg-primary-disabled disabled:text-foreground/30 disabled:opacity-100 ${sendColors ? "bg-chat-user text-chat-user-foreground hover:bg-chat-user/90" : ""}`;
+  const sendClassName = `shrink-0 rounded-full transition-transform active:scale-[0.97] motion-reduce:active:scale-100 disabled:bg-primary-disabled disabled:text-foreground/30 disabled:opacity-100 ${sendColors ? "bg-chat-user text-chat-user-foreground hover:bg-chat-user/90" : ""}`;
   return (
     <div
       ref={actionsRef}
@@ -256,12 +258,13 @@ export function ComposerActions({
           <Button
             size="icon"
             aria-label={t`Send`}
+            loading={sending}
             disabled={sendDisabled}
             onClick={onSend}
             style={sendStyle}
             className={sendClassName}
           >
-            <ArrowUp size={16} strokeWidth={2.2} />
+            {sending ? null : <ArrowUp size={16} strokeWidth={2.2} />}
           </Button>
           <Button
             variant="outline"
@@ -280,12 +283,13 @@ export function ComposerActions({
           <Button
             size="icon"
             aria-label={t`Send`}
+            loading={sending}
             disabled={sendDisabled}
             onClick={onSend}
             style={sendStyle}
             className={sendClassName}
           >
-            <ArrowUp size={16} strokeWidth={2.2} />
+            {sending ? null : <ArrowUp size={16} strokeWidth={2.2} />}
           </Button>
         </>
       )}

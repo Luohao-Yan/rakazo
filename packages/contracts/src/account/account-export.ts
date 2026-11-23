@@ -2,7 +2,9 @@ import * as z from "zod";
 import { PageSourceSchema, PageTitleSchema } from "../artifacts/pages.js";
 import { BotSchema } from "../bots/bot.js";
 import { BotAvatarSetSchema } from "../bots/bot-avatar.js";
+import { normalizeBotWorkspacePath } from "../bots/bot-workspace.js";
 import { Id, IsoDate, ReplyModeSchema } from "../ids.js";
+import { ApprovalModeSchema } from "../integrations/approvals.js";
 import { RoutineSchema } from "../routines/routine.js";
 import { ThreadMessageSchema } from "../threads/thread-message.js";
 
@@ -87,6 +89,26 @@ export const AccountExportRecordSchema = z.discriminatedUnion("type", [
     dailyCheckIns: z.boolean().default(true),
     fleetManagement: z.boolean(),
     replyMode: ReplyModeSchema.default("chat"),
+    /** Absent in exports from older servers. */
+    approvalMode: ApprovalModeSchema.nullable().default(null),
+    /** Absent in exports from older servers. */
+    maxConcurrentHelpers: z.number().int().min(1).max(8).nullable().default(null),
+    /** Absent in exports from older servers. */
+    conversationCompactionMode: z.enum(["automatic", "earlier", "near_limit", "custom"]).optional(),
+    /** Absent in exports from older servers. */
+    conversationCompactionTokens: z.number().int().min(20_000).max(1_000_000).nullable().optional(),
+    /** Absent in exports from older servers. */
+    maxToolCallsPerTurn: z.number().int().min(1).max(1_000).nullable().optional(),
+    /** Absent in exports from older servers. */
+    useOwnMemory: z.boolean().default(true),
+    /** Absent in exports from older servers. */
+    useSharedMemory: z.boolean().default(true),
+    /** Absent in exports from older servers; a value that could escape the workspace is dropped. */
+    workspacePath: z
+      .string()
+      .nullable()
+      .default(null)
+      .transform((value) => (value ? normalizeBotWorkspacePath(value) : null)),
     createdAt: IsoDate,
   }),
   z.object({
@@ -167,6 +189,8 @@ export const AccountExportRecordSchema = z.discriminatedUnion("type", [
     scope: z.string(),
     path: z.string(),
     content: z.string(),
+    /** Absent in exports from older servers. */
+    description: z.string().nullable().default(null),
     revision: z.number().int(),
     createdAt: IsoDate,
     updatedAt: IsoDate,
@@ -177,7 +201,27 @@ export const AccountExportRecordSchema = z.discriminatedUnion("type", [
     documentId: Id,
     revision: z.number().int(),
     content: z.string(),
+    /** Who wrote this revision; absent in exports from older servers. */
+    sourceKind: z.string().nullable().default(null),
     sourceThreadId: Id.nullable(),
+    createdAt: IsoDate,
+  }),
+  z.object({
+    type: z.literal("memory_dream"),
+    id: Id,
+    botId: Id,
+    threadId: Id.nullable(),
+    status: z.string(),
+    reason: z.string().nullable(),
+    summary: z.string().nullable(),
+    changedPaths: z.array(z.string()),
+    added: z.array(z.string()),
+    archived: z.array(z.string()),
+    sourceSeq: z.number().int().nullable(),
+    errorKind: z.string().nullable(),
+    undoneAt: IsoDate.nullable(),
+    startedAt: IsoDate.nullable(),
+    finishedAt: IsoDate.nullable(),
     createdAt: IsoDate,
   }),
   z.object({

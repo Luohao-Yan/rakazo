@@ -140,17 +140,24 @@ async function ensureGraphicalComputer(
     const computerId = bot.computer.id;
     try {
       await getLogger().withContext({ reason: "teaching" }, () =>
-        provisionComputer(deps, computerId, {
-          ...ctx,
-          screenLeaseId: screenLeaseIdForRun(lease, manualRunId),
-        }),
+        provisionComputer(
+          deps,
+          computerId,
+          {
+            ...ctx,
+            screenLeaseId: screenLeaseIdForRun(lease, manualRunId),
+          },
+          "none",
+          undefined,
+          { workspacePath: bot.workspacePath },
+        ),
       );
     } finally {
       await releaseComputerExecutionLease(deps.prisma, lease);
     }
     bot = await deps.prisma.bot.findUniqueOrThrow({
       where: { id: bot.id },
-      include: { thread: true, computer: true },
+      include: { thread: true, computer: true, hostDevice: true },
     });
   }
   if (!bot.computer?.providerRef || bot.computer.state !== "running") {
@@ -339,7 +346,7 @@ export function createTaughtSkillsService(deps: TaughtSkillsDeps) {
     async start(actor: Actor, botId: string, goal: string): Promise<TaughtSkill> {
       let bot = await deps.prisma.bot.findFirst({
         where: { id: botId, spaceId: actor.spaceId },
-        include: { thread: true, computer: true },
+        include: { thread: true, computer: true, hostDevice: true },
       });
       // An archived bot is not found: archiving cancelled its runs and paused its routines.
       if (!bot || bot.archivedAt) throw new IsolationError();

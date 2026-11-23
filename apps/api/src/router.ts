@@ -88,10 +88,10 @@ export interface RouterDeps {
   analytics?: ProductAnalytics;
   cloudAgent?: CloudAgentConnection | null;
   userCloudAgents?: UserCloudAgents;
+  /** The signed-in person's paired computers; absent when nothing pairs one. */
+  userDevices?: UserDeviceGateway;
   /** The deployment's wallet provider; absent hides purchases. */
   paymentWallet?: PaymentWalletProvider | null;
-  /** The computers people paired, never this server's own screen; absent when none can be. */
-  userDevices?: Pick<UserDeviceGateway, "pairedSince">;
   prisma: PrismaClient;
   events: ThreadEvents;
   boardEvents: BoardEvents;

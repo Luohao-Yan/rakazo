@@ -1,12 +1,9 @@
 import { useLingui } from "@lingui/react/macro";
 import type { Bot, BotSection, Group, Me, Space } from "@rakazo/contracts";
 import { chatSnoozed } from "@rakazo/core";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useDesktopBadge } from "../../../lib/platform/use-desktop-badge";
-import {
-  readBotsSidebarCollapsed,
-  writeBotsSidebarCollapsed,
-} from "../../../lib/preferences/bots-sidebar-pref";
+import { useAppSidebar } from "../app-rail";
 import type { SnoozedChat } from "./snoozed-chats";
 import { countUnreadChats, sidebarGroupsForSpaces } from "./space-sidebar";
 
@@ -36,17 +33,12 @@ export function useSidebarView({
   now: number;
 }) {
   const { t } = useLingui();
-  // Read while rendering, so returning to chats does not animate the sidebar shut.
-  const [collapsed, setCollapsed] = useState(() => readBotsSidebarCollapsed(userId));
-  const [collapsedFor, setCollapsedFor] = useState(userId);
-  if (collapsedFor !== userId) {
-    setCollapsedFor(userId);
-    setCollapsed(readBotsSidebarCollapsed(userId));
-  }
-  function setCollapsedPref(next: boolean) {
-    setCollapsed(next);
-    writeBotsSidebarCollapsed(userId, next);
-  }
+  // The rail layout owns the collapse state, so the rail and the list never disagree.
+  const {
+    listCollapsed: collapsed,
+    setListCollapsed: setCollapsedPref,
+    previewListCollapsed,
+  } = useAppSidebar();
   const mini = collapsed && !isMobile;
 
   const sidebarSpaces = useMemo(
@@ -97,5 +89,12 @@ export function useSidebarView({
       .map((chat) => ({ kind: "group" as const, chat })),
   ]);
 
-  return { collapsed, setCollapsed, setCollapsedPref, mini, sidebarGroups, snoozed };
+  return {
+    collapsed,
+    previewCollapsed: previewListCollapsed,
+    setCollapsedPref,
+    mini,
+    sidebarGroups,
+    snoozed,
+  };
 }

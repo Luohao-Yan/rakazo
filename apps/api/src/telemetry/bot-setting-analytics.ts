@@ -22,7 +22,15 @@ const SETTINGS: Partial<Record<Field, AnalyticsBotSetting>> = {
   dailyCheckIns: "daily_check_ins",
   fleetManagement: "fleet_management",
   replyMode: "reply_mode",
+  approvalMode: "approvals",
+  maxConcurrentHelpers: "parallel_work",
+  conversationCompactionMode: "conversation_compaction",
+  conversationCompactionTokens: "conversation_compaction",
+  maxToolCallsPerTurn: "tool_calls",
+  useOwnMemory: "memory",
+  useSharedMemory: "memory",
   disabledBuiltinTools: "tools",
+  hostDeviceId: "computer",
 };
 
 /** Settings an update actually changes; clients resend unchanged fields with every save. */

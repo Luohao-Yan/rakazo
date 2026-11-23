@@ -7,6 +7,22 @@
    which restyles every element on the page mid-resize. */
 @source not inline("container");
 
+@keyframes page-loading-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+.page-loading-fade {
+  animation: page-loading-enter 300ms ease-out var(--page-loading-delay, 500ms) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-loading-fade {
+    animation: none;
+  }
+}
+
 /* The floating chat header draws over the transcript. The fade, the transcript's top
    padding and its scroll padding all read this clearance; it is global so fixture
    transcripts and any other surface that renders the transcript share the same spacing. */

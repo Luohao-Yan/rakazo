@@ -42,6 +42,7 @@ const loginUse = {
 function gate(options: {
   trigger?: string;
   neverAsk?: boolean;
+  botMode?: string | null;
   rule?: "always_allow" | "deny";
   asks?: boolean;
 }) {
@@ -70,7 +71,7 @@ function gate(options: {
     deps: { prisma: {} },
     run: { id: "run-1", userId: "user-1", spaceId: "space-1", trigger: options.trigger ?? "user" },
     runId: "run-1",
-    bot: { id: "bot-1", name: "Helper" },
+    bot: { id: "bot-1", name: "Helper", approvalMode: options.botMode ?? null },
     thread: { id: "thread-1" },
     context: { signal: new AbortController().signal },
     source: { ownerStartedRun: true },
@@ -125,6 +126,38 @@ describe("gateToolCall: a login that asks first", () => {
     expect(await gate({ rule: "deny" })).toEqual({
       result: { error: expect.stringContaining("is blocked in this space") },
     });
+  });
+
+  it("runs without asking when the bot itself never asks", async () => {
+    plans.length = 0;
+    await gate({ botMode: "never" });
+    expect(plans).toEqual(["allow"]);
+  });
+
+  it("asks when the bot overrides a never-asking Space with Ask", async () => {
+    plans.length = 0;
+    expect(await gate({ neverAsk: true, botMode: "ask" })).toBe("asks the user");
+    expect(plans).toEqual(["ask"]);
+  });
+
+  it("follows the Space when the stored mode is unrecognized", async () => {
+    plans.length = 0;
+    await gate({ neverAsk: true, botMode: "sometimes" });
+    expect(plans).toEqual(["allow"]);
+  });
+
+  it("keeps a bot that never asks refusing a blocked tool", async () => {
+    expect(await gate({ botMode: "never", rule: "deny" })).toEqual({
+      result: { error: expect.stringContaining("is blocked in this space") },
+    });
+  });
+
+  it("never waits on a card in a dream run", async () => {
+    plans.length = 0;
+    await gate({ trigger: "memory_dream", botMode: "ask" });
+    // A dream runs with no one to answer a card, so the mode reads as Never ask even when the
+    // bot's own setting would ask. Its offers are only memory writes, which never ask anyway.
+    expect(plans).toEqual(["allow"]);
   });
 });
 

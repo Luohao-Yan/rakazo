@@ -179,6 +179,7 @@ export async function* accountArchiveFiles(
         parseComputerMode(home.computerScope),
         home.botId,
         "",
+        home.workspacePath,
       );
       const files = stores.home.exportHome(home.homeKey, context(home.botId), {
         directory,

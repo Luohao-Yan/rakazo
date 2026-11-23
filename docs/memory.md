@@ -18,13 +18,37 @@ To see what a bot remembers, click its name at the top of the chat and open **Me
 be edited, downloaded or deleted. In the mobile app, the notes are in the bot's chat settings, where
 you can edit or delete them.
 
+**Memory** has two banks: **This bot**, the notes it wrote itself, and **About you**, the notes
+every bot in the space shares. Each bank has a switch; turned off, the bot neither reads nor writes
+it, and the other bank keeps working.
+
+**Dreams** consolidate the bot's memory from your own words: once the chat has been quiet for five
+minutes, or at once when eight of your messages are waiting. A bot whose own notes reach ninety
+percent of their token budget is tidied first, and once a day the notes get a review that dates
+anything still written in the future tense. The **Dreams** tab lists each run — when it ran, why it
+ran (**Tidy**, **Review** or **Manual**), the lines it added (`+`) and removed (`−`), and why it
+stopped if it could not finish. Dreams run only while at least one bank is on. **Dream now** runs
+one consolidation immediately instead of waiting for a quiet chat.
+
+Each note keeps its history: open a note's **History** to see who wrote each revision — you, the
+bot, a dream, an import, or a restore — and **Restore** one as a new revision. The newest finished
+dream can be **Undo**ne, which puts every note it changed back the way it was.
+
+Search the notes by name or content, and give each one a one-line description so the list (and the
+bot's dream) says what it holds. A bank holds at most twenty notes; adding a twenty-first is
+refused until an existing one is merged or removed.
+
+In **Settings → Memory**, the Space owner can choose how many dreams each bot keeps (20 to 500,
+100 by default). Older dreams are deleted along with the hidden chats they ran in.
+
 ## Shared memory
 
 Some things every bot should know, such as your name, your company, or how you like reports
 written. Those go in **Shared memory**: every bot in the [space](./spaces.md) reads these notes and
 keeps them up to date.
 
-Find it in **Settings → Memory**, on the web, desktop and mobile apps.
+Find it in **Settings → Memory**, on the web, desktop and mobile apps, or under **Memory** in a
+group's panel on web and desktop.
 
 ## Memory providers
 

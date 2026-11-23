@@ -8,6 +8,7 @@ import { hasOpenDialog } from "../../lib/platform/has-open-dialog";
 import type { Panel } from "./right-panel-state";
 import type { ShellOverlay } from "./shell-overlay-url";
 import { cycleBotId, findPanelAction, useShellShortcuts } from "./shell-shortcuts";
+import { focusChatListRestore } from "./sidebar/focus-chat-list";
 import { focusSidebarSearch } from "./sidebar/shell-sidebar";
 
 /**
@@ -128,7 +129,11 @@ export function useShellShortcutActions({
       if (computerOpen) return false;
       if (shortcut.type === "toggle-sidebar") {
         if (isMobileSidebar) setMobileSidebarOpen((open) => !open);
-        else setSidebarCollapsed(!sidebarCollapsed);
+        else {
+          const collapsing = !sidebarCollapsed;
+          setSidebarCollapsed(collapsing);
+          if (collapsing) focusChatListRestore();
+        }
         return true;
       }
       if (shortcut.type === "search") {

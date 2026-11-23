@@ -106,7 +106,20 @@ export * from "./meetings/meeting-service.js";
 export { purgeClearedConversationMemory } from "./memory/conversation-memory-cleanup.js";
 export { readAgentMemory } from "./memory/memory-context.js";
 export { AGENT_MEMORY_MAX_BYTES, buildAgentMemoryPrompt } from "./memory/memory-context.prompt.js";
+export {
+  DREAM_BATCH_MESSAGES,
+  DREAM_IDLE_MS,
+  listMemoryDreams,
+  MEMORY_DREAM_TIMEOUT_MS,
+  pruneMemoryDreams,
+  reconcileMemoryDreams,
+  recordMemoryDream,
+  settleMemoryDream,
+  startManualMemoryDream,
+  undoMemoryDream,
+} from "./memory/memory-dreams.js";
 export * from "./memory/memory-provider-factory.js";
+export { memoryDocumentError } from "./memory/memory-tools.js";
 export * from "./messaging/bot-messages.js";
 export * from "./messaging/chat-sdk-surface.js";
 export * from "./messaging/installed-messaging-surface.js";
@@ -134,6 +147,7 @@ export * from "./models/deployment-model.js";
 export { dataRetentionForConnect } from "./models/endpoints/data-retention.js";
 export * from "./models/endpoints/openai-compatible-url.js";
 export * from "./models/endpoints/openrouter-usage.js";
+export * from "./models/http-model-endpoints.js";
 export * from "./models/model-connect.js";
 export * from "./models/model-connect-check.js";
 export * from "./models/model-credential-list.js";

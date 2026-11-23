@@ -28,7 +28,14 @@ import {
   UpdateBotInput,
 } from "./bot.js";
 import { BotEmailAddressesSchema, BotEmailAddressSchema, BotEmailNameSchema } from "./bot-email.js";
-import { MemoryDocumentSchema, MemoryPromptBudgetSchema, MemoryScopeSchema } from "./bot-memory.js";
+import {
+  MemoryDocumentSchema,
+  MemoryDreamSchema,
+  MemoryPromptBudgetSchema,
+  MemoryRevisionSchema,
+  MemoryRevisionSummarySchema,
+  MemoryScopeSchema,
+} from "./bot-memory.js";
 import {
   BotSecretMetadata,
   BotSecretPutInput,
@@ -124,11 +131,52 @@ export const botsRpc = {
       .input(z.object({ botId: Id.optional(), scope: z.enum(["bot", "user"]).optional() }))
       .output(z.array(MemoryDocumentSchema)),
     budget: oc.input(z.object({ botId: Id })).output(MemoryPromptBudgetSchema),
+    dreams: oc
+      .input(
+        z.object({
+          botId: Id,
+          limit: z.number().int().min(1).max(100).optional(),
+          cursor: Id.optional(),
+        }),
+      )
+      .output(z.array(MemoryDreamSchema)),
+    /** Dreams kept per bot in this Space; null keeps the default of 100. */
+    dreamRetention: oc.output(
+      z.object({ dreamRetention: z.number().int().nullable(), canManage: z.boolean() }),
+    ),
+    setDreamRetention: oc
+      .input(z.object({ dreamRetention: z.number().int().min(20).max(500).nullable() }))
+      .output(z.object({ dreamRetention: z.number().int().nullable() })),
+    /** Consolidates the bot's notes now, for a person who does not want to wait for the night. */
+    dreamNow: oc.input(z.object({ botId: Id })).output(MemoryDreamSchema),
+    /** Undoes the bot's latest finished dream and returns its record. */
+    undoDream: oc.input(z.object({ dreamId: Id })).output(MemoryDreamSchema),
+    revisions: oc
+      .input(
+        z.object({
+          documentId: Id,
+          limit: z.number().int().min(1).max(100).optional(),
+          cursor: Id.optional(),
+        }),
+      )
+      .output(z.array(MemoryRevisionSummarySchema)),
+    revision: oc.input(z.object({ documentId: Id, revisionId: Id })).output(MemoryRevisionSchema),
+    /** Writes a past revision's content back as a new one. */
+    restore: oc
+      .input(
+        z.object({
+          documentId: Id,
+          revisionId: Id,
+          expectedRevision: z.number().int().positive().optional(),
+        }),
+      )
+      .output(MemoryDocumentSchema),
     update: oc
       .input(
         z.object({
           documentId: Id,
           content: z.string(),
+          description: z.string().nullable().optional(),
           expectedRevision: z.number().int().positive().optional(),
         }),
       )

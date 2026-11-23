@@ -22,7 +22,6 @@ import type { UserDeviceGateway } from "../../computers/host/user-device-protoco
 import { FakeWebProvider } from "../../providers/web/fake/fake-web.js";
 import { routineComputerFingerprint } from "../../routines/routine-owner-computer.js";
 import { ROUTINE_WATCH_NOTE_START } from "../../routines/routine-watch.prompt.js";
-import { MAX_SHARED_MEMORY_CHARS } from "../../tools/builtin.tool-definition.js";
 import type * as FleetToolsModule from "../../tools/fleet-tools.js";
 import {
   CATALOG_EXECUTE,
@@ -962,7 +961,7 @@ describe("connector read-only metadata and approval enforcement", () => {
   it("rejects shared memory content over the size limit", async () => {
     const args = {
       path: "MEMORY.md",
-      content: "x".repeat(MAX_SHARED_MEMORY_CHARS + 1),
+      content: "xxxx\n".repeat(400),
     };
     const f = fixture({ name: "save_shared_memory", builtin: true });
     f.setCalls([{ args, executionId: "call-1" }]);
@@ -970,7 +969,7 @@ describe("connector read-only metadata and approval enforcement", () => {
     expect(f.commit).not.toHaveBeenCalled();
     expect(f.pauseRunForInput).not.toHaveBeenCalled();
     expect(f.results.at(-1)).toEqual({
-      error: `content exceeds ${MAX_SHARED_MEMORY_CHARS} characters`,
+      error: "Memory is full (500 of 400 tokens).",
     });
   });
 
@@ -4413,7 +4412,7 @@ describe("user_computer_shell", () => {
       expect(f.instructions()).toContain(line);
       expect(f.instructions()).not.toContain(offlineLine);
     }
-    expect(gateway.connected).toHaveBeenCalledWith("user-1");
+    expect(gateway.connected).toHaveBeenCalledWith("user-1", undefined);
   });
 
   it.each([

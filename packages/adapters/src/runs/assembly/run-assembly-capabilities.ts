@@ -1,6 +1,6 @@
 import type { AgentRunRequest } from "@rakazo/adapter-kit";
 import type { MessageBlock } from "@rakazo/contracts";
-import { disabledBuiltinToolSet, modelRoleConnectionId } from "@rakazo/contracts";
+import { disabledBuiltinToolSet } from "@rakazo/contracts";
 import {
   BACKGROUND_HELPER_TRIGGER,
   chatAppConnectNote,
@@ -11,7 +11,7 @@ import {
   messagingDmSurfaceNote,
   nonOwnerChatPrivacyBlock,
 } from "@rakazo/core";
-import { availableInSpace, mayBeChannelMessage, parseComputerMode } from "@rakazo/db";
+import { mayBeChannelMessage, parseComputerMode } from "@rakazo/db";
 import { getLogger } from "@rakazo/logging";
 import { createApprovedEffectReplayQueue } from "../../approvals/approval-effect.js";
 import { appendOutsideText, taskPromptIsOutside } from "../../approvals/review-target-sources.js";
@@ -27,7 +27,11 @@ import {
 import { resolveComputerRunModel } from "../../computers/computer-model-settings.js";
 import { checkpointRunComputerWorkspace } from "../../computers/computer-workspace.js";
 import { sandboxKindCapabilities } from "../../computers/sandbox/sandbox-kind-capabilities.js";
-import { teamWorkspaceInstruction } from "../../computers/screens/computer-support.prompt.js";
+import { botWorkspaceDirectory } from "../../computers/screens/computer-support.js";
+import {
+  customWorkspaceInstruction,
+  teamWorkspaceInstruction,
+} from "../../computers/screens/computer-support.prompt.js";
 import { approvedModelCreditOffering } from "../../model-credits/offerings.js";
 import { resolveDeploymentModel } from "../../models/deployment-model.js";
 import { selectConfiguredModel } from "../../models/model-roles.js";
@@ -57,7 +61,6 @@ import {
 import { backgroundHelpersAllowed } from "../../tasks/background-helpers.js";
 import { TASK_CATALOG_GUIDANCE } from "../../tasks/task-catalog.prompt.js";
 import { agentConnectionTools, builtinAgentTools } from "../../tools/builtin.tool-definition.js";
-import type { ExecutorDeps } from "../executor/executor-deps.js";
 import type { RunExecutorServices, RunHold } from "../lifecycle/run-attempt.js";
 import { APPROVED_EFFECT_REPLAY_ORDER } from "../lifecycle/run-effects.js";
 import { createRunWorkspaceCheckpoint, failRunBeforeTurn } from "../lifecycle/run-lifecycle.js";
@@ -93,25 +96,6 @@ import {
 } from "./run-instructions.prompt.js";
 import { runReplyMode } from "./run-replies.prompt.js";
 import { createRunTrustLoaders } from "./run-trust.js";
-
-/** Same reach as the MCP connector: usable servers assigned to the bot or shared with every bot. */
-async function verbatimMcpServersForRun(
-  prisma: ExecutorDeps["prisma"],
-  scope: { botId: string; spaceId: string; userId: string },
-) {
-  if (!prisma.mcpServer?.findMany) return undefined;
-  const servers = await prisma.mcpServer.findMany({
-    where: {
-      verbatimResults: true,
-      enabled: true,
-      ...availableInSpace(scope),
-      AND: [{ OR: [{ allBots: true }, { assignments: { some: { botId: scope.botId } } }] }],
-    },
-    select: { id: true, slug: true },
-  });
-  if (!servers?.length) return undefined;
-  return { ids: servers.map((server) => server.id), slugs: servers.map((server) => server.slug) };
-}
 
 /** Undefined when the run cannot start its model: it was failed instead of starting a turn. */
 export async function startTurnModel(
@@ -260,6 +244,7 @@ export async function prepareRunComputer(
   const recentFilesInput = {
     context,
     computerMode,
+    workspacePath: bot.workspacePath,
     skipMessageId: currentTurnMessage?.id,
     maxTurns: RECENT_TURN_IMAGE_TURNS,
   };
@@ -282,7 +267,9 @@ export async function prepareRunComputer(
         context.screenLeaseId = screenLeaseIdForRun(hold.computerLease, runId, hold.fence);
       }
       getLogger().info("computer.requested");
-      const computer = await provisionComputer(deps, storedComputer.id, context, "bot");
+      const computer = await provisionComputer(deps, storedComputer.id, context, "bot", undefined, {
+        workspacePath: bot.workspacePath,
+      });
       earlierFiles.computerStarted();
       computerUse.screenRelease = { computer, context, keepWarm: false };
       recordComputerDisk(deps, storedComputer.id, computer, context);
@@ -338,6 +325,7 @@ export async function prepareRunComputer(
                   context,
                   computer: async () => computer,
                   computerMode,
+                  workspacePath: bot.workspacePath,
                   markWorkspaceDirty: workspaceCheckpoint.markDirty,
                 },
               );
@@ -353,6 +341,7 @@ export async function prepareRunComputer(
                   context,
                   computer: async () => computer,
                   computerMode,
+                  workspacePath: bot.workspacePath,
                   markWorkspaceDirty: workspaceCheckpoint.markDirty,
                 }),
               );
@@ -587,13 +576,20 @@ export async function resolveRunCapabilities(
     deps.userDevices &&
     !disabledBuiltinTools.has(USER_COMPUTER_SHELL_TOOL)
   ) {
-    const device = await deps.userDevices.connected(userComputerOwnerId).catch(() => null);
+    const pinnedDeviceId = bot.hostDeviceId ?? undefined;
+    const device = await deps.userDevices
+      .connected(userComputerOwnerId, pinnedDeviceId)
+      .catch(() => null);
     if (device) {
       userComputer = "connected";
       userComputerShell = !device.screenOnly;
       // The macOS and Windows desktops fetch a screen driver; Linux has none yet.
-      const computers = await deps.userDevices.list(userComputerOwnerId);
-      userComputerScreen = [device, ...computers.filter((computer) => computer.connected)].some(
+      const computers = pinnedDeviceId
+        ? [device]
+        : await deps.userDevices
+            .list(userComputerOwnerId)
+            .then((listed) => [device, ...listed.filter((computer) => computer.connected)]);
+      userComputerScreen = computers.some(
         (computer) => computer.platform === "darwin" || computer.platform === "win32",
       );
     } else userComputer = "offline";
@@ -946,55 +942,18 @@ export async function loadComputerInstructions(
   ]
     .filter(Boolean)
     .join(" ");
-  const workspaceInstruction =
-    computerMode === "team" ? teamWorkspaceInstruction(bot.id) : PRIVATE_WORKSPACE_INSTRUCTION;
+  const workspaceInstruction = bot.workspacePath
+    ? customWorkspaceInstruction(
+        computerMode,
+        botWorkspaceDirectory(computerMode, bot.id, bot.workspacePath),
+      )
+    : computerMode === "team"
+      ? teamWorkspaceInstruction(bot.id)
+      : PRIVATE_WORKSPACE_INSTRUCTION;
   return { hostEnvironment, computerInstruction, workspaceInstruction };
 }
 
 export type ComputerInstructions = Awaited<ReturnType<typeof loadComputerInstructions>>;
 
-export async function loadModelFallbacks(
-  hold: RunHold,
-  parts: { records: RunRecords; model: StartedTurnModel; capabilities: RunCapabilities },
-) {
-  const { deps, run } = hold;
-  const { bot } = parts.records;
-  const { backups, runModelId, runModelProvider } = parts.model;
-  const { mainRunModel } = parts.capabilities;
-  const verbatimMcpServers = await verbatimMcpServersForRun(deps.prisma, {
-    botId: bot.id,
-    spaceId: run.spaceId,
-    userId: run.userId,
-  });
-  // The running model is not its own backup, unless another account serves it.
-  const fallbackModels = (await backups.load()).filter(
-    (candidate) =>
-      !backups.unavailable.has(candidate) &&
-      (candidate.provider !== runModelProvider ||
-        candidate.modelId !== runModelId ||
-        (modelRoleConnectionId(candidate) !== undefined &&
-          modelRoleConnectionId(candidate) !== mainRunModel.connectionId)),
-  );
-  const fallbackKey = (provider: string, modelId: string, credentialId?: string | null) =>
-    JSON.stringify([provider, modelId, credentialId ?? null]);
-  const fallbackModelKeys = new Set(
-    fallbackModels.map((candidate) =>
-      fallbackKey(candidate.provider, candidate.modelId, modelRoleConnectionId(candidate)),
-    ),
-  );
-  const fallbackModelIds = new Set(
-    fallbackModels.map((candidate) => fallbackKey(candidate.provider, candidate.modelId)),
-  );
-  // Provider kind and model id only: custom endpoints are identified by kind, never host.
-  const activeModel = { "model.provider": runModelProvider, "model.id": runModelId };
-  return {
-    verbatimMcpServers,
-    fallbackModels,
-    fallbackKey,
-    fallbackModelKeys,
-    fallbackModelIds,
-    activeModel,
-  };
-}
-
-export type ModelFallbacks = Awaited<ReturnType<typeof loadModelFallbacks>>;
+export type { ModelFallbacks } from "./run-model-fallbacks.js";
+export { loadModelFallbacks } from "./run-model-fallbacks.js";

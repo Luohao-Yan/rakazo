@@ -36,6 +36,12 @@ function bot(id = "bot-1"): Bot {
     fleetManagement: false,
     replyMode: "chat",
     disabledBuiltinTools: [],
+    workspacePath: null,
+    hostDevice: null,
+    approvalMode: null,
+    maxConcurrentHelpers: null,
+    useOwnMemory: true,
+    useSharedMemory: true,
     webhookConfigured: false,
     spawnKey: null,
   };

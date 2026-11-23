@@ -182,6 +182,8 @@ export async function createRunContext(
     bot,
     thread,
     task,
+    contextWindow: parts.model.resolved.contextWindow ?? null,
+    observedContextTokens: null,
     context,
     abortController: runAbortController,
     runtimeAbortController: new AbortController(),
@@ -200,6 +202,7 @@ export async function createRunContext(
       callClientNonce: callClientNonceForRun,
       peerMessage,
       userComputerOwner: userComputerOwnerId,
+      userComputerDeviceId: userComputerOwnerId ? (bot.hostDeviceId ?? undefined) : undefined,
       ownerComputerRoutine: parts.records.ownerComputerRoutine,
     },
     computer: {

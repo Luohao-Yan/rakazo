@@ -104,6 +104,9 @@ function transferMaxBytes(deps: RouterContext["deps"], kind: string) {
 export function computerRoutes(ctx: RouterContext) {
   const { deps, repos, taughtSkills, authed } = ctx;
   return {
+    devices: authed.devices.handler(async ({ context }) => ({
+      devices: (await deps.userDevices?.list(context.actor.userId)) ?? [],
+    })),
     computer: {
       status: authed.computer.status.handler(async ({ context, input }) =>
         computerStatus(deps, context.actor, input.botId),
@@ -117,7 +120,7 @@ export function computerRoutes(ctx: RouterContext) {
               deps.sandbox,
               await wakeableComputerRef(deps.prisma, bot.computer),
               parseComputerMode(bot.computer.scope),
-              bot.id,
+              bot,
               computerContext(context.actor, bot.id, "boot"),
             );
             scheduleComputerSleep(deps.jobs, bot.computer.id);
@@ -136,10 +139,17 @@ export function computerRoutes(ctx: RouterContext) {
         const computerId = bot.computer.id;
         try {
           await getLogger().withContext({ reason: "manual" }, () =>
-            provisionComputer(deps, computerId, {
-              ...ctx,
-              screenLeaseId: screenLeaseIdForRun(lease, manualRunId),
-            }),
+            provisionComputer(
+              deps,
+              computerId,
+              {
+                ...ctx,
+                screenLeaseId: screenLeaseIdForRun(lease, manualRunId),
+              },
+              "none",
+              undefined,
+              { workspacePath: bot.workspacePath },
+            ),
           );
           scheduleComputerSleep(deps.jobs, bot.computer.id);
         } catch (error) {
@@ -495,7 +505,7 @@ export function computerRoutes(ctx: RouterContext) {
         const computerMode = parseComputerMode(computer.scope);
         const ctx = computerContext(context.actor, bot.id, "files");
         const storedPath = callerWorkspacePath(() =>
-          resolveBotWorkspacePath(computerMode, bot.id, input.path),
+          resolveBotWorkspacePath(computerMode, bot.id, input.path, bot.workspacePath),
         );
         let entries: Awaited<ReturnType<SandboxProvider["listFiles"]>>;
         if (computer.state === "running" && computer.providerRef) {
@@ -505,14 +515,20 @@ export function computerRoutes(ctx: RouterContext) {
           });
           scheduleComputerSleep(deps.jobs, computer.id);
           const ref = await wakeableComputerRef(deps.prisma, computer);
-          await ensureComputerWorkspaceLayout(deps.sandbox, ref, computerMode, bot.id, ctx);
+          await ensureComputerWorkspaceLayout(deps.sandbox, ref, computerMode, bot, ctx);
           entries = await deps.sandbox.listFiles(ref, storedPath, ctx);
         } else {
           entries = await deps.home.list(computer.homeKey, storedPath, ctx);
         }
         return entries.map((entry) => ({
           ...entry,
-          path: displayBotWorkspacePath(computerMode, bot.id, input.path, entry.path),
+          path: displayBotWorkspacePath(
+            computerMode,
+            bot.id,
+            input.path,
+            entry.path,
+            bot.workspacePath,
+          ),
         }));
       }),
       readFile: authed.computer.readFile.handler(async ({ context, input }) => {
@@ -521,7 +537,7 @@ export function computerRoutes(ctx: RouterContext) {
         const computerMode = parseComputerMode(bot.computer.scope);
         const ctx = computerContext(context.actor, bot.id, "read");
         const storedPath = callerWorkspacePath(() =>
-          resolveBotWorkspacePath(computerMode, bot.id, input.path),
+          resolveBotWorkspacePath(computerMode, bot.id, input.path, bot.workspacePath),
         );
         let content: string;
         if (bot.computer.state === "running" && bot.computer.providerRef) {
@@ -574,7 +590,12 @@ export function computerRoutes(ctx: RouterContext) {
         }
         await keepComputerAwake(deps, computer.id);
         const storedPath = callerWorkspacePath(() =>
-          resolveBotWorkspacePath(parseComputerMode(computer.scope), bot.id, input.path),
+          resolveBotWorkspacePath(
+            parseComputerMode(computer.scope),
+            bot.id,
+            input.path,
+            bot.workspacePath,
+          ),
         );
         const bytes = await deps.sandbox
           .readFile(
@@ -621,7 +642,12 @@ export function computerRoutes(ctx: RouterContext) {
         }
         await keepComputerAwake(deps, computer.id);
         const storedPath = callerWorkspacePath(() =>
-          resolveBotUploadPath(parseComputerMode(computer.scope), bot.id, input.path),
+          resolveBotUploadPath(
+            parseComputerMode(computer.scope),
+            bot.id,
+            input.path,
+            bot.workspacePath,
+          ),
         );
         await deps.sandbox.writeFile(
           await wakeableComputerRef(deps.prisma, computer),
@@ -670,7 +696,12 @@ export function computerRoutes(ctx: RouterContext) {
             await wakeableComputerRef(deps.prisma, computer),
             {
               controlToken: computer.controlLeaseId,
-              cwd: resolveBotWorkspaceCwd(parseComputerMode(computer.scope), bot.id, undefined),
+              cwd: resolveBotWorkspaceCwd(
+                parseComputerMode(computer.scope),
+                bot.id,
+                undefined,
+                bot.workspacePath,
+              ),
             },
             await computerScreenContext(
               deps.prisma,

@@ -53,6 +53,10 @@ export const AnalyticsBotSetting = z.enum([
   "daily_check_ins",
   "fleet_management",
   "reply_mode",
+  "approvals",
+  "parallel_work",
+  "conversation_compaction",
+  "tool_calls",
   "tools",
 ]);
 export const AnalyticsTrigger = RunTriggerSchema;

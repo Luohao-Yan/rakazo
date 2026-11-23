@@ -3,6 +3,7 @@ import {
   archiveBot,
   carriedBotModelPin,
   defaultVaultItemTitle,
+  ensureComputerWorkspaceLayout,
   forgetBotSecret,
   forgetPageShareSecrets,
   groupsRemovedByDeletingBot,
@@ -21,6 +22,7 @@ import {
   storeBotSecret,
   storeBotWebhookKey,
   switchBotComputer,
+  toComputerRef,
   VaultFullError,
   VaultItemRefusedError,
   VaultRetryError,
@@ -42,6 +44,7 @@ import {
   botInboundPath,
   botInboundUrl,
   noneSkipped,
+  normalizeConversationCompactionMode,
   resolveBotAvatarSet,
   VaultPolicy,
   vaultImportLogin,
@@ -54,12 +57,13 @@ import {
   commitBotUpdate,
   IsolationError,
   isRecordNotFound,
+  parseComputerMode,
   recordSecurityEvent,
   restoreBotUnderComputerQuota,
   settingsTarget,
   THREAD_LOCK_TRANSACTION_OPTIONS,
 } from "@rakazo/db";
-import { getLogger } from "@rakazo/logging";
+import { bestEffort, getLogger } from "@rakazo/logging";
 import { managedAppCatalog } from "../account/onboarding.js";
 import { requireIdentityConfirmation } from "../auth/identity-confirmation.js";
 import type { AgentImportServices } from "../bots/agent-import.js";
@@ -379,6 +383,7 @@ export function botsRoutes(ctx: RouterContext) {
       ),
       duplicate: authed.bots.duplicate.handler(async ({ context, input }) => {
         const source = await repos.getBot(context.actor, input.botId);
+        const sourceHostDevice = source.hostDevice;
         const duplicate = await repos.createBot(context.actor, {
           name: duplicateBotName(source.name),
           description: source.description,
@@ -392,6 +397,23 @@ export function botsRoutes(ctx: RouterContext) {
           ...carriedBotModelPin(source),
           disabledBuiltinTools: source.disabledBuiltinTools,
           replyMode: source.replyMode,
+          approvalMode: source.approvalMode,
+          maxConcurrentHelpers: source.maxConcurrentHelpers,
+          conversationCompactionMode: normalizeConversationCompactionMode(
+            source.conversationCompactionMode,
+          ),
+          conversationCompactionTokens: source.conversationCompactionTokens,
+          maxToolCallsPerTurn: source.maxToolCallsPerTurn,
+          useOwnMemory: source.useOwnMemory,
+          useSharedMemory: source.useSharedMemory,
+          workspacePath: source.workspacePath,
+          // The paired computer belongs to an account; a duplicate reaches it only from there.
+          hostDeviceId:
+            sourceHostDevice &&
+            sourceHostDevice.userId === context.actor.userId &&
+            !sourceHostDevice.revokedAt
+              ? sourceHostDevice.id
+              : undefined,
         });
         const assignments = await deps.prisma.botMcpServer.findMany({
           where: {
@@ -420,6 +442,17 @@ export function botsRoutes(ctx: RouterContext) {
       }),
       update: authed.bots.update.handler(async ({ context, input }) => {
         const existing = await repos.getBot(context.actor, input.botId);
+        if (input.hostDeviceId) {
+          const device = await deps.prisma.userDevice.findFirst({
+            where: { id: input.hostDeviceId, userId: existing.userId, revokedAt: null },
+            select: { id: true },
+          });
+          if (!device)
+            throw new ClientError(
+              "BAD_REQUEST",
+              "That computer is not paired to this bot's owner.",
+            );
+        }
         if (input.sectionId) {
           const section = await deps.prisma.botSection.findFirst({
             where: {
@@ -497,6 +530,25 @@ export function botsRoutes(ctx: RouterContext) {
             ...(input.disabledBuiltinTools !== undefined
               ? { disabledBuiltinTools: input.disabledBuiltinTools }
               : {}),
+            ...(input.workspacePath !== undefined ? { workspacePath: input.workspacePath } : {}),
+            ...(input.hostDeviceId !== undefined ? { hostDeviceId: input.hostDeviceId } : {}),
+            ...(input.approvalMode !== undefined ? { approvalMode: input.approvalMode } : {}),
+            ...(input.maxConcurrentHelpers !== undefined
+              ? { maxConcurrentHelpers: input.maxConcurrentHelpers }
+              : {}),
+            ...(input.conversationCompactionMode !== undefined
+              ? { conversationCompactionMode: input.conversationCompactionMode }
+              : {}),
+            ...(input.conversationCompactionTokens !== undefined
+              ? { conversationCompactionTokens: input.conversationCompactionTokens }
+              : {}),
+            ...(input.maxToolCallsPerTurn !== undefined
+              ? { maxToolCallsPerTurn: input.maxToolCallsPerTurn }
+              : {}),
+            ...(input.useOwnMemory !== undefined ? { useOwnMemory: input.useOwnMemory } : {}),
+            ...(input.useSharedMemory !== undefined
+              ? { useSharedMemory: input.useSharedMemory }
+              : {}),
           },
         }).catch((error) => {
           if (input.expectedSettings && isRecordNotFound(error))
@@ -506,6 +558,24 @@ export function botsRoutes(ctx: RouterContext) {
             );
           throw error;
         });
+        // A command run into a folder that does not exist yet fails, so create the new one
+        // right away on a running computer instead of waiting for its next boot.
+        if (
+          input.workspacePath &&
+          existing.computer?.state === "running" &&
+          existing.computer.providerRef
+        ) {
+          bestEffort(
+            "ensure the bot's workspace folder after its settings save",
+            ensureComputerWorkspaceLayout(
+              deps.sandbox,
+              toComputerRef(existing.computer),
+              parseComputerMode(existing.computer.scope),
+              { id: existing.id, workspacePath: input.workspacePath },
+              computerContext(context.actor, existing.id, "settings.workspace"),
+            ),
+          );
+        }
         for (const setting of changedBotSettings(existing, input)) {
           deps.analytics?.capture(context.actor.userId, { name: "bot_setting_changed", setting });
         }

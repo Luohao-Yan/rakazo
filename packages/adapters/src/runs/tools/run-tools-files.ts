@@ -35,6 +35,7 @@ function runWorkspace(ctx: RunContext, call: ToolCall): RunWorkspace {
   return {
     botId: ctx.bot.id,
     computerMode: ctx.computer.mode,
+    workspacePath: ctx.bot.workspacePath,
     computer: () => ctx.computer.get("tool", call.name),
     markDirty: () => ctx.computer.checkpoint.markDirty(),
     context: ctx.context,
@@ -131,7 +132,10 @@ export const fileTools: ToolHandlers = {
     try {
       await deps.sandbox.writeFile(
         await ctx.computer.get("tool", name),
-        { path: resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath), content },
+        {
+          path: resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath, bot.workspacePath),
+          content,
+        },
         context,
       );
     } catch (error) {
@@ -217,7 +221,7 @@ export async function readWorkspaceFile(
   try {
     bytes = await deps.sandbox.readFile(
       await ctx.computer.get("tool", call.name),
-      resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath),
+      resolveBotWorkspacePath(ctx.computer.mode, bot.id, filePath, bot.workspacePath),
       context,
       { maxBytes: deps.maxUploadSizeBytes ?? ATTACHMENT_MAX_BYTES },
     );

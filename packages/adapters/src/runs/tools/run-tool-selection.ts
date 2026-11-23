@@ -3,7 +3,12 @@ import {
   FLEET_TOOL_NAMES,
   FLEET_WRITE_TOOL_NAMES,
 } from "@rakazo/contracts";
-import { BACKGROUND_HELPER_TRIGGER, isBackgroundRunTrigger, isOwnerStartedRun } from "@rakazo/core";
+import {
+  BACKGROUND_HELPER_TRIGGER,
+  isBackgroundRunTrigger,
+  isOwnerStartedRun,
+  MEMORY_DREAM_TRIGGER,
+} from "@rakazo/core";
 import { selectCloudAgentTools } from "../../cloud-agents/cloud-agent-tools-select.js";
 import { READ_MEETING_TRANSCRIPT } from "../../meetings/meeting-chat.tool-definition.js";
 import { selectMemoryTools } from "../../memory/memory-tools.js";
@@ -89,6 +94,12 @@ export const FLEET_WRITE_TOOL_NAMES_SET: ReadonlySet<string> = new Set(FLEET_WRI
  * every tool (see commitAnswerRunInput).
  */
 const CREATED_RUN_TOOL_NAMES = new Set(["ask_user", "update_bot"]);
+
+/** A dream run consolidates the notes and does nothing else. */
+export const MEMORY_DREAM_TOOL_NAMES: ReadonlySet<string> = new Set([
+  "remember",
+  "save_shared_memory",
+]);
 
 /** Messaging and media tools a background run is not offered (see selectBuiltinToolsForRun). */
 const BACKGROUND_DROPPED_TOOL_NAMES: ReadonlySet<string> = new Set([
@@ -219,6 +230,7 @@ export function selectBuiltinToolsForRun(options: {
     (tool) =>
       !disabled.has(tool.name) &&
       (options.trigger !== "created" || CREATED_RUN_TOOL_NAMES.has(tool.name)) &&
+      (options.trigger !== MEMORY_DREAM_TRIGGER || MEMORY_DREAM_TOOL_NAMES.has(tool.name)) &&
       (options.trigger !== BACKGROUND_HELPER_TRIGGER || !SUBAGENT_HIDDEN_TOOLS.has(tool.name)) &&
       (!FLEET_TOOL_NAMES_SET.has(tool.name) ||
         (Boolean(options.fleetManagement) && ownerStartedRun)) &&

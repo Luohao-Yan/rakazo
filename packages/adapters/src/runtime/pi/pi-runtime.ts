@@ -280,6 +280,7 @@ export class PiAgentRuntime implements AgentRuntime {
         trackedBudget = toolCallBudgetFor(
           request.runId,
           typeof saved?.toolCallCount === "number" ? saved.toolCallCount : 0,
+          request.maxToolCallsPerTurn,
         );
         const initialModelTarget: RuntimeModelTarget = {
           config: request.model,
@@ -445,12 +446,14 @@ export class PiAgentRuntime implements AgentRuntime {
           onUsage: (usage: AgentUsage) => {
             contextPolicy.onUsage(usage);
             const decision = contextPolicy.getDecision();
-            if (decision)
+            if (decision) {
+              request.onContextObserved?.(decision.estimatedInputTokens);
               this.onContextDecision?.({
                 ...decision,
                 runId: request.runId,
                 usage,
               });
+            }
           },
         };
         // The idle watchdog may clone a terminal message, preserving its content array. Each

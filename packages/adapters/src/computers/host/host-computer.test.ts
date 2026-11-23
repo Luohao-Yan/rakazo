@@ -201,7 +201,7 @@ describe("native host computer transport", () => {
   });
 
   it("creates and cleans Team folders without Unix command tools", async () => {
-    await ensureComputerWorkspaceLayout(client, computer, "team", "bot-1", context);
+    await ensureComputerWorkspaceLayout(client, computer, "team", { id: "bot-1" }, context);
     expect(await client.workspaceDirectories(computer, { action: "list" }, context)).toEqual([
       "bots/bot-1",
     ]);
@@ -217,7 +217,7 @@ describe("native host computer transport", () => {
   });
 
   it("unlinks a deleted bot's symlink without following it and refuses a linked parent", async () => {
-    await ensureComputerWorkspaceLayout(client, computer, "team", "bot-1", context);
+    await ensureComputerWorkspaceLayout(client, computer, "team", { id: "bot-1" }, context);
     const [directory] = await readdir(path.join(root, "desktop-computers"));
     const home = path.join(root, "desktop-computers", directory!);
     const outside = path.join(root, "outside");

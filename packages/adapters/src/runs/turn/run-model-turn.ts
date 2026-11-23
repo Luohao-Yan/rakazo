@@ -173,6 +173,10 @@ function modelTurnRequest(
     : undefined;
   return {
     botId: bot.id,
+    maxToolCallsPerTurn: bot.maxToolCallsPerTurn ?? undefined,
+    onContextObserved: (estimatedInputTokens) => {
+      ctx.observedContextTokens = Math.max(ctx.observedContextTokens ?? 0, estimatedInputTokens);
+    },
     verbatimMcpServers,
     threadId: thread.id,
     runId,

@@ -64,6 +64,7 @@ import type { GalleryImage } from "./image-gallery";
 import { galleryImageKey, ImageGalleryProvider } from "./image-gallery";
 import { MessageView } from "./message-view";
 import { QuoteSelectionButton } from "./quote-selection-button";
+import { useEnteringMessages } from "./use-entering-messages";
 import { useReplyAnnouncement } from "./use-reply-announcement";
 
 /** Bubbles stop at a readable line length instead of stretching with wide windows. */
@@ -209,6 +210,7 @@ export const Transcript = memo(function Transcript({
     () => expandPeerReplies(transcript, expandedPeerMarkers),
     [transcript, expandedPeerMarkers],
   );
+  const entering = useEnteringMessages(messages);
   const announcement = useReplyAnnouncement(
     messages,
     (message) =>
@@ -699,6 +701,7 @@ export const Transcript = memo(function Transcript({
             const message = item.message;
             const peerReceipt = isPeerReceiptBlocks(message.blocks);
             const messageReactions = reactionView.reactions.get(message.id);
+            const streaming = message.id.startsWith("progress:");
             return (
               <Fragment key={message.id}>
                 {separatorIds.has(message.id) ? (
@@ -709,6 +712,7 @@ export const Transcript = memo(function Transcript({
                 ) : null}
                 <div
                   data-message-id={message.id}
+                  data-enter={entering.has(message.id) ? "pop" : undefined}
                   className={peerReceipt ? "relative" : "group/message relative hover:z-[1]"}
                 >
                   <div
@@ -720,6 +724,7 @@ export const Transcript = memo(function Transcript({
                   >
                     <div
                       data-testid={peerReceipt ? undefined : "message-bubble-frame"}
+                      data-streaming={streaming ? "" : undefined}
                       className={
                         peerReceipt
                           ? undefined
@@ -743,6 +748,7 @@ export const Transcript = memo(function Transcript({
                               } min-w-0 ${bubbleFrameWidth(message.role)}`
                       }
                     >
+                      {streaming ? <span aria-hidden="true" className="stream-sweep" /> : null}
                       <MessageView
                         artifactTarget={artifactTarget}
                         message={message}

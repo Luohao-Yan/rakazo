@@ -6,9 +6,8 @@ import {
   connectorKindFromToolName,
   connectorReadRequiresApproval,
   connectorToolRequiresApproval,
-  decisiveActionApprovalRules,
   displayName,
-  humanizeToolName,
+  MEMORY_DREAM_TRIGGER,
   outboundSiteGate,
   outsideRunToolRequiresApproval,
   ownComputerActionNeedsReview,
@@ -72,9 +71,12 @@ import {
 import { enqueueSteeringContinuation, renewRunLease } from "../lifecycle/run-lifecycle.js";
 import { notifyRun } from "../lifecycle/run-notifications.js";
 import { refusal } from "../turn/tool-refusal.js";
-import { auditToolCall } from "./run-tool-audit.js";
+import { auditToolCall, blockingRuleSuffix } from "./run-tool-audit.js";
 import type { ToolRequest } from "./run-tool-request.js";
 import { reviewToolCall } from "./run-tool-review.js";
+
+export { auditToolCall } from "./run-tool-audit.js";
+
 import { BUILTIN_AGENT_TOOL_NAMES, READ_ONLY_AGENT_TOOLS } from "./run-tool-selection.js";
 import { callMediaTool } from "./run-tools-files.js";
 import { callPaidService } from "./run-tools-integrations.js";
@@ -262,7 +264,16 @@ export async function gateToolCall(
           : undefined;
   const pageUrl = typeof pageTarget === "string" ? normalizedHttpUrl(pageTarget) : undefined;
   const pageSite = pageUrl ? urlSite(pageUrl) : undefined;
-  const mode = approvalModeFromPreference(await ctx.trust.loadAutoReviewPreference());
+  // A dream is a system consolidation nobody watches: it never waits on a card. Its tool set is
+  // only the memory writes, and Block rules still refuse them.
+  // A bot's own mode wins over the owner's Space mode; an unset or unrecognized value follows it.
+  const storedMode = ctx.bot.approvalMode;
+  const mode =
+    run.trigger === MEMORY_DREAM_TRIGGER
+      ? "never"
+      : storedMode === "ask" || storedMode === "auto" || storedMode === "never"
+        ? storedMode
+        : approvalModeFromPreference(await ctx.trust.loadAutoReviewPreference());
   // Only the approval model reads this, so only Auto looks for outside content here.
   const ownComputerActionReviewed = await ownComputerActionNeedsReview(name, args, {
     tainted: async () => mode === "auto" && (await isRunTainted(ctx)),
@@ -668,15 +679,6 @@ export async function gateToolCall(
     for (const trust of connectorTrusts) trusted.add(trust);
   }
   return { call };
-}
-
-function blockingRuleSuffix(resolved: ReturnType<typeof resolveActionApprovalForTools>): string {
-  const labels = decisiveActionApprovalRules(resolved).map((rule) => {
-    const value = rule.matchValue.trim().replace(/\s+/g, " ");
-    return JSON.stringify(rule.matchKind === "site" ? value : humanizeToolName(value));
-  });
-  if (labels.length === 0) return "";
-  return ` by the saved ${labels.length === 1 ? "rule" : "rules"} ${labels.join(", ")}`;
 }
 
 function createToolCall(

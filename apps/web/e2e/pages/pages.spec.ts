@@ -6,7 +6,7 @@ import {
   captureScreenshot,
   completeOnboarding,
   createNamedBot,
-  openBotPanel,
+  openBotLibrary,
   rpc,
   signup,
 } from "../helpers/helpers";
@@ -547,7 +547,7 @@ test("a bot's page shows in its reply, opens full screen, is shared by link and 
   await expect(pageFrame(page, "Signups dashboard").getByText("1.9%")).toBeVisible();
   await page.keyboard.press("Escape");
 
-  await openBotPanel(page);
+  await openBotLibrary(page);
   await page
     .getByTestId("bot-pages")
     .getByRole("button", { name: /^Signups dashboard/ })
@@ -877,7 +877,7 @@ test("a page's failures, a deleted page's card, and the Library's Share, search 
   await closePage(page);
 
   // The Library's Share opens the popover, every time.
-  await openBotPanel(page);
+  await openBotLibrary(page);
   // The panel shows the latest pages; the whole list is a separate view once there are more.
   const library = page.getByTestId("bot-pages").filter({ visible: true });
   for (let round = 0; round < 2; round++) {
@@ -920,7 +920,7 @@ test("a page's failures, a deleted page's card, and the Library's Share, search 
 
   // A longer list gets a field to find a page by title.
   for (const title of ["One", "Two", "Three", "Four", "Five", "Six", "Seven"]) await save(title);
-  await openBotPanel(page);
+  await openBotLibrary(page);
   await expect(library.getByRole("listitem")).toHaveCount(3);
   await library.getByRole("button", { name: "Pages", exact: true }).click();
   await expect(library.getByRole("listitem")).toHaveCount(8);
@@ -973,7 +973,7 @@ test("a page's failures, a deleted page's card, and the Library's Share, search 
   await page.unroute("**/rpc/pages/list");
 });
 
-test("a group's pages show in its settings, and the palette finds and opens a page", async ({
+test("a group's pages show in its panel, and the palette finds and opens a page", async ({
   page,
 }, testInfo) => {
   await page.addInitScript(() => localStorage.setItem("rakazo.uiAppearance", "dark"));
@@ -990,7 +990,10 @@ test("a group's pages show in its settings, and the palette finds and opens a pa
   await page.getByTestId("bot-settings-trigger").click();
   const settings = page.getByTestId("side-panel");
   await expect(settings).toHaveAttribute("data-panel", "group-settings");
-  await expect(settings.getByRole("heading", { name: "Pages" })).toBeVisible();
+  await expect(settings.getByRole("tab", { name: "Pages" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
   await expect(
     settings.getByText(
       "Pages this group builds for you appear here. Ask for a dashboard, tracker or plan to make one.",
@@ -1262,7 +1265,7 @@ test("specific people review a version and lose access when removed", async ({
     await page.getByRole("button", { name: "Close page", exact: true }).click();
     const card = page.getByTestId("page-card").filter({ hasText: title });
     await expect(card).toContainText("Page · Specific people");
-    await openBotPanel(page);
+    await openBotLibrary(page);
     const library = page.getByTestId("bot-pages").filter({ visible: true });
     await expect(library.getByRole("listitem").filter({ hasText: title })).toContainText(
       "Specific people",

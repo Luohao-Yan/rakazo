@@ -255,6 +255,7 @@ model UserDevice {
   /// Who revoked it: "owner", "device" or "session" (its sign-in ended). Null when unknown.
   revokedBy   String?
   connections UserDeviceConnection[]
+  boundBots   Bot[]                  @relation("BotHostDevice")
 
   @@index([userId, revokedAt])
   @@map("user_devices")
@@ -710,6 +711,9 @@ model Space {
   connections                 Connection[]
   capabilities                CapabilityInstall[]
   memoryDocuments             MemoryDocument[]
+  memoryDreams                MemoryDream[]
+  /// Dreams kept per bot in this Space; null keeps the default of 100.
+  dreamRetention              Int?
   agentHomes                  AgentHome[]
   browserProfiles             BrowserProfile[]
   artifacts                   Artifact[]
@@ -840,6 +844,9 @@ model DeploymentSettings {
   computerProvider                String?
   /// That provider's encrypted connection settings, owned by the deployment rather than a user.
   computerProviderCipher          String?
+  /// Admins allow members to save and use plain-HTTP model endpoints (intranet gateways),
+  /// including sending API keys without TLS. Checked on save and re-checked on every run.
+  httpModelEndpointsAllowed       Boolean  @default(false)
   createdAt                       DateTime @default(now())
   updatedAt                       DateTime @updatedAt
 
@@ -1039,6 +1046,11 @@ model Bot {
   parentBotId       String?
   spawnKey          String?
   memoryScope       String?
+  /// Whether this bot's own notes and the Space's shared notes reach its prompt.
+  useOwnMemory      Boolean @default(true)
+  useSharedMemory   Boolean @default(true)
+  /// Hash of MEMORY.md the last dream left behind, so a tidy runs only after the notes change.
+  memoryTidiedHash  String?
   parent            Bot?              @relation("BotChildren", fields: [parentBotId], references: [id], onDelete: SetNull)
   children          Bot[]             @relation("BotChildren")
   createdAt         DateTime          @default(now())
@@ -1048,6 +1060,13 @@ model Bot {
   computerId        String?
   computer          Computer?         @relation(fields: [computerId], references: [id], onDelete: SetNull)
   computerSwitching Boolean           @default(false)
+  /// The paired computer this bot's own tools reach, from its owner's account; null uses
+  /// whichever one connects first.
+  hostDeviceId      String?
+  hostDevice        UserDevice?       @relation("BotHostDevice", fields: [hostDeviceId], references: [id], onDelete: SetNull)
+  /// The bot's own folder on its computer; null uses the default (bots/<id> on a Team Computer,
+  /// the home root on a private one).
+  workspacePath     String?
   voiceId           String?
   autoSpeak         Boolean           @default(false)
   modelProvider     String?
@@ -1061,10 +1080,21 @@ model Bot {
   dailyCheckIns Boolean @default(true)
   fleetManagement        Boolean @default(true)
   replyMode              String  @default("chat")
+  /// "ask", "auto" or "never" to override the owner's Space mode for this bot; null follows it.
+  approvalMode           String?
+  /// Background helpers this bot may run at once; null uses the deployment default.
+  maxConcurrentHelpers   Int?
+  /// "automatic", "earlier", "near_limit" or "custom"; how this bot compacts older messages.
+  conversationCompactionMode   String @default("automatic")
+  /// Observed input-token threshold when conversationCompactionMode is "custom".
+  conversationCompactionTokens Int?
+  /// Tool calls one turn may make; null uses the deployment default.
+  maxToolCallsPerTurn          Int?
   routines          Routine[]
   scratchpadItems   ScratchpadItem[]
   taughtSkills      TaughtSkill[]
   memoryDocuments   MemoryDocument[]
+  memoryDreams      MemoryDream[]
   agentHome         AgentHome?
   browserProfile    BrowserProfile?
   artifacts         Artifact[]
@@ -1190,6 +1220,7 @@ model Thread {
   tasks                       Task[]
   runs                        Run[]
   routines                    Routine[]
+  memoryDreams                MemoryDream[]
 
   @@index([spaceId])
   @@index([spaceId, userId])
@@ -1344,6 +1375,7 @@ model Run {
   sourceMessage        Message?          @relation("RunSourceMessage", fields: [sourceMessageId], references: [id], onDelete: SetNull)
   routineId            String?
   routine              Routine?          @relation(fields: [routineId], references: [id], onDelete: SetNull)
+  memoryDream          MemoryDream?
   // The failed routine run this run retries. Unique, so a run is retried at most once.
   retryOfRunId         String?           @unique
   // Durable retry schedule; null means runnable immediately when queued.
@@ -1854,6 +1886,8 @@ model MemoryDocument {
   scope     String
   path      String
   content   String
+  /// One line describing what the note holds; shown in the list and the dream's index.
+  description String?
   revision  Int              @default(1)
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
@@ -1870,12 +1904,48 @@ model MemoryRevision {
   document       MemoryDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
   revision       Int
   content        String
+  /// Who wrote this revision: "user", "bot", "dream", "import" or "undo"; null on older rows.
+  sourceKind     String?
   sourceRunId    String?
   sourceThreadId String?
   createdAt      DateTime       @default(now())
 
   @@unique([documentId, revision])
   @@map("memory_revisions")
+}
+
+model MemoryDream {
+  id           String    @id @default(cuid())
+  spaceId      String
+  space        Space     @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  botId        String
+  bot          Bot       @relation(fields: [botId], references: [id], onDelete: Cascade)
+  threadId     String?
+  thread       Thread?   @relation(fields: [threadId], references: [id], onDelete: SetNull)
+  /// The run a dream consumed; unique so a replay cannot record a second dream.
+  runId        String?   @unique
+  run          Run?      @relation(fields: [runId], references: [id], onDelete: SetNull)
+  /// "queued", "completed" or "failed".
+  status       String    @default("queued")
+  /// Why the dream ran: "idle", "batch", "tidy", "review" or "manual"; null on older rows.
+  reason       String?
+  summary      String?
+  changedPaths String[]  @default([])
+  /// Lines the run added and removed from the notes, one fact per line.
+  added        String[]  @default([])
+  archived     String[]  @default([])
+  /// The user-message sequence this dream covered, so the next one starts after it.
+  sourceSeq    Int?
+  errorKind    String?
+  /// When a person undid this dream; null while it stands.
+  undoneAt     DateTime?
+  startedAt    DateTime?
+  finishedAt   DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([botId, status, createdAt])
+  @@index([spaceId])
+  @@map("memory_dreams")
 }
 
 model AgentHome {

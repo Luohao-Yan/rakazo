@@ -113,6 +113,7 @@ test("create group from + and see two bots in one transcript", async ({ page }, 
   const groupPill = page.getByTestId("bot-settings-trigger");
   if ((await groupPill.getAttribute("aria-expanded")) !== "true") await groupPill.click();
   const desktopSettings = page.getByTestId("side-panel");
+  await desktopSettings.getByRole("tab", { name: "Settings" }).click();
   const groupName = desktopSettings.getByRole("textbox", { name: "Name", exact: true });
   await groupName.fill("Unsaved Draft team name");
   const sidebar = page.locator("aside").first();
@@ -120,6 +121,7 @@ test("create group from + and see two bots in one transcript", async ({ page }, 
   await expect(page.getByRole("combobox", { name: "Message Review team" })).toBeVisible();
   await expect(desktopSettings).toHaveAttribute("data-panel", "closed");
   await sidebar.getByRole("button", { name: /^Draft team/ }).click();
+  await desktopSettings.getByRole("tab", { name: "Settings" }).click();
   await expect(groupName).toHaveValue("Draft team");
   await page.route("**/rpc/groups/update", async (route) => route.abort("failed"));
   await desktopSettings.getByRole("button", { name: "Save", exact: true }).click();
@@ -239,7 +241,7 @@ test("create group from + and see two bots in one transcript", async ({ page }, 
   const replyButton = firstMessage.getByRole("button", { name: "Reply" });
   await expect(replyButton).toBeVisible();
   await replyButton.click();
-  const excerpt = await firstMessage.getByTestId("message-user-bubble").innerText();
+  const excerpt = (await firstMessage.getByTestId("message-user-bubble").textContent()) ?? "";
   await expect(page.getByTestId("reply-chip")).toContainText(`You: ${excerpt.split(/\r?\n/u)[0]}`);
   await expect(
     page.getByTestId("reply-chip").getByRole("button", { name: "Cancel reply" }),
@@ -304,18 +306,24 @@ test("create group from + and see two bots in one transcript", async ({ page }, 
 
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("button", { name: "Open navigation" })).toBeVisible();
-  await expect(page.getByTestId("app-rail")).toHaveCount(0);
+  // The rail stays in the layout but folds away below the md breakpoint.
+  await expect(page.getByTestId("app-rail")).toBeHidden();
   const transcriptBox = await transcript.boundingBox();
   expect(transcriptBox?.x).toBeLessThanOrEqual(16);
   expect(transcriptBox?.width).toBeGreaterThan(390 - 24);
   await page.getByRole("button", { name: "Open navigation" }).click();
-  await expect(page.getByRole("button", { name: "Close navigation" })).toBeVisible();
-  await page.getByRole("button", { name: "Close navigation" }).click();
+  // The drawer header and its backdrop both close it; use the header's control.
+  const closeNavigation = page
+    .getByTestId("bots-sidebar")
+    .getByRole("button", { name: "Close navigation" });
+  await expect(closeNavigation).toBeVisible();
+  await closeNavigation.click();
   await page.getByTestId("bot-settings-trigger").click();
   const settings = page.getByTestId("side-panel");
   await expect(settings).toHaveAttribute("data-panel", "group-settings");
   expect((await settings.boundingBox())?.width).toBeLessThanOrEqual(390);
   await captureScreenshot(page, testInfo, "group-settings-mobile");
+  await settings.getByRole("tab", { name: "Settings" }).click();
   await settings.getByRole("button", { name: "Delete group", exact: true }).click();
   const confirmDelete = page.getByRole("alertdialog", { name: "Delete Draft team?" });
   await expect(confirmDelete).toBeVisible();

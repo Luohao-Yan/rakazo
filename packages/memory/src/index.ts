@@ -5,13 +5,18 @@ import type {
   MemoryReadRequest,
   MemoryRemoveRequest,
   MemoryRevision,
+  MemoryRevisionListRequest,
+  MemoryRevisionReadRequest,
+  MemoryRevisionSummary,
   MemorySearchRequest,
   MemorySearchResult,
   MemorySnapshot,
+  MemorySourceKind,
   MemoryStore,
   PortableFile,
 } from "@rakazo/adapter-kit";
-import { MemoryRevisionConflictError } from "@rakazo/adapter-kit";
+import { MemoryDocumentLimitError, MemoryRevisionConflictError } from "@rakazo/adapter-kit";
+import { MEMORY_NOTES_PER_LAYER } from "@rakazo/contracts";
 import type { PrismaClient } from "@rakazo/db";
 import { Prisma, withTransactionRetry } from "@rakazo/db";
 
@@ -76,6 +81,7 @@ export class MarkdownMemoryStore implements MemoryStore {
     return withTransactionRetry(() =>
       this.prisma.$transaction(
         async (tx) => {
+          const sourceKind = request.sourceKind ?? "user";
           const existing = await tx.memoryDocument.findFirst({
             where: {
               spaceId: context.spaceId,
@@ -88,10 +94,28 @@ export class MarkdownMemoryStore implements MemoryStore {
             const live = existing?.revision ?? 0;
             if (live !== request.expectedRevision) throw new MemoryRevisionConflictError();
           }
+          if (!existing) {
+            // A bank stays scannable: a new path past the limit is refused, while an
+            // existing path can always be overwritten.
+            const notes = await tx.memoryDocument.count({
+              where: {
+                spaceId: context.spaceId,
+                scope: request.scope,
+                botId: request.botId ?? null,
+              },
+            });
+            if (notes >= MEMORY_NOTES_PER_LAYER) throw new MemoryDocumentLimitError();
+          }
           const doc = existing
             ? await tx.memoryDocument.update({
                 where: { id: existing.id },
-                data: { content: request.content, revision: existing.revision + 1 },
+                data: {
+                  content: request.content,
+                  revision: existing.revision + 1,
+                  ...(request.description === undefined
+                    ? {}
+                    : { description: request.description }),
+                },
               })
             : await tx.memoryDocument.create({
                 data: {
@@ -101,22 +125,84 @@ export class MarkdownMemoryStore implements MemoryStore {
                   scope: request.scope,
                   path: request.path,
                   content: request.content,
+                  description: request.description ?? null,
                 },
               });
-          await tx.memoryRevision.create({
+          const revision = await tx.memoryRevision.create({
             data: {
               documentId: doc.id,
               revision: doc.revision,
               content: request.content,
+              sourceKind,
               sourceRunId: request.sourceRunId,
               sourceThreadId: request.sourceThreadId,
             },
           });
-          return { id: doc.id, path: doc.path, revision: doc.revision, content: doc.content };
+          return {
+            id: doc.id,
+            path: doc.path,
+            revision: doc.revision,
+            content: doc.content,
+            sourceKind,
+            createdAt: revision.createdAt.toISOString(),
+          };
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       ),
     );
+  }
+
+  async listRevisions(
+    request: MemoryRevisionListRequest,
+    context: AdapterContext,
+  ): Promise<MemoryRevisionSummary[]> {
+    const take = Math.min(Math.max(request.limit ?? 20, 1), 100);
+    const rows = await this.prisma.memoryRevision.findMany({
+      where: {
+        documentId: request.documentId,
+        document: { spaceId: context.spaceId },
+      },
+      orderBy: [{ revision: "desc" }, { id: "desc" }],
+      take,
+      ...(request.cursor ? { cursor: { id: request.cursor }, skip: 1 } : {}),
+      select: { id: true, revision: true, sourceKind: true, createdAt: true },
+    });
+    return rows.map((row) => ({
+      id: row.id,
+      revision: row.revision,
+      sourceKind: sourceKind(row.sourceKind),
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
+  async readRevision(
+    request: MemoryRevisionReadRequest,
+    context: AdapterContext,
+  ): Promise<MemoryRevision | null> {
+    const row = await this.prisma.memoryRevision.findFirst({
+      where: {
+        id: request.revisionId,
+        documentId: request.documentId,
+        document: { spaceId: context.spaceId },
+      },
+      select: {
+        id: true,
+        revision: true,
+        content: true,
+        sourceKind: true,
+        createdAt: true,
+        document: { select: { path: true } },
+      },
+    });
+    if (!row) return null;
+    return {
+      id: row.id,
+      path: row.document.path,
+      revision: row.revision,
+      content: row.content,
+      sourceKind: sourceKind(row.sourceKind),
+      createdAt: row.createdAt.toISOString(),
+    };
   }
 
   async remove(
@@ -160,6 +246,7 @@ export class MarkdownMemoryStore implements MemoryStore {
           scope: "user",
           path: file.path,
           content: new TextDecoder().decode(file.content),
+          sourceKind: "import",
         },
         context,
       );
@@ -173,4 +260,11 @@ function snippet(content: string, q: string): string {
   const idx = content.toLowerCase().indexOf(q);
   if (idx < 0) return content.slice(0, 140);
   return content.slice(Math.max(0, idx - 40), idx + q.length + 80);
+}
+
+/** A row written before kinds existed came from a person. */
+function sourceKind(value: string | null): MemorySourceKind {
+  return value === "bot" || value === "dream" || value === "import" || value === "undo"
+    ? value
+    : "user";
 }

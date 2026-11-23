@@ -28,6 +28,7 @@ const mocks = vi.hoisted(() => ({
   history: [] as unknown[],
   share: vi.fn(),
   docs: [] as unknown[],
+  dreams: [] as unknown[],
   fill: "light-fill",
   deviceVoices: vi.fn(),
   voiceForBot: vi.fn(),
@@ -114,10 +115,13 @@ vi.mock("../api/api", () => ({
         fleetManagement: mocks.fleetManagement,
         crossSpaceCommunication: mocks.crossSpaceCommunication,
         ...mocks.saved,
+        useOwnMemory: true,
+        useSharedMemory: true,
       };
     }
     if (procedure === "scratchpad/list") return mocks.work;
     if (procedure === "memory/list") return mocks.docs;
+    if (procedure === "memory/dreams") return mocks.dreams;
     if (procedure === "me") return {};
     return [];
   },
@@ -379,6 +383,7 @@ describe("bot settings device voice menu", () => {
     mocks.work = [];
     mocks.history = [];
     mocks.docs = [];
+    mocks.dreams = [];
     mocks.fill = "light-fill";
     vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
     mocks.deviceVoices.mockResolvedValue(offered);
@@ -398,6 +403,36 @@ describe("bot settings device voice menu", () => {
     await act(async () => root.render(<BotSettingsScreen />));
     await expand();
   };
+
+  it("shows what a dream added and removed, at most two lines each", async () => {
+    mocks.dreams = [
+      {
+        id: "dream-1",
+        status: "completed",
+        reason: "review",
+        summary: null,
+        changedPaths: ["MEMORY.md"],
+        added: ["Likes tea.", "Second.", "Third."],
+        archived: ["Old note.", "Older.", "Oldest."],
+        errorKind: null,
+        startedAt: null,
+        finishedAt: null,
+        createdAt: new Date(Date.now() - 60_000).toISOString(),
+      },
+    ];
+    await render();
+    expect(container.textContent).toContain("+ Likes tea.");
+    expect(container.textContent).toContain("+ Second.");
+    expect(container.textContent).not.toContain("+ Third.");
+    expect(container.textContent).toContain("− Old note.");
+    expect(container.textContent).not.toContain("− Oldest.");
+    expect(container.textContent).toContain("…");
+    expect(container.textContent).toContain("Review");
+    expect(container.textContent).toContain("Done");
+    expect(container.textContent).toContain(
+      "Between chats the bot tidies its memory from your own words.",
+    );
+  });
   const menu = () => container.querySelector('[data-menu="Device voice"]');
 
   it("hides read aloud and permission switches for a bot on the defaults", async () => {
@@ -411,7 +446,9 @@ describe("bot settings device voice menu", () => {
       "Manage other bots",
     ])
       expect(container.querySelector(`[aria-label="${label}"]`)).toBeNull();
-    expect(container.textContent).not.toContain("Permissions");
+    // The approval-mode picker is always offered; the switches stay hidden on their defaults.
+    expect(container.textContent).toContain("Permissions");
+    expect(container.textContent).toContain("Approval mode");
     expect(menu()).not.toBeNull();
   });
 
@@ -845,10 +882,13 @@ describe("bot settings device voice menu", () => {
     });
     const labels = {
       instructions: "Instructions",
+      useOwnMemory: "Use its own memory",
+      useSharedMemory: "Use shared notes",
       computer: "Own computer",
       model: "Model",
       readAloud: "Read replies aloud",
       voice: "Device voice",
+      approvalMode: "Approval mode",
       dailyCheckIns: "Daily check-ins on unfinished work",
       crossSpaceCommunication: "Allow cross-space bot communication",
       fleetManagement: "Manage other bots",
@@ -868,10 +908,13 @@ describe("bot settings device voice menu", () => {
         .filter((key) => key in labels && key !== "instructions"),
     );
     expect(actual).toEqual([
+      "useOwnMemory",
+      "useSharedMemory",
       "model",
       "computer",
       "readAloud",
       "voice",
+      "approvalMode",
       "dailyCheckIns",
       "crossSpaceCommunication",
       "fleetManagement",

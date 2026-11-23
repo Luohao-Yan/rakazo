@@ -3,14 +3,18 @@ import { MemoryRevisionConflictError } from "@rakazo/adapter-kit";
 import {
   buildAgentMemoryPrompt,
   isScratchpadStatus,
+  listMemoryDreams,
   listScratchpadItems,
   mapScratchpadItem,
+  memoryDocumentError,
   memoryProviderDescriptors,
   readAgentMemory,
+  startManualMemoryDream,
+  undoMemoryDream,
 } from "@rakazo/adapters";
 import { isDeletableMemoryDocument } from "@rakazo/contracts";
 import { ClientError } from "@rakazo/core";
-import { findSpaceMemoryConfig, IsolationError } from "@rakazo/db";
+import { findSpaceMemoryConfig, IsolationError, isOwnerRole, requireSpaceOwner } from "@rakazo/db";
 import {
   disconnectMemoryProvider,
   persistMemoryProviderConfig,
@@ -38,22 +42,144 @@ export function memoryRoutes(ctx: RouterContext) {
           botId: doc.botId,
           path: doc.path,
           content: doc.content,
+          description: doc.description,
           revision: doc.revision,
           updatedAt: doc.updatedAt.toISOString(),
         }));
       }),
       budget: authed.memory.budget.handler(async ({ context, input }) => {
-        await repos.getBot(context.actor, input.botId);
+        const bot = await repos.getBot(context.actor, input.botId);
         // Read through the store a run uses, so the numbers match what the bot receives.
-        const documents = await readAgentMemory(deps.memory, input.botId, {
-          operationId: "mem",
-          traceId: "mem",
-          spaceId: context.actor.spaceId,
-          userId: context.actor.userId,
-          botId: input.botId,
-          signal: context.signal ?? new AbortController().signal,
-        });
+        const documents = await readAgentMemory(
+          deps.memory,
+          input.botId,
+          {
+            operationId: "mem",
+            traceId: "mem",
+            spaceId: context.actor.spaceId,
+            userId: context.actor.userId,
+            botId: input.botId,
+            signal: context.signal ?? new AbortController().signal,
+          },
+          { includeBot: bot.useOwnMemory, includeUser: bot.useSharedMemory },
+        );
         return buildAgentMemoryPrompt(documents).plan;
+      }),
+      dreams: authed.memory.dreams.handler(async ({ context, input }) => {
+        await repos.getBot(context.actor, input.botId);
+        return listMemoryDreams(deps.prisma, {
+          spaceId: context.actor.spaceId,
+          botId: input.botId,
+          limit: input.limit,
+          cursor: input.cursor,
+        });
+      }),
+      dreamRetention: authed.memory.dreamRetention.handler(async ({ context }) => {
+        const [space, membership] = await Promise.all([
+          deps.prisma.space.findUnique({
+            where: { id: context.actor.spaceId },
+            select: { dreamRetention: true },
+          }),
+          deps.prisma.spaceMember.findUnique({
+            where: {
+              spaceId_userId: {
+                spaceId: context.actor.spaceId,
+                userId: context.actor.userId,
+              },
+            },
+            select: { role: true },
+          }),
+        ]);
+        return {
+          dreamRetention: space?.dreamRetention ?? null,
+          canManage: isOwnerRole(membership?.role ?? ""),
+        };
+      }),
+      setDreamRetention: authed.memory.setDreamRetention.handler(async ({ context, input }) => {
+        await requireSpaceOwner(deps.prisma, context.actor);
+        await deps.prisma.space.update({
+          where: { id: context.actor.spaceId },
+          data: { dreamRetention: input.dreamRetention },
+        });
+        return { dreamRetention: input.dreamRetention };
+      }),
+      dreamNow: authed.memory.dreamNow.handler(async ({ context, input }) =>
+        startManualMemoryDream(
+          { prisma: deps.prisma, jobs: deps.jobs },
+          { spaceId: context.actor.spaceId, botId: input.botId },
+        ),
+      ),
+      undoDream: authed.memory.undoDream.handler(async ({ context, input }) =>
+        undoMemoryDream(deps.prisma, {
+          spaceId: context.actor.spaceId,
+          dreamId: input.dreamId,
+        }),
+      ),
+      revisions: authed.memory.revisions.handler(async ({ context, input }) => {
+        const doc = await deps.prisma.memoryDocument.findFirst({
+          where: { id: input.documentId, spaceId: context.actor.spaceId },
+          select: { id: true },
+        });
+        if (!doc) throw new IsolationError();
+        return deps.memory.listRevisions(
+          { documentId: doc.id, limit: input.limit, cursor: input.cursor },
+          memoryCallContext(context.actor),
+        );
+      }),
+      revision: authed.memory.revision.handler(async ({ context, input }) => {
+        const doc = await deps.prisma.memoryDocument.findFirst({
+          where: { id: input.documentId, spaceId: context.actor.spaceId },
+          select: { id: true },
+        });
+        if (!doc) throw new IsolationError();
+        const revision = await deps.memory.readRevision(
+          { documentId: doc.id, revisionId: input.revisionId },
+          memoryCallContext(context.actor),
+        );
+        if (!revision) throw new IsolationError();
+        return revision;
+      }),
+      restore: authed.memory.restore.handler(async ({ context, input }) => {
+        const doc = await deps.prisma.memoryDocument.findFirst({
+          where: { id: input.documentId, spaceId: context.actor.spaceId },
+        });
+        if (!doc) throw new IsolationError();
+        const revision = await deps.memory.readRevision(
+          { documentId: doc.id, revisionId: input.revisionId },
+          memoryCallContext(context.actor),
+        );
+        if (!revision) throw new IsolationError();
+        const scope = doc.scope === "user" ? "user" : "bot";
+        const invalid = memoryDocumentError(scope, doc.path, revision.content);
+        if (invalid) throw new ClientError("BAD_REQUEST", invalid);
+        const updated = await deps.memory
+          .commit(
+            {
+              scope,
+              botId: doc.botId ?? undefined,
+              path: doc.path,
+              content: revision.content,
+              expectedRevision: input.expectedRevision,
+              sourceKind: "undo",
+            },
+            memoryCallContext(context.actor),
+          )
+          .catch((error: unknown) => {
+            if (error instanceof MemoryRevisionConflictError) {
+              throw new ClientError("CONFLICT", error.message);
+            }
+            throw error;
+          });
+        return {
+          id: updated.id,
+          scope,
+          botId: doc.botId,
+          path: updated.path,
+          content: updated.content,
+          description: doc.description,
+          revision: updated.revision,
+          updatedAt: new Date().toISOString(),
+        };
       }),
       update: authed.memory.update.handler(async ({ context, input }) => {
         const doc = await deps.prisma.memoryDocument.findFirst({
@@ -63,6 +189,12 @@ export function memoryRoutes(ctx: RouterContext) {
           },
         });
         if (!doc) throw new IsolationError();
+        const invalid = memoryDocumentError(
+          doc.scope === "user" ? "user" : "bot",
+          doc.path,
+          input.content,
+        );
+        if (invalid) throw new ClientError("BAD_REQUEST", invalid);
         const updated = await deps.memory
           .commit(
             {
@@ -70,7 +202,9 @@ export function memoryRoutes(ctx: RouterContext) {
               botId: doc.botId ?? undefined,
               path: doc.path,
               content: input.content,
+              description: input.description,
               expectedRevision: input.expectedRevision,
+              sourceKind: "user",
             },
             {
               operationId: "mem",
@@ -92,6 +226,7 @@ export function memoryRoutes(ctx: RouterContext) {
           botId: doc.botId,
           path: updated.path,
           content: updated.content,
+          description: input.description === undefined ? doc.description : input.description,
           revision: updated.revision,
           updatedAt: new Date().toISOString(),
         };
@@ -265,5 +400,16 @@ export function memoryRoutes(ctx: RouterContext) {
         agentSkills.remove(context.actor, input.skillId),
       ),
     },
+  };
+}
+
+/** The adapter context every memory store call in this router uses. */
+function memoryCallContext(actor: { spaceId: string; userId: string }) {
+  return {
+    operationId: "mem",
+    traceId: "mem",
+    spaceId: actor.spaceId,
+    userId: actor.userId,
+    signal: new AbortController().signal,
   };
 }

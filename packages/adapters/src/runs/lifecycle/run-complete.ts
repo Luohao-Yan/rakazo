@@ -3,28 +3,27 @@ import {
   historyCompactJob,
   memoryRetainTurnJob,
 } from "@rakazo/adapter-kit";
+import { normalizeConversationCompactionMode } from "@rakazo/contracts";
 import {
   BACKGROUND_HELPER_TRIGGER,
   containsSecret,
   displayName,
   isBackgroundRunTrigger,
+  MEMORY_DREAM_TRIGGER,
   redactSecrets,
   withoutLastToolStepNotes,
 } from "@rakazo/core";
-import { getLogger } from "@rakazo/logging";
+import { bestEffort, getLogger } from "@rakazo/logging";
 import { resolveBotWorkspacePath } from "../../computers/screens/computer-support.js";
 import {
   answeredSteeringMessageIds,
   retainsConversationTurn,
 } from "../../memory/conversation-memory.js";
+import { recordMemoryDream } from "../../memory/memory-dreams.js";
 import { returnBotMessageOutcome } from "../../messaging/bot-messages.js";
 import { clearRoutineBackoff } from "../../routines/routine-backoff.js";
 import { isStrategicInitiativeRun } from "../../routines/strategic-initiative.js";
-import {
-  COMPACTION_BATCH_SIZE,
-  HISTORY_WINDOW_SIZE,
-  shouldEnqueueCompaction,
-} from "../../runtime/context/history-compaction.js";
+import { shouldCompactConversation } from "../../runtime/context/history-compaction.js";
 import { returnHelperOutcome } from "../../tasks/background-helpers.js";
 import type { RunContext } from "../assembly/run-context.js";
 import { redactBlocks } from "../assembly/run-messages.js";
@@ -182,6 +181,12 @@ export async function completeRun(ctx: RunContext) {
       getLogger().error("background helper result return", error),
     );
   }
+  if (run.trigger === MEMORY_DREAM_TRIGGER) {
+    await bestEffort(
+      "record the memory dream",
+      recordMemoryDream(deps.prisma, run, { status: "completed", summary: text }),
+    );
+  }
   const notifyBody = completionNotificationPreview(text);
   // Agent-to-agent work the chat stays read for is not news to the user either.
   if (
@@ -212,7 +217,7 @@ async function applyScriptedTurns(ctx: RunContext) {
       await deps.sandbox.writeFile(
         await ctx.computer.get("script"),
         {
-          path: resolveBotWorkspacePath(ctx.computer.mode, bot.id, file.path),
+          path: resolveBotWorkspacePath(ctx.computer.mode, bot.id, file.path, bot.workspacePath),
           content: new TextEncoder().encode(file.content),
         },
         context,
@@ -348,7 +353,7 @@ async function finalReply(ctx: RunContext) {
 // the failure path, where a second finalizeRun would match no rows and silently
 // skip the completion notification.
 async function enqueueHistoryCompaction(ctx: RunContext) {
-  const { deps, run, thread } = ctx;
+  const { bot, deps, run, thread } = ctx;
   try {
     const updatedThread = await deps.prisma.thread.findUniqueOrThrow({
       where: { id: thread.id },
@@ -359,12 +364,14 @@ async function enqueueHistoryCompaction(ctx: RunContext) {
     });
     if (
       (deps.contextStrategy ?? DEFAULT_CONTEXT_STRATEGY) === "current" &&
-      shouldEnqueueCompaction(
-        updatedThread.nextMessageSeq,
-        updatedThread.historyCompactedUpToSeq,
-        HISTORY_WINDOW_SIZE,
-        COMPACTION_BATCH_SIZE,
-      )
+      shouldCompactConversation({
+        mode: normalizeConversationCompactionMode(bot.conversationCompactionMode),
+        customTokens: bot.conversationCompactionTokens,
+        contextWindow: ctx.contextWindow,
+        observedInputTokens: ctx.observedContextTokens,
+        nextMessageSeq: updatedThread.nextMessageSeq,
+        compactedUpToSeq: updatedThread.historyCompactedUpToSeq,
+      })
     ) {
       await deps.jobs.enqueue(historyCompactJob(thread.id, run.userId));
     }

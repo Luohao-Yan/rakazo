@@ -1,10 +1,11 @@
-import { MemoryRevisionConflictError } from "@rakazo/adapter-kit";
+import { MemoryDocumentLimitError, MemoryRevisionConflictError } from "@rakazo/adapter-kit";
 import {
   HistoryReadInputSchema,
   HistorySearchInputSchema,
   isDeletableMemoryDocument,
   MEMORY_INDEX_PATH,
 } from "@rakazo/contracts";
+import { MEMORY_DREAM_TRIGGER } from "@rakazo/core";
 import { readHistory, searchHistory } from "@rakazo/db";
 import { redactConnectorPayload } from "../../integrations/connector-safety.js";
 import { editMemory } from "../../memory/memory-tools.js";
@@ -102,6 +103,9 @@ export const memoryTools: ToolHandlers = {
   async remember(ctx, call) {
     const { deps, runId, bot, thread, context } = ctx;
     const { args } = call;
+    if (bot.useOwnMemory === false) {
+      return call.finish({ error: "This bot's own memory is turned off in its settings." });
+    }
     // One document per bot keeps the size cap meaningful.
     const path = MEMORY_INDEX_PATH;
     // A concurrent save changes the revision, so re-read and apply the edit again.
@@ -124,6 +128,7 @@ export const memoryTools: ToolHandlers = {
             path,
             content,
             expectedRevision: existing?.revision ?? 0,
+            sourceKind: ctx.run?.trigger === MEMORY_DREAM_TRIGGER ? "dream" : "bot",
             sourceRunId: runId,
             sourceThreadId: thread.id,
           },
@@ -138,9 +143,13 @@ export const memoryTools: ToolHandlers = {
   async save_shared_memory(ctx, call) {
     const { deps, runId, thread, context } = ctx;
     const { args } = call;
+    if (ctx.bot.useSharedMemory === false) {
+      return call.finish({ error: "Shared memory is turned off for this bot in its settings." });
+    }
     const invalid = sharedMemorySaveError(args);
     if (invalid) return call.finish({ error: invalid });
     const path = String(args.path ?? "").trim();
+    const description = String(args.description ?? "").trim() || null;
     // The save replaces the whole document. Pass the revision just read so a
     // concurrent edit is rejected instead of overwritten.
     const snapshot = await deps.memory.read({ scope: "user", path }, context);
@@ -151,7 +160,9 @@ export const memoryTools: ToolHandlers = {
           scope: "user",
           path,
           content: String(args.content ?? ""),
+          description,
           expectedRevision,
+          sourceKind: ctx.run?.trigger === MEMORY_DREAM_TRIGGER ? "dream" : "bot",
           sourceRunId: runId,
           sourceThreadId: thread.id,
         },
@@ -161,11 +172,15 @@ export const memoryTools: ToolHandlers = {
     } catch (error) {
       if (error instanceof MemoryRevisionConflictError)
         return call.finish({ error: error.message });
+      if (error instanceof MemoryDocumentLimitError) return call.finish({ error: error.message });
       throw error;
     }
   },
   async delete_shared_memory(ctx, call) {
     const { deps, context } = ctx;
+    if (ctx.bot.useSharedMemory === false) {
+      return call.finish({ error: "Shared memory is turned off for this bot in its settings." });
+    }
     const path = String(call.args.path ?? "").trim();
     if (!path) return call.finish({ error: "path is required" });
     if (!isDeletableMemoryDocument(path)) {

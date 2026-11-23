@@ -65,7 +65,8 @@ tap the bot's name to open its profile, then tap **Edit** to open **Chat setting
 Under **Advanced**:
 
 - **Model** and **Thinking**: override the [model](./models.md) for this bot.
-- **Computer**: **Team** or **Private**. See [The bot's computer](./computer.md).
+- **Computer**: **Team** or **Private**, plus the bot's **Workspace folder**. See
+  [The bot's computer](./computer.md).
 - **Voice**: **Read replies aloud** and the bot's voice.
 - **Permissions**: **Allow cross-space bot communication** (for bots linked to chat apps only) and
   [**Manage other bots**](./fleet-management.md).
@@ -73,7 +74,9 @@ Under **Advanced**:
   them, or its name, model, thinking, voice and read-aloud; instruction and setting changes
   show **Undo** in the chat. Memory scope stays in Settings, since shared memory changes what the bot can read.
   **Instruction history** lets you restore an earlier version.
-- **How other bots see it**: a short description other bots read when deciding whom to ask.
+- **Description**: a short summary other bots read when deciding whom to ask.
+- **Parallel tasks**: how many background helpers (subagents) the bot may run at once; 3 by
+  default, up to 8.
 - **Tools**: **Disable a tool** the bot should never use.
 - **Export** downloads the bot's setup as a file. **Clear conversation** empties the chat.
 

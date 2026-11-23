@@ -13,6 +13,7 @@ import type {
   ToolQuestionAnswer,
   VoiceAccountErrorCode,
 } from "@rakazo/contracts";
+import { MEMORY_NOTES_PER_LAYER } from "@rakazo/contracts";
 
 export interface AdapterContext {
   operationId: string;
@@ -452,13 +453,30 @@ export class MemoryRevisionConflictError extends Error {
   }
 }
 
+export const MEMORY_DOCUMENT_LIMIT_ERROR = `This bank holds its maximum of ${MEMORY_NOTES_PER_LAYER} notes. Merge or remove a note before adding another.`;
+
+/** A new note would exceed the bank's note count. Overwriting an existing path is still allowed. */
+export class MemoryDocumentLimitError extends Error {
+  constructor() {
+    super(MEMORY_DOCUMENT_LIMIT_ERROR);
+    this.name = "MemoryDocumentLimitError";
+  }
+}
+
+/** Who wrote a memory revision; a row written before kinds existed reads as "user". */
+export type MemorySourceKind = "user" | "bot" | "dream" | "import" | "undo";
+
 export interface MemoryCommitRequest {
   scope: "bot" | "user";
   botId?: string;
   path: string;
   content: string;
+  /** One line about what the note holds; omitted leaves an existing description alone. */
+  description?: string | null;
   /** When set, commit fails if the live document revision is no longer this value. */
   expectedRevision?: number;
+  /** Who is writing; omitted means a person. */
+  sourceKind?: MemorySourceKind;
   sourceRunId?: string;
   sourceThreadId?: string;
 }
@@ -476,6 +494,27 @@ export interface MemoryRevision {
   path: string;
   revision: number;
   content: string;
+  sourceKind: MemorySourceKind;
+  createdAt: string;
+}
+
+/** One entry in a document's history, without the content it held. */
+export interface MemoryRevisionSummary {
+  id: string;
+  revision: number;
+  sourceKind: MemorySourceKind;
+  createdAt: string;
+}
+
+export interface MemoryRevisionListRequest {
+  documentId: string;
+  limit?: number;
+  cursor?: string;
+}
+
+export interface MemoryRevisionReadRequest {
+  documentId: string;
+  revisionId: string;
 }
 
 export interface MemoryExportRequest {
@@ -653,6 +692,8 @@ export interface AgentRunModel {
   headers?: Record<string, string>;
   /** The connection owner may reach a private or loopback `baseUrl`; absent means deny. */
   allowPrivateEndpoint?: boolean;
+  /** The deployment allows this `baseUrl` exchange over plain http, key included. */
+  allowHttpEndpoint?: boolean;
   /** Whether this custom connection accepts standard reasoning_effort. */
   reasoning?: boolean;
   /** Whether this custom connection accepts image input. */
@@ -696,6 +737,10 @@ export interface AgentRunRequest {
   /** Awaited producer-side accounting, independent of event-consumer cancellation. */
   onUsage?: (event: Extract<AgentRuntimeEvent, { type: "usage" }>) => void | Promise<void>;
   contextStrategy?: AgentContextStrategy;
+  /** Tool calls one turn may make; unset follows the process default. */
+  maxToolCallsPerTurn?: number;
+  /** The runtime's estimate of the input context chosen for the latest model call. */
+  onContextObserved?: (estimatedInputTokens: number) => void;
   /**
    * MCP servers that must return tool results whole. Direct tools match `slugs`
    * (`mcp__<slug>__<tool>`); catalog calls match `ids` (`<server id>:<tool>`).
@@ -1037,6 +1082,8 @@ export interface BackgroundJobPayloads {
     generations: number[];
     connectionIdentity: string;
   };
+  /** Wake the dream run a nightly memory consolidation recorded, or settle one it left behind. */
+  "memory.dream": { dreamId: string };
   /**
    * `messageIds`: what the person sent while the run worked, which the run also answered.
    * `pending`: cleanup captured before submission. `unconfirmed` keeps checking through the

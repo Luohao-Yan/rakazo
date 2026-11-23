@@ -1,5 +1,5 @@
 import type { MessageBlock } from "@rakazo/contracts";
-import { canonicalPiProviderId } from "@rakazo/contracts";
+import { canonicalPiProviderId, DEFAULT_MAX_CONCURRENT_HELPERS } from "@rakazo/contracts";
 import {
   ACTIVE_RUN_STATUSES,
   BACKGROUND_HELPER_TRIGGER,
@@ -27,10 +27,7 @@ import type { ExecutorDeps } from "../runs/executor/executor-deps.js";
 import { fleetPrepareDeps } from "../runs/turn/run-model.js";
 import { wakeRun } from "../runs/wakeups/wake-run.js";
 import { listPiCatalog } from "../runtime/pi/models/pi-models.js";
-import {
-  helperResultText,
-  MAX_PARALLEL_SUBAGENTS,
-} from "../runtime/pi/tools/pi-runtime-subagent.js";
+import { helperResultText } from "../runtime/pi/tools/pi-runtime-subagent.js";
 import {
   backgroundHelperLimitNote,
   helperPrompt,
@@ -120,6 +117,7 @@ export async function startBackgroundHelper(
     modelProvider = resolved.provider;
     modelId = resolved.model;
   }
+  const helperLimit = bot.maxConcurrentHelpers ?? DEFAULT_MAX_CONCURRENT_HELPERS;
   const clientNonce = `background-helper:${input.effectKey}`;
   const started = { ok: true as const, name: input.name, note: startedNote(input.name) };
   const card: HelperBlock = {
@@ -148,7 +146,7 @@ export async function startBackgroundHelper(
         status: { in: [...ACTIVE_RUN_STATUSES] },
       },
     });
-    if (running >= MAX_PARALLEL_SUBAGENTS) return "full" as const;
+    if (running >= helperLimit) return "full" as const;
     // Only this turn's live worker may start one, but the card is not part of the turn: a turn
     // ending settles its own helper cards as stopped, while this helper keeps working.
     await assertRunCanWriteHistory(tx, runId, { lease: runLeaseFor(deps, runId) });
@@ -240,7 +238,7 @@ export async function startBackgroundHelper(
   }, THREAD_LOCK_TRANSACTION_OPTIONS);
   if (committed === "full") {
     return {
-      error: backgroundHelperLimitNote(MAX_PARALLEL_SUBAGENTS),
+      error: backgroundHelperLimitNote(helperLimit),
     };
   }
   if (!committed) return started;

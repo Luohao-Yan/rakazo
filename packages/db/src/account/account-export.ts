@@ -16,7 +16,9 @@ export interface AccountExportSpace {
    */
   artifacts(): AsyncGenerator<{ id: string; storageKey: string }>;
   /** Bots in `records()` that have a computer, whose workspace files go in the archive. */
-  homes(): Promise<Array<{ botId: string; homeKey: string; computerScope: string }>>;
+  homes(): Promise<
+    Array<{ botId: string; homeKey: string; computerScope: string; workspacePath: string | null }>
+  >;
 }
 
 export interface AccountExportSource {
@@ -87,13 +89,18 @@ export async function readAccountExport(
             const bots = await prisma.bot.findMany({
               where: { ...tenant, id: { in: written.botIds }, computerId: { not: null } },
               orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-              select: { id: true, computer: { select: { homeKey: true, scope: true } } },
+              select: {
+                id: true,
+                workspacePath: true,
+                computer: { select: { homeKey: true, scope: true } },
+              },
             });
             return bots.flatMap((bot) =>
               bot.computer
                 ? [
                     {
                       botId: bot.id,
+                      workspacePath: bot.workspacePath,
                       homeKey: bot.computer.homeKey,
                       computerScope: bot.computer.scope,
                     },
@@ -168,6 +175,33 @@ async function* spaceRecords(
       dailyCheckIns: bot.dailyCheckIns,
       fleetManagement: bot.fleetManagement,
       replyMode: bot.replyMode === "messages" ? "messages" : "chat",
+      approvalMode:
+        bot.approvalMode === "ask" || bot.approvalMode === "auto" || bot.approvalMode === "never"
+          ? bot.approvalMode
+          : null,
+      maxConcurrentHelpers:
+        bot.maxConcurrentHelpers && bot.maxConcurrentHelpers >= 1 && bot.maxConcurrentHelpers <= 8
+          ? bot.maxConcurrentHelpers
+          : null,
+      conversationCompactionMode:
+        bot.conversationCompactionMode === "earlier" ||
+        bot.conversationCompactionMode === "near_limit" ||
+        bot.conversationCompactionMode === "custom"
+          ? bot.conversationCompactionMode
+          : "automatic",
+      conversationCompactionTokens:
+        bot.conversationCompactionTokens &&
+        bot.conversationCompactionTokens >= 20_000 &&
+        bot.conversationCompactionTokens <= 1_000_000
+          ? bot.conversationCompactionTokens
+          : null,
+      maxToolCallsPerTurn:
+        bot.maxToolCallsPerTurn && bot.maxToolCallsPerTurn >= 1 && bot.maxToolCallsPerTurn <= 1_000
+          ? bot.maxToolCallsPerTurn
+          : null,
+      useOwnMemory: bot.useOwnMemory,
+      useSharedMemory: bot.useSharedMemory,
+      workspacePath: bot.workspacePath,
       createdAt: iso(bot.createdAt),
     };
 
@@ -361,6 +395,7 @@ async function* spaceRecords(
         scope: document.scope,
         path: document.path,
         content: document.content,
+        description: document.description,
         revision: document.revision,
         createdAt: iso(document.createdAt),
         updatedAt: iso(document.updatedAt),
@@ -378,6 +413,7 @@ async function* spaceRecords(
             documentId: document.id,
             revision: row.revision,
             content: row.content,
+            sourceKind: row.sourceKind,
             sourceThreadId: ownThread(row.sourceThreadId),
             createdAt: iso(row.createdAt),
           };
@@ -387,6 +423,35 @@ async function* spaceRecords(
     }
     if (documents.length < PAGE) break;
     cursor = documents.at(-1)!.id;
+  }
+
+  for (let cursor = ""; ; ) {
+    const dreams = await prisma.memoryDream.findMany({
+      where: { ...tenant, botId: { in: [...botIds] }, id: { gt: cursor } },
+      orderBy: { id: "asc" },
+      take: PAGE,
+    });
+    for (const dream of dreams)
+      yield {
+        type: "memory_dream",
+        id: dream.id,
+        botId: dream.botId,
+        threadId: ownThread(dream.threadId),
+        status: dream.status,
+        reason: dream.reason,
+        summary: dream.summary,
+        changedPaths: dream.changedPaths,
+        added: dream.added,
+        archived: dream.archived,
+        sourceSeq: dream.sourceSeq,
+        errorKind: dream.errorKind,
+        undoneAt: isoOrNull(dream.undoneAt),
+        startedAt: isoOrNull(dream.startedAt),
+        finishedAt: isoOrNull(dream.finishedAt),
+        createdAt: iso(dream.createdAt),
+      };
+    if (dreams.length < PAGE) break;
+    cursor = dreams.at(-1)!.id;
   }
 
   const routines = await prisma.routine.findMany({

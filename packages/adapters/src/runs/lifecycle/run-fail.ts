@@ -10,14 +10,16 @@ import {
   BACKGROUND_HELPER_TRIGGER,
   containsSecret,
   displayName,
+  MEMORY_DREAM_TRIGGER,
   MISSING_TOOL_FINAL_RESPONSE_ERROR,
   normalizeRunError,
   redactSecrets,
   userRunError,
 } from "@rakazo/core";
 import { isDatabaseUnavailable, retryWhileDatabaseUnavailable } from "@rakazo/db";
-import { getLogger } from "@rakazo/logging";
+import { bestEffort, getLogger } from "@rakazo/logging";
 import { sanitizedError } from "@rakazo/logging/monitoring";
+import { recordMemoryDream } from "../../memory/memory-dreams.js";
 import { returnBotMessageOutcome } from "../../messaging/bot-messages.js";
 import {
   backOffRoutineAfterAccountError,
@@ -214,6 +216,16 @@ export async function failRun(
   if (run.trigger === BACKGROUND_HELPER_TRIGGER) {
     await returnHelperOutcome(deps, run, { status: "failed", text: message }).catch((returnError) =>
       getLogger().error("background helper failure return", returnError),
+    );
+  }
+  if (run.trigger === MEMORY_DREAM_TRIGGER) {
+    await bestEffort(
+      "record the memory dream",
+      recordMemoryDream(deps.prisma, run, {
+        status: "failed",
+        summary: message,
+        errorKind: "run-failed",
+      }),
     );
   }
   // A refusal of the deployment's own key is the operator's problem, not the user's.

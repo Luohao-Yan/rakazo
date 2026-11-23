@@ -528,7 +528,11 @@ import { serializeTurnCheckpoint } from "../../../runs/turn/turn-checkpoint.js";
 import { MISSING_TOOL_FINAL_RESPONSE_ERROR, PiAgentRuntime } from "../pi-runtime.js";
 import { providerFailureText } from "../pi-runtime-errors.js";
 import { TOOL_RESULT_TEXT_LIMIT } from "../pi-runtime-limits.js";
-import { maxToolCallsPerTurn } from "./pi-runtime-tools.js";
+import {
+  maxToolCallsPerTurn,
+  releaseToolCallBudget,
+  toolCallBudgetFor,
+} from "./pi-runtime-tools.js";
 
 const TERMINATING_REPLY =
   "I can't change that here. Make the change in Settings, or ask me again in a fresh chat.";
@@ -2460,6 +2464,12 @@ describe("Pi connector tool dispatch", () => {
   it("refuses to construct the runtime when MAX_TOOL_CALLS_PER_TURN is malformed", () => {
     process.env.MAX_TOOL_CALLS_PER_TURN = "50x";
     expect(() => new PiAgentRuntime()).toThrow(/MAX_TOOL_CALLS_PER_TURN/);
+  });
+
+  it("uses the bot's own limit instead of the process default", () => {
+    const budget = toolCallBudgetFor("run-with-bot-limit", 0, 7);
+    expect(budget.limit).toBe(7);
+    releaseToolCallBudget("run-with-bot-limit", false);
   });
 
   it("lets a parallel tool batch finish before the optional fuse aborts", async () => {

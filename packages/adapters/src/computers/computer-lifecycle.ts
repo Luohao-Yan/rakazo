@@ -235,6 +235,8 @@ export async function provisionComputer(
   context: AdapterContext,
   controlHolder: "bot" | "none" = "none",
   onProgress?: ComputerUpdateProgress,
+  /** The requesting bot's own folder; unset lays out its default. */
+  layout?: { workspacePath?: string | null },
 ): Promise<ComputerRef> {
   const started = performance.now();
   let providerReadyMs = 0;
@@ -317,7 +319,7 @@ export async function provisionComputer(
           deps.sandbox,
           ref,
           parseComputerMode(existing.scope),
-          context.botId,
+          context.botId ? { id: context.botId, workspacePath: layout?.workspacePath } : undefined,
           context,
         );
       })().then(
@@ -558,7 +560,7 @@ export async function provisionComputer(
         deps.sandbox,
         current,
         parseComputerMode(existing.scope),
-        context.botId,
+        context.botId ? { id: context.botId, workspacePath: layout?.workspacePath } : undefined,
         context,
       );
       return restores;
@@ -1174,7 +1176,11 @@ export async function replaceComputer(
   context: AdapterContext,
   controlHolder: "bot" | "none" = "none",
   onProgress?: ComputerUpdateProgress,
-  options?: { handBackIdleTakeover?: boolean },
+  options?: {
+    handBackIdleTakeover?: boolean;
+    /** The requesting bot's own folder; the replacement lays out the same one. */
+    layout?: { workspacePath?: string | null };
+  },
 ): Promise<ComputerRef> {
   let existing = await deps.prisma.computer.findUniqueOrThrow({ where: { id: computerId } });
   if (existing.maintenanceId && existing.maintenanceId !== context.operationId)
@@ -1463,7 +1469,7 @@ export async function replaceComputer(
     if (stopped.count !== 1) throw new ComputerBusyError();
     await recordComputerRunEnd(deps.prisma, existing, "replaced");
     await endTeachingWithLease(deps, existing.spaceId, existing.controlLeaseId);
-    return provisionComputer(deps, computerId, context, controlHolder, onProgress);
+    return provisionComputer(deps, computerId, context, controlHolder, onProgress, options?.layout);
   } catch (error) {
     const failedState =
       previousState === "quarantined"

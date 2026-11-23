@@ -1,21 +1,19 @@
 import { Trans } from "@lingui/react/macro";
 import type { Bot } from "@rakazo/contracts";
 import { DEFAULT_NEW_BOT_AVATAR_SET, hasLab } from "@rakazo/contracts";
-import { chatWoke } from "@rakazo/core";
 import { bestEffort } from "@rakazo/logging/best-effort";
 import { Button } from "@rakazo/ui-web";
 import { useIsMobile } from "@rakazo/ui-web/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useParams } from "react-router-dom";
 import { CallCard } from "../components/call/CallCard";
 import { IncomingCall } from "../components/call/IncomingCall";
-import { ComputerUpdateProgress } from "../components/computers/ComputerUpdateProgress";
 import { PageLoading } from "../components/PageLoading";
 import { PageViewHost } from "../components/pages/PageViewHost";
 import { authClient } from "../lib/auth/auth";
-import { peekBootstrapSeed } from "../lib/bootstrap";
 import { toolActivityPreference } from "../lib/chat/tool-activity-preference";
 import { composerEnterToSendPreference } from "../lib/composer/composer-enter-to-send-pref";
 import { PagesProvider, usePagesForChat } from "../lib/pages/pages";
@@ -23,17 +21,12 @@ import { desktopBridge } from "../lib/platform/desktop";
 import { usePreloadRecoveryState } from "../lib/platform/preload-recovery";
 import { botsSidebarDensityPreference } from "../lib/preferences/bots-sidebar-density-pref";
 import { chatPreferencesQuery, useChatPreferences } from "../lib/preferences/chat-preferences";
-import {
-  lastChatKey,
-  lastChatOf,
-  queryClient,
-  spaceQueries,
-  spaceSeedKey,
-} from "../lib/query/query";
+import { queryClient, spaceQueries } from "../lib/query/query";
 import type { RpcClient } from "../lib/query/rpc";
 import { createSpaceRpc, selectedSpaceId } from "../lib/query/rpc";
 import { SpaceRpcProvider } from "../lib/query/space-rpc";
 import { InboundOriginProvider } from "../lib/routines/inbound-url";
+import { useAppSidebar } from "./shell/app-rail";
 import type { CreateBotDialogInput } from "./shell/bots/create-bot-dialog";
 import { useTeaching } from "./shell/bots/use-teaching";
 import { ChatColumn } from "./shell/chat/chat-column";
@@ -54,15 +47,16 @@ import { useComposerModelShortcuts } from "./shell/composer/use-composer-model-s
 import { ComputerOverlay } from "./shell/computers/computer-overlay";
 import { ComputerPanel } from "./shell/computers/computer-panel";
 import { useComputerControls, useComputerState } from "./shell/computers/use-computer";
-import { HostComputerPrompt } from "./shell/host-computer-prompt";
 import { KeyboardShortcutsDialog } from "./shell/keyboard-shortcuts-dialog";
 import { rightPanelStorageKey } from "./shell/right-panel-state";
 import { ShellDialogs, useShellDialogs } from "./shell/shell-dialogs";
 import { AppOverlays, SettingsOverlays } from "./shell/shell-overlays";
+import { ShellPrompts } from "./shell/shell-prompts";
 import { isApplePlatform } from "./shell/shell-shortcuts";
 import { ShellSidePanel } from "./shell/side-panel";
 import { ArchivedChats } from "./shell/sidebar/archived-chats";
 import { ShellSidebar } from "./shell/sidebar/shell-sidebar";
+import { ShellSidebarFooter } from "./shell/sidebar/shell-sidebar-footer";
 import { BotsSidebarLayout } from "./shell/sidebar/sidebar-layout";
 import { SidebarRoster } from "./shell/sidebar/sidebar-roster";
 import { SnoozedChats } from "./shell/sidebar/snoozed-chats";
@@ -74,10 +68,10 @@ import { useSidebarView } from "./shell/sidebar/use-sidebar-view";
 import { useSnoozeClock } from "./shell/sidebar/use-snooze-clock";
 import { useRosterDrop, useSpaceBootstrap, useSpaceRoster } from "./shell/sidebar/use-space-roster";
 import { useSpaceEpoch } from "./shell/space-switch";
-import { TimezonePrompt, withSavedTimezone } from "./shell/timezone-prompt";
 import { useActiveChat } from "./shell/use-active-chat";
 import { useBotCall } from "./shell/use-bot-call";
 import { useBrowserNotifications } from "./shell/use-browser-notifications";
+import { useOpenChatRead } from "./shell/use-open-chat-read";
 import { usePaletteActions } from "./shell/use-palette-actions";
 import { useReportedUiLocale } from "./shell/use-reported-ui-locale";
 import { useRightPanel, useRightPanelRestore } from "./shell/use-right-panel";
@@ -89,6 +83,7 @@ import { useShellSettings } from "./shell/use-shell-settings";
 import { useShellShortcutActions } from "./shell/use-shell-shortcut-actions";
 import { useShellStatus } from "./shell/use-shell-status";
 import { useSpaceActions } from "./shell/use-space-actions";
+import { useSpaceShellSeed } from "./shell/use-space-shell-seed";
 import { useOpenSpaceChat } from "./shell/use-space-switch";
 
 export function ShellPage() {
@@ -105,15 +100,7 @@ function SpaceShell() {
   const userId = session.data?.user.id;
   // Held from the first render, so Cmd/Ctrl+N works before the sidebar has data.
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
-  // A revisited space, or the shell reopened from another page, starts from what it showed
-  // last time while its fresh bootstrap loads.
-  const [{ seed, startChat }] = useState(() => {
-    const primed = peekBootstrapSeed(botId);
-    if (primed) return { seed: primed, startChat: undefined };
-    const cached = queryClient.getQueryData(spaceSeedKey(userId ?? null, shellSpaceId));
-    const lastChat = queryClient.getQueryData(lastChatKey(userId ?? null, shellSpaceId));
-    return { seed: cached, startChat: botId || groupId ? undefined : lastChatOf(cached, lastChat) };
-  });
+  const { seed, startChat } = useSpaceShellSeed(botId, groupId, userId ?? null, shellSpaceId);
   const {
     navigate,
     navigationRevision,
@@ -191,7 +178,8 @@ function SpaceShell() {
     voiceStatus,
     openVoiceSettings: () => openSettings("voice"),
   });
-  const { mobileSidebarOpen, setMobileSidebarOpen, swipeHandlers } = useMobileSidebar();
+  const { mobileSidebarOpen, setMobileSidebarOpen, closeMobileSidebar, swipeHandlers } =
+    useMobileSidebar();
   const isMobileSidebar = useIsMobile();
   const [panelCoversChat, setPanelCoversChat] = useState(false);
   const [panelOverlays, setPanelOverlays] = useState(false);
@@ -207,6 +195,9 @@ function SpaceShell() {
     searchQuery: search.query,
     now: snoozeNow,
   });
+  const { railWidth, railFooterNode } = useAppSidebar();
+  // The rail decides where the footer lives, so the two can never disagree at a breakpoint.
+  const railOnScreen = railWidth > 0;
 
   const { inGroup, routeChat, active, activeGroup, activeBotId, activeGroupId, userBubble } =
     useActiveChat({ botId, groupId, startChat, bots, groups, now: snoozeNow });
@@ -261,17 +252,14 @@ function SpaceShell() {
     openVoiceSettings: () => openSettings("voice"),
   });
   const read = useChatRead({ rpc, active, groupId, activeGroup, setBots, setGroups });
-  // A chat that wakes while it is open is already seen: read it, which ends the snooze.
-  const openChatWoke = active
-    ? chatWoke(active, snoozeNow)
-    : activeGroup
-      ? chatWoke(activeGroup, snoozeNow)
-      : false;
-  useEffect(() => {
-    if (!openChatWoke) return;
-    if (groupId) read.markGroupReadOnReply(groupId);
-    else if (active) read.markBotReadIfVisible(active.id);
-  }, [openChatWoke]);
+  useOpenChatRead({
+    active,
+    activeGroup,
+    groupId,
+    now: snoozeNow,
+    markGroupReadOnReply: read.markGroupReadOnReply,
+    markBotReadIfVisible: read.markBotReadIfVisible,
+  });
   const {
     refreshThread,
     refreshGroupThread,
@@ -626,41 +614,48 @@ function SpaceShell() {
     openChatSettings,
     navigate,
   });
+  const sidebarFooter = (
+    <ShellSidebarFooter
+      mini={railOnScreen}
+      logos={footerLogos}
+      user={session.data?.user}
+      boardEnabled={hasLab(bootstrapMe?.labs, "board")}
+      navLinks={desktopBridge() ? [] : (bootstrapMe?.navLinks ?? [])}
+      closeMobileSidebar={closeMobileSidebar}
+      navigate={navigate}
+      openSettings={openSettings}
+      openIntegrations={() => setOverlay({ kind: "integrations" })}
+      openSkills={() => setOverlay({ kind: "skills" })}
+      openSpaceChat={openSpaceChat}
+    />
+  );
+
   const shell = (
     <BotsSidebarLayout
       userId={userId}
       collapsed={sidebar.collapsed}
       onCollapsedChange={sidebar.setCollapsedPref}
-      onPreviewCollapsedChange={sidebar.setCollapsed}
+      onPreviewCollapsedChange={sidebar.previewCollapsed}
       computerOpen={computerOpen}
+      reservedWidth={railWidth}
       data-testid="shell-root"
       data-ready={shellReady}
       className="relative flex h-full min-h-0 min-w-0 overflow-hidden bg-background text-foreground/90 [&[data-resizing-sidebar]_*[data-slot=sidebar-gap]]:transition-none [&[data-resizing-sidebar]_*[data-slot=sidebar-container]]:transition-none"
       {...swipeHandlers}
     >
-      <ComputerUpdateProgress
-        onCompleted={() => {
-          if (active) void refreshThread(active.id);
-        }}
+      <ShellPrompts
+        userId={userId}
+        bootstrapMe={bootstrapMe}
+        setBootstrapMe={setBootstrapMe}
+        active={active}
+        refreshThread={refreshThread}
       />
-      {bootstrapMe !== undefined ? (
-        <HostComputerPrompt initialMe={bootstrapMe ?? undefined} onMeUpdated={setBootstrapMe} />
-      ) : null}
-      {userId && bootstrapMe ? (
-        <TimezonePrompt
-          key={userId}
-          userId={userId}
-          timezone={bootstrapMe.timezone}
-          onSaved={(me, adopted) => setBootstrapMe((prev) => withSavedTimezone(prev, me, adopted))}
-        />
-      ) : null}
       <ShellSidebar
         isMobile={isMobileSidebar}
         mobileOpen={mobileSidebarOpen}
-        setMobileOpen={setMobileSidebarOpen}
+        onCloseMobile={closeMobileSidebar}
         density={botsSidebarDensity}
         collapsed={sidebar.collapsed}
-        mini={sidebar.mini}
         setCollapsedPref={sidebar.setCollapsedPref}
         createMenuOpen={createMenuOpen}
         setCreateMenuOpen={setCreateMenuOpen}
@@ -676,7 +671,6 @@ function SpaceShell() {
         chatMenu={chatMenu}
         roster={
           <SidebarRoster
-            mini={sidebar.mini}
             sidebarGroups={sidebar.sidebarGroups}
             collapsedSidebarSections={collapsedSidebarSections}
             bootstrapMe={bootstrapMe}
@@ -687,7 +681,8 @@ function SpaceShell() {
             rosterDropAction={rosterDrop.rosterDropAction}
             applyRosterDrop={rosterDrop.applyRosterDrop}
             openSpaceChat={openSpaceChat}
-            openSpaceSettings={openSpaceSettings}
+            spaceMenuAnchor={dialogs.spaceMenuAnchor}
+            setSpaceMenu={dialogs.setSpaceMenu}
             setRenameSectionTarget={dialogs.setRenameSectionTarget}
             setDeleteSectionTarget={dialogs.setDeleteSectionTarget}
             toggleSidebarSection={toggleSidebarSection}
@@ -724,16 +719,10 @@ function SpaceShell() {
             />
           </>
         }
-        footerLogos={footerLogos}
-        user={session.data?.user}
-        boardEnabled={hasLab(bootstrapMe?.labs, "board")}
-        navLinks={desktopBridge() ? [] : (bootstrapMe?.navLinks ?? [])}
-        openSettings={openSettings}
-        openIntegrations={() => setOverlay({ kind: "integrations" })}
-        openSkills={() => setOverlay({ kind: "skills" })}
         openAgentImport={() => setOverlay({ kind: "import" })}
-        openSpaceChat={openSpaceChat}
+        footer={railOnScreen ? null : sidebarFooter}
       />
+      {railOnScreen && railFooterNode ? createPortal(sidebarFooter, railFooterNode) : null}
 
       <ChatColumn
         drawerOpen={mobileSidebarOpen}
@@ -868,6 +857,8 @@ function SpaceShell() {
         onCoversChat={setPanelCoversChat}
         onOverlays={setPanelOverlays}
         computerOpen={computerOpen}
+        computerAttention={computerControls.computerNeedsAttention}
+        onOpenMemorySettings={() => openSettings("memory")}
         computerPanel={
           active ? (
             <ComputerPanel
@@ -896,6 +887,7 @@ function SpaceShell() {
         <ShellDialogs
           dialogs={dialogs}
           rpc={rpc}
+          spaces={spaces}
           bots={bots}
           activeId={active?.id}
           activeGroupId={activeGroup?.id}
@@ -903,6 +895,8 @@ function SpaceShell() {
           navigate={navigate}
           setPanel={setPanel}
           refreshBots={refreshBots}
+          removeSpace={removeSpace}
+          openSpaceSettings={openSpaceSettings}
           closeMobileSidebar={() => setMobileSidebarOpen(false)}
           createBot={createBot}
           botAvatarSet={bootstrapMe?.botAvatarSet ?? DEFAULT_NEW_BOT_AVATAR_SET}

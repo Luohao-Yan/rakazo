@@ -870,7 +870,7 @@ describe("threadSnapshot", () => {
         where: expect.objectContaining({
           botId: "bot-1",
           threadId: "thread-1",
-          trigger: { notIn: ["tickets"] },
+          trigger: { notIn: ["tickets", "memory_dream"] },
           status: {
             in: ["queued", "leased", "running", "waiting_input", "waiting_takeover", "failed"],
           },
@@ -1062,7 +1062,7 @@ describe("threadSnapshot", () => {
     expect(findFirstRun).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          trigger: { notIn: ["tickets"] },
+          trigger: { notIn: ["tickets", "memory_dream"] },
           status: { in: ["failed", "completed", "cancelled"] },
         }),
         orderBy: [{ createdAt: "desc" }, { id: "desc" }],
@@ -1093,7 +1093,7 @@ describe("threadSnapshot", () => {
       expect.objectContaining({
         where: {
           threadId: "thread-1",
-          trigger: { notIn: ["bot_message", "tickets"] },
+          trigger: { notIn: ["bot_message", "tickets", "memory_dream"] },
           status: { in: ["failed", "completed", "cancelled"] },
         },
         orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
@@ -1117,7 +1117,7 @@ describe("threadSnapshot", () => {
           ],
           status: { in: ["queued", "leased", "running", "waiting_input", "waiting_takeover"] },
           OR: [
-            { trigger: { notIn: ["bot_message", "tickets"] } },
+            { trigger: { notIn: ["bot_message", "tickets", "memory_dream"] } },
             { status: { in: ["waiting_input", "waiting_takeover"] } },
           ],
         },
@@ -1174,7 +1174,7 @@ describe("threadSnapshot", () => {
       expect.objectContaining({
         where: expect.objectContaining({
           OR: [
-            { trigger: { notIn: ["bot_message", "tickets"] } },
+            { trigger: { notIn: ["bot_message", "tickets", "memory_dream"] } },
             { status: { in: ["waiting_input", "waiting_takeover"] } },
           ],
           status: { in: ["queued", "leased", "running", "waiting_input", "waiting_takeover"] },
@@ -1184,7 +1184,7 @@ describe("threadSnapshot", () => {
     expect(findManyRuns).toHaveBeenCalledWith(
       expect.objectContaining({
         where: expect.objectContaining({
-          trigger: { notIn: ["bot_message", "tickets"] },
+          trigger: { notIn: ["bot_message", "tickets", "memory_dream"] },
           status: { in: ["failed", "completed", "cancelled"] },
         }),
       }),
@@ -1493,7 +1493,7 @@ describe("threadSnapshot", () => {
       where: {
         botId: { in: ["bot-a", "bot-b"] },
         status: { in: ["queued", "leased", "running", "waiting_input", "waiting_takeover"] },
-        trigger: { notIn: ["tickets", "helper"] },
+        trigger: { notIn: ["tickets", "memory_dream", "helper"] },
       },
       orderBy: { createdAt: "desc" },
       select: { botId: true, status: true },

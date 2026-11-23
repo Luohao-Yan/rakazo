@@ -1,10 +1,17 @@
 import { ph } from "@lingui/core/macro";
 import { useLingui } from "@lingui/react/macro";
-import type { Bot, BotAvatarSet, ComputerMode, ThinkingLevel } from "@rakazo/contracts";
+import type {
+  ApprovalMode,
+  Bot,
+  BotAvatarSet,
+  ComputerMode,
+  ThinkingLevel,
+} from "@rakazo/contracts";
 import {
   BOT_DESCRIPTION_MAX_LENGTH,
   BOT_INSTRUCTIONS_MAX_LENGTH,
   BOT_NAME_MAX_LENGTH,
+  normalizeBotWorkspacePath,
   resolveBotAvatarSet,
 } from "@rakazo/contracts";
 import {
@@ -17,7 +24,6 @@ import {
   parseModelOptionKey,
   resolveSelectableModelId,
 } from "@rakazo/core";
-import { thinkingLevelLabel } from "@rakazo/i18n/thinking-level";
 import { typeScale } from "@rakazo/ui-tokens";
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import type { Voice } from "expo-speech";
@@ -25,9 +31,12 @@ import type { Dispatch, SetStateAction } from "react";
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { ScrollViewInstance } from "react-native";
 import { Alert, Modal, Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
+import { BotAgentSettings } from "../components/bots/bot-agent-settings";
 import { BotAvatar } from "../components/bots/bot-avatar";
 import { BotContextCards } from "../components/bots/bot-context-cards";
+import { BotDreamsSection } from "../components/bots/bot-dreams-section";
 import { BotLookPicker } from "../components/bots/bot-look-picker";
+import { BotPermissionsSection } from "../components/bots/bot-permissions-section";
 import { ProfileEditDialog } from "../components/bots/profile-edit-dialog";
 import { useComputerHomeVersionRows } from "../components/computers/computer-home-versions";
 import { useComputerMaintenanceRows } from "../components/computers/computer-maintenance-actions";
@@ -36,17 +45,18 @@ import { NativeActionButton } from "../components/native/native-action-button";
 import { NativeSymbol } from "../components/native/native-symbol";
 import {
   SettingsGroup,
+  SettingsInputRow,
   SettingsLabel,
   SettingsRow,
   SettingsSwitch,
 } from "../components/settings/settings-group";
 import { GrowingTextInput } from "../components/ui/growing-text-input";
-import type { MenuPickerChoice } from "../components/ui/menu-picker";
 import { MenuPicker, MenuPickerMenu } from "../components/ui/menu-picker";
 import { Chevron } from "../components/ui/row-accessories";
 import type { MobileModel, MobileModelCredential } from "../lib/api/mobile-types";
 import { errorText } from "../lib/api/user-error";
 import { botReadsIn, useBotSetting, useNotifyOnFinish } from "../lib/bots/bot-setting";
+import { useApprovalModeChoices, useThinkingChoices } from "../lib/bots/bot-settings-choices";
 import { CallKeyboardContext } from "../lib/calls/call-keyboard-context";
 import { COMPUTER_LIFECYCLE_TIMEOUT_MS } from "../lib/computers/computer";
 import { dateLocaleForUi, useUiLocale } from "../lib/i18n/i18n";
@@ -89,6 +99,13 @@ function BotSettings() {
   const [instructions, setInstructions] = useState("");
   const [color, setColor] = useState<string>(DEFAULT_BOT_AVATAR_COLOR);
   const [computerMode, setComputerMode] = useState<ComputerMode>("team");
+  const [workspacePath, setWorkspacePath] = useState("");
+  const [approvalMode, setApprovalMode] = useState<ApprovalMode | "space">("space");
+  const [useOwnMemory, setUseOwnMemory] = useState(true);
+  const [useSharedMemory, setUseSharedMemory] = useState(true);
+  // Auto judges with a model; without one the bot asks, as the picker says.
+  const autoAvailable =
+    useScreenQuery(rpcQuery("autoReview/get", {})).data?.checkerAvailable ?? true;
   const [avatarSet, setAvatarSet] = useState<BotAvatarSet>("organic");
   const [avatarOpen, setAvatarOpen] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(focus === "model" || pickedModel !== undefined);
@@ -170,6 +187,10 @@ function BotSettings() {
     follow(setColor, (from) => from.color);
     follow(setAvatarSet, (from) => resolveBotAvatarSet(from.avatarSet));
     follow(setComputerMode, (from) => from.computerMode);
+    follow(setWorkspacePath, (from) => from.workspacePath ?? "");
+    follow(setApprovalMode, (from) => from.approvalMode ?? "space");
+    follow(setUseOwnMemory, (from) => from.useOwnMemory);
+    follow(setUseSharedMemory, (from) => from.useSharedMemory);
     follow(setModelKey, (from) =>
       from.modelProvider && from.modelId ? modelOptionKey(from.modelProvider, from.modelId) : "",
     );
@@ -220,16 +241,8 @@ function BotSettings() {
     [catalog, credentials, me, selectedModelKey, t],
   );
 
-  const thinkingChoices: MenuPickerChoice[] = useMemo(
-    () => [
-      { key: "", label: t`Default` },
-      ...thinkingOptions.map((level) => ({
-        key: level,
-        label: thinkingLevelLabel(level),
-      })),
-    ],
-    [t, thinkingOptions],
-  );
+  const thinkingChoices = useThinkingChoices(thinkingOptions);
+  const approvalChoices = useApprovalModeChoices();
 
   useEffect(() => {
     if (focus === "model") setAdvancedOpen(true);
@@ -363,7 +376,27 @@ function BotSettings() {
         modelId?: string | null;
         thinkingLevel?: ThinkingLevel | null;
         autoSpeak?: boolean;
+        workspacePath?: string | null;
+        approvalMode?: ApprovalMode | null;
+        useOwnMemory?: boolean;
+        useSharedMemory?: boolean;
       } = { botId };
+      const rawWorkspacePath = workspacePath.trim();
+      const nextWorkspacePath = rawWorkspacePath
+        ? normalizeBotWorkspacePath(rawWorkspacePath)
+        : null;
+      if (rawWorkspacePath && !nextWorkspacePath) {
+        throw new Error(t`Workspace folder must be a relative path without ".." segments.`);
+      }
+      if (nextWorkspacePath !== (bot.workspacePath ?? null)) {
+        update.workspacePath = nextWorkspacePath;
+      }
+      const nextApprovalMode = approvalMode === "space" ? null : approvalMode;
+      if (nextApprovalMode !== (bot.approvalMode ?? null)) {
+        update.approvalMode = nextApprovalMode;
+      }
+      if (useOwnMemory !== bot.useOwnMemory) update.useOwnMemory = useOwnMemory;
+      if (useSharedMemory !== bot.useSharedMemory) update.useSharedMemory = useSharedMemory;
       if (description.trim() !== (bot.description ?? "")) update.description = description.trim();
       if (instructions !== bot.instructions) {
         update.instructions = instructions;
@@ -428,6 +461,18 @@ function BotSettings() {
     closesScreen: true,
   });
 
+  const trimmedWorkspacePath = workspacePath.trim();
+  const normalizedWorkspacePath = trimmedWorkspacePath
+    ? normalizeBotWorkspacePath(trimmedWorkspacePath)
+    : null;
+  // An invalid folder normalizes to null, which looks like the saved default. Count any nonempty
+  // input that cannot be normalized as dirty, so Save stays reachable and its validation can say
+  // what is wrong.
+  const workspacePathChanged =
+    trimmedWorkspacePath !== "" && normalizedWorkspacePath === null
+      ? true
+      : normalizedWorkspacePath !== (bot?.workspacePath ?? null);
+
   const dirty =
     bot &&
     (description.trim() !== (bot.description ?? "") ||
@@ -435,6 +480,10 @@ function BotSettings() {
       color !== bot.color ||
       avatarSet !== resolveBotAvatarSet(bot.avatarSet) ||
       computerMode !== bot.computerMode ||
+      workspacePathChanged ||
+      (approvalMode === "space" ? null : approvalMode) !== (bot.approvalMode ?? null) ||
+      useOwnMemory !== bot.useOwnMemory ||
+      useSharedMemory !== bot.useSharedMemory ||
       autoSpeak !== bot.autoSpeak ||
       (selectedModel?.provider ?? null) !== (bot.modelProvider ?? null) ||
       (selectedModel?.modelId ?? null) !== (bot.modelId ?? null) ||
@@ -575,7 +624,22 @@ function BotSettings() {
             }}
           >
             {botId ? (
-              <BotContextCards key={`${botId}-memory`} botId={botId} section="memory" />
+              <View style={{ gap: 24 }}>
+                <SettingsGroup label={t`Memory`}>
+                  <SettingsSwitch
+                    label={t`Use its own memory`}
+                    value={useOwnMemory}
+                    onChange={setUseOwnMemory}
+                  />
+                  <SettingsSwitch
+                    label={t`Use shared notes`}
+                    value={useSharedMemory}
+                    onChange={setUseSharedMemory}
+                  />
+                </SettingsGroup>
+                <BotContextCards key={`${botId}-memory`} botId={botId} section="memory" />
+                <BotDreamsSection botId={botId} memoryOff={!useOwnMemory && !useSharedMemory} />
+              </View>
             ) : null}
             <SettingsGroup label={t`Model`} footer={modelMetaError ?? undefined}>
               <MenuPicker
@@ -612,6 +676,16 @@ function BotSettings() {
               {computerMaintenanceRows}
               {computerHomeVersionRows}
             </SettingsGroup>
+            <SettingsGroup label={t`Workspace folder`}>
+              <SettingsInputRow
+                accessibilityLabel={t`Workspace folder`}
+                placeholder={t`projects/website`}
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={workspacePath}
+                onChangeText={setWorkspacePath}
+              />
+            </SettingsGroup>
             {changed?.readAloud || deviceVoiceEnabled ? (
               <SettingsGroup label={t`Voice`}>
                 {changed?.readAloud ? (
@@ -624,48 +698,19 @@ function BotSettings() {
                 {deviceVoiceEnabled ? voiceRow : null}
               </SettingsGroup>
             ) : null}
-            {changed?.dailyCheckIns ||
-            changed?.crossSpaceCommunication ||
-            changed?.fleetManagement ? (
-              <SettingsGroup label={t`Permissions`}>
-                {changed.dailyCheckIns ? (
-                  <SettingsSwitch
-                    label={t`Daily check-ins on unfinished work`}
-                    value={dailyCheckIns.value}
-                    disabled={saving.pending}
-                    onChange={(value) => {
-                      if (!botId) return;
-                      setError(null);
-                      dailyCheckIns.set(value);
-                    }}
-                  />
-                ) : null}
-                {changed.crossSpaceCommunication ? (
-                  <SettingsSwitch
-                    label={t`Allow cross-space bot communication`}
-                    value={crossSpace.value}
-                    disabled={saving.pending}
-                    onChange={(value) => {
-                      if (!botId) return;
-                      setError(null);
-                      crossSpace.set(value);
-                    }}
-                  />
-                ) : null}
-                {changed.fleetManagement ? (
-                  <SettingsSwitch
-                    label={t`Manage other bots`}
-                    onChange={(value) => {
-                      if (!botId) return;
-                      setError(null);
-                      fleet.set(value);
-                    }}
-                    value={fleet.value}
-                    disabled={saving.pending}
-                  />
-                ) : null}
-              </SettingsGroup>
-            ) : null}
+            <BotPermissionsSection
+              botId={botId}
+              changed={changed}
+              approvalMode={approvalMode}
+              approvalChoices={approvalChoices}
+              autoAvailable={autoAvailable}
+              onApprovalModeChange={setApprovalMode}
+              dailyCheckIns={dailyCheckIns}
+              crossSpaceCommunication={crossSpace}
+              fleetManagement={fleet}
+              onError={setError}
+            />
+            {bot ? <BotAgentSettings bot={bot} onError={setError} /> : null}
             <View style={{ gap: 7 }}>
               <View
                 style={{

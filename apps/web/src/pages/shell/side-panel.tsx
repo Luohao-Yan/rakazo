@@ -3,11 +3,10 @@ import type { Bot, Group, ThreadSnapshot } from "@rakazo/contracts";
 import { Button } from "@rakazo/ui-web";
 import { X } from "lucide-react";
 import type { ComponentProps, Dispatch, ReactNode, SetStateAction } from "react";
-import { PagesList } from "../../components/pages/PagesList";
 import type { createSpaceRpc } from "../../lib/query/rpc";
 import { RoutineEditor } from "../routines/RoutineEditor";
 import type { RoutineList } from "../routines/RoutineList";
-import { CreateGroupForm, GroupSettings } from "../space/GroupPanel";
+import { CreateGroupForm, GroupPanel } from "../space/GroupPanel";
 import { BotSettings } from "./bots/bot-panel";
 import { ResizableSidePanel } from "./resizable-side-panel";
 import type { Panel } from "./right-panel-state";
@@ -29,6 +28,8 @@ export function ShellSidePanel({
   refreshGroupThread,
   computerOpen,
   computerPanel,
+  computerAttention,
+  onOpenMemorySettings,
   routineList,
   routineEditorProps,
   openBot,
@@ -52,6 +53,10 @@ export function ShellSidePanel({
   refreshGroupThread: (groupId: string) => Promise<ThreadSnapshot>;
   computerOpen: boolean;
   computerPanel: ReactNode;
+  /** The bot's computer shows a failure: the bot panel marks its computer tab. */
+  computerAttention?: boolean;
+  /** Opens the space's shared-memory settings, from the bot panel's memory tab. */
+  onOpenMemorySettings: () => void;
   routineList: Omit<ComponentProps<typeof RoutineList>, "preview">;
   routineEditorProps: ComponentProps<typeof RoutineEditor> | null;
   openBot: (botId: string) => void;
@@ -120,11 +125,10 @@ export function ShellSidePanel({
             />
           ) : null}
           {panel === "group-settings" && activeGroup ? (
-            <GroupSettings
+            <GroupPanel
               key={activeGroup.id}
               group={activeGroup}
               bots={bots}
-              pages={<PagesList groupId={activeGroup.id} />}
               onSave={async (input) => {
                 const updated = await rpc.groups.update({ groupId: activeGroup.id, ...input });
                 setGroups((current) =>
@@ -156,6 +160,8 @@ export function ShellSidePanel({
               onViewChange={setPanel}
               onClose={() => setPanel(null)}
               computer={computerPanel}
+              computerAttention={computerAttention}
+              onOpenMemorySettings={onOpenMemorySettings}
               routines={routineList}
               focusModel={modelFocusRequest}
               onSave={async ({ computerMode, ...patch }) => {

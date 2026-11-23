@@ -1,10 +1,10 @@
 import type { ConnectorTool } from "@rakazo/adapter-kit";
 import {
-  BOT_MEMORY_MAX_BYTES,
   BotSecretName,
   botSecretDestinationSchema,
   GenerateSecretInput,
   LOGIN_FIELD_LIMIT,
+  MEMORY_TOKEN_CAPS,
   SecretAskPurpose,
   SecretHttpRequest,
 } from "@rakazo/contracts";
@@ -278,7 +278,7 @@ export const conversationTools: ConnectorTool[] = [
   },
   {
     name: "remember",
-    description: `Save one short new fact to your memory, one call per fact. To change or drop a fact, pass old_text from its entry with new or empty content. Holds ${BOT_MEMORY_MAX_BYTES / 1024} KB.`,
+    description: `Save one short new fact to your memory, one call per fact. To change or drop a fact, pass old_text from its entry with new or empty content. Holds ${MEMORY_TOKEN_CAPS.bot.toLocaleString()} tokens.`,
     inputSchema: {
       type: "object",
       properties: {
@@ -297,6 +297,10 @@ export const conversationTools: ConnectorTool[] = [
       properties: {
         path: { type: "string", description: "Document name, for example MEMORY.md." },
         content: { type: "string", description: "The document's complete new content." },
+        description: {
+          type: "string",
+          description: "One line saying what the document holds.",
+        },
       },
       required: ["path", "content"],
     },

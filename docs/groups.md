@@ -12,7 +12,9 @@ On mobile, tap **Create** (**+**) in the chat list, then **New group chat**. Pic
 tap **Next**. Enter a name and tap **Create**, or leave it blank and tap **Skip** to use the default
 name based on the selected bots.
 
-Each bot keeps its own memory, computer and instructions; the group only shares the conversation.
+Each bot keeps its own memory, computer and instructions; the group shares the conversation. Open
+the group's panel to find the pages the team built, the Space's shared notes, and the group's
+settings.
 
 ## Who answers
 
@@ -26,8 +28,8 @@ Each bot keeps its own memory, computer and instructions; the group only shares 
 - **@everyone** sends the message to every member. **@all** and **@所有人** also work, unless a
   member has that name. In that case, the alias addresses just that member.
 
-To rename the group or change who is in it, open **Group settings** from the group's header.
-**Delete group** removes the group chat.
+To rename the group or change who is in it, open the group's panel from its header and choose
+**Settings**. **Delete group** removes the group chat.
 
 ## Bots asking other bots
 

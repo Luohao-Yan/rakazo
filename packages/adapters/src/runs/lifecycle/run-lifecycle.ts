@@ -1,5 +1,4 @@
 import {
-  SandboxDamagedError,
   SandboxDiskTooLargeError,
   SandboxRateLimitError,
   SandboxUnavailableError,
@@ -11,6 +10,7 @@ import {
   BACKGROUND_HELPER_TRIGGER,
   displayName,
   isTerminal,
+  MEMORY_DREAM_TRIGGER,
   nextFence,
   redactSecrets,
   truncatePlainText,
@@ -27,6 +27,7 @@ import {
   releaseComputerExecutionLease,
 } from "../../computers/computer-lifecycle.js";
 import { withComputerScreenAvailability } from "../../computers/screens/computer-screens.js";
+import { recordMemoryDream } from "../../memory/memory-dreams.js";
 import { returnBotMessageOutcome } from "../../messaging/bot-messages.js";
 import { VaultKeyUnavailableError } from "../../secrets/bot-secrets.js";
 import { returnHelperOutcome } from "../../tasks/background-helpers.js";
@@ -137,6 +138,16 @@ export async function failRunBeforeTurn(
     // The chat that started the helper hears about its failure there, so it sends no push.
     await returnHelperOutcome(deps, run, { status: "failed", text: message }).catch((error) =>
       getLogger().error("background helper failure return", error),
+    );
+  } else if (run.trigger === MEMORY_DREAM_TRIGGER) {
+    // A dream fails silently; its record says why and the Memory page shows it.
+    await bestEffort(
+      "record the memory dream",
+      recordMemoryDream(deps.prisma, run, {
+        status: "failed",
+        summary: message,
+        errorKind: "run-failed",
+      }),
     );
   } else if (!failed.continuationRunId) {
     await notifyRun(deps, run, {

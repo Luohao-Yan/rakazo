@@ -1,4 +1,5 @@
-import { humanizeToolName } from "@rakazo/core";
+import type { resolveActionApprovalForTools } from "@rakazo/core";
+import { decisiveActionApprovalRules, humanizeToolName } from "@rakazo/core";
 import type { AuditEventInput } from "@rakazo/db";
 import { recordAuditEvent } from "@rakazo/db";
 import type { RunContext } from "../assembly/run-context.js";
@@ -23,4 +24,15 @@ export async function auditToolCall(
     threadId: ctx.thread.id,
     metadata,
   });
+}
+/** Names the saved rules a refusal cites, as a suffix on its message. */
+export function blockingRuleSuffix(
+  resolved: ReturnType<typeof resolveActionApprovalForTools>,
+): string {
+  const labels = decisiveActionApprovalRules(resolved).map((rule) => {
+    const value = rule.matchValue.trim().replace(/\s+/g, " ");
+    return JSON.stringify(rule.matchKind === "site" ? value : humanizeToolName(value));
+  });
+  if (labels.length === 0) return "";
+  return ` by the saved ${labels.length === 1 ? "rule" : "rules"} ${labels.join(", ")}`;
 }

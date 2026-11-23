@@ -3,6 +3,7 @@ import type {
   Bot,
   BotAvatarSet,
   BotSection,
+  ConversationCompactionMode,
   MessageBlock,
   SpaceBot,
 } from "@rakazo/contracts";
@@ -12,6 +13,7 @@ import {
   disabledBuiltinToolSet,
   InstructionVersionSchema,
   initialBotMemory,
+  normalizeConversationCompactionMode,
   resolveBotAvatarSet,
 } from "@rakazo/contracts";
 import { displayName, phoneCallSettings, ringingCall } from "@rakazo/core";
@@ -89,10 +91,13 @@ function mapBot(
     archivedAt: Date | null;
     parentBotId: string | null;
     memoryScope: string | null;
+    useOwnMemory?: boolean;
+    useSharedMemory?: boolean;
     createdAt: Date;
     updatedAt: Date;
     thread: { id: string; reads: Array<{ unread: boolean; snoozedUntil: Date | null }> } | null;
     computer: { scope: string } | null;
+    hostDevice?: { id: string; userId: string; name: string; platform: string } | null;
     voiceId?: string | null;
     autoSpeak?: boolean;
     modelProvider?: string | null;
@@ -104,7 +109,13 @@ function mapBot(
     dailyCheckIns?: boolean;
     fleetManagement?: boolean;
     replyMode?: string;
+    approvalMode?: string | null;
+    maxConcurrentHelpers?: number | null;
+    conversationCompactionMode?: string | null;
+    conversationCompactionTokens?: number | null;
+    maxToolCallsPerTurn?: number | null;
     disabledBuiltinTools?: string[];
+    workspacePath?: string | null;
     webhookSecretId?: string | null;
     spawnKey?: string | null;
   },
@@ -135,11 +146,21 @@ function mapBot(
     snoozedUntil: snoozedUntilFor(bot.thread),
     parentBotId: bot.parentBotId,
     memoryScope: bot.memoryScope as "isolated" | "shared" | null,
+    useOwnMemory: bot.useOwnMemory ?? true,
+    useSharedMemory: bot.useSharedMemory ?? true,
     threadId: bot.thread.id,
     preview,
     status,
     runErrorId,
     computerMode: bot.computer ? parseComputerMode(bot.computer.scope) : "team",
+    hostDevice: bot.hostDevice
+      ? {
+          id: bot.hostDevice.id,
+          name: bot.hostDevice.name,
+          platform: bot.hostDevice.platform,
+          ownerUserId: bot.hostDevice.userId,
+        }
+      : null,
     createdAt: bot.createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
     voiceId: bot.voiceId ?? null,
@@ -153,8 +174,17 @@ function mapBot(
     dailyCheckIns: bot.dailyCheckIns ?? true,
     fleetManagement: bot.fleetManagement ?? true,
     replyMode: bot.replyMode === "messages" ? "messages" : "chat",
+    approvalMode:
+      bot.approvalMode === "ask" || bot.approvalMode === "auto" || bot.approvalMode === "never"
+        ? bot.approvalMode
+        : null,
+    maxConcurrentHelpers: bot.maxConcurrentHelpers ?? null,
+    conversationCompactionMode: normalizeConversationCompactionMode(bot.conversationCompactionMode),
+    conversationCompactionTokens: bot.conversationCompactionTokens ?? null,
+    maxToolCallsPerTurn: bot.maxToolCallsPerTurn ?? null,
     // Stored lists may name a tool that no longer exists; settings resend what they read.
     disabledBuiltinTools: [...disabledBuiltinToolSet(bot.disabledBuiltinTools)],
+    workspacePath: bot.workspacePath ?? null,
     webhookConfigured: Boolean(bot.webhookSecretId),
     spawnKey: bot.spawnKey ?? null,
     incomingCall,
@@ -366,6 +396,7 @@ export function createRepos(
             thread: { include: { reads: readStateFor(actor.userId) } },
             runs: activeRunSelection,
             computer: { select: { scope: true } },
+            hostDevice: true,
           },
           orderBy: [{ pinned: "desc" }, { position: "asc" }, { createdAt: "asc" }],
         }),
@@ -420,7 +451,7 @@ export function createRepos(
           spaceId: actor.spaceId,
           ...(options.includeArchived ? {} : { archivedAt: null }),
         },
-        include: { thread: true, computer: true },
+        include: { thread: true, computer: true, hostDevice: true },
       });
       if (!bot) throw new IsolationError();
       return bot;
@@ -437,6 +468,13 @@ export function createRepos(
         dailyCheckIns?: boolean;
         fleetManagement?: boolean;
         replyMode?: string;
+        approvalMode?: string | null;
+        maxConcurrentHelpers?: number | null;
+        conversationCompactionMode?: ConversationCompactionMode | null;
+        conversationCompactionTokens?: number | null;
+        maxToolCallsPerTurn?: number | null;
+        useOwnMemory?: boolean;
+        useSharedMemory?: boolean;
         color?: string;
         avatarSet?: BotAvatarSet;
         /** Copy a pin as is (duplicates); otherwise a set other than the default pins the bot. */
@@ -449,6 +487,8 @@ export function createRepos(
         modelId?: string | null;
         thinkingLevel?: string | null;
         disabledBuiltinTools?: string[];
+        workspacePath?: string | null;
+        hostDeviceId?: string | null;
         initialMessage?: {
           role: "user" | "bot" | "system";
           blocks: MessageBlock[];
@@ -550,6 +590,21 @@ export function createRepos(
               dailyCheckIns: input.dailyCheckIns,
               fleetManagement: input.fleetManagement,
               replyMode: input.replyMode,
+              ...(input.approvalMode ? { approvalMode: input.approvalMode } : {}),
+              ...(input.useOwnMemory === false ? { useOwnMemory: false } : {}),
+              ...(input.useSharedMemory === false ? { useSharedMemory: false } : {}),
+              ...(input.maxConcurrentHelpers
+                ? { maxConcurrentHelpers: input.maxConcurrentHelpers }
+                : {}),
+              ...(input.conversationCompactionMode
+                ? { conversationCompactionMode: input.conversationCompactionMode }
+                : {}),
+              ...(input.conversationCompactionTokens
+                ? { conversationCompactionTokens: input.conversationCompactionTokens }
+                : {}),
+              ...(input.maxToolCallsPerTurn
+                ? { maxToolCallsPerTurn: input.maxToolCallsPerTurn }
+                : {}),
               color: avatar.color,
               avatarSet,
               avatarSetPinned: input.avatarSetPinned ?? avatarSet !== defaultSet,
@@ -561,6 +616,8 @@ export function createRepos(
               modelId,
               thinkingLevel,
               disabledBuiltinTools,
+              ...(input.workspacePath ? { workspacePath: input.workspacePath } : {}),
+              ...(input.hostDeviceId ? { hostDeviceId: input.hostDeviceId } : {}),
             },
           });
           const thread = await tx.thread.create({

@@ -129,6 +129,8 @@ export function createJobReconciler(
     reconcileNativeCalendarRetention?: () => Promise<void>;
     reconcileHomeStorage?: () => Promise<void>;
     reconcileIdleComputers?: () => Promise<void>;
+    /** Starts nightly memory consolidations and prunes old dream records. */
+    reconcileMemoryDreams?: () => Promise<void>;
     reconcileDeadJobs?: () => Promise<void>;
     /** Gives chat messages whose backup job was lost a new one. */
     reconcileChatDelivery?: () => Promise<void>;
@@ -176,6 +178,7 @@ export function createJobReconciler(
     deps.reconcileNativeCalendarRetention,
     deps.reconcileHomeStorage,
     deps.reconcileIdleComputers,
+    deps.reconcileMemoryDreams,
     deps.reconcileDeadJobs,
     deps.reconcileChatDelivery,
   ].filter((reconcile) => reconcile !== undefined);

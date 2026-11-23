@@ -10,6 +10,7 @@ import type { AdapterContext } from "@rakazo/adapter-kit";
 import {
   carriedBotModelPin,
   carriedRoutineModelPin,
+  memoryDocumentError,
   normalizeWorkspacePath,
   ObjectStorageUnavailableError,
   resolveBotWorkspacePath,
@@ -330,6 +331,8 @@ class SpaceImport {
   readonly homes = new Map<string, string>();
   readonly receivedArtifacts = new Set<string>();
   readonly receivedHomeFiles = new Set<string>();
+  /** Documents the import skipped; their revisions follow and are skipped too. */
+  readonly skippedMemoryDocuments = new Set<string>();
   boardId: string | null = null;
   maxTicketNumber = 0;
   recordsDone = false;
@@ -728,6 +731,16 @@ class AccountImporter implements ArchiveSink {
         if (record.rootArtifactId) space.mapped(record.rootArtifactId);
         return;
       case "memory_document": {
+        const invalid = memoryDocumentError(
+          record.scope === "user" ? "user" : "bot",
+          record.path,
+          record.content,
+        );
+        if (invalid) {
+          getLogger().warn("account.import.memory_document_skipped", { reason: invalid });
+          space.skippedMemoryDocuments.add(record.id);
+          return;
+        }
         const botId = record.botId === null ? null : space.mapped(record.botId);
         const existing = await prisma.memoryDocument.findFirst({
           where: { spaceId, scope: record.scope, botId, path: record.path },
@@ -735,6 +748,7 @@ class AccountImporter implements ArchiveSink {
         });
         const data = {
           content: record.content,
+          description: record.description,
           revision: record.revision,
           createdAt: new Date(record.createdAt),
           updatedAt: new Date(record.updatedAt),
@@ -759,6 +773,7 @@ class AccountImporter implements ArchiveSink {
         return;
       }
       case "memory_revision": {
+        if (space.skippedMemoryDocuments.has(record.documentId)) return;
         const documentId = space.mapped(record.documentId);
         await prisma.memoryRevision.create({
           data: {
@@ -766,7 +781,33 @@ class AccountImporter implements ArchiveSink {
             documentId,
             revision: record.revision,
             content: record.content,
+            // Archives from older servers carry no provenance; those revisions were imported too.
+            sourceKind: record.sourceKind ?? "import",
             sourceThreadId: space.optional(record.sourceThreadId),
+            createdAt: new Date(record.createdAt),
+          },
+        });
+        return;
+      }
+      case "memory_dream": {
+        const botId = space.mapped(record.botId);
+        await prisma.memoryDream.create({
+          data: {
+            id: newId(),
+            spaceId,
+            botId,
+            threadId: space.optional(record.threadId),
+            status: record.status,
+            reason: record.reason,
+            summary: record.summary,
+            changedPaths: record.changedPaths,
+            added: record.added,
+            archived: record.archived,
+            sourceSeq: record.sourceSeq,
+            errorKind: record.errorKind,
+            undoneAt: record.undoneAt === null ? null : new Date(record.undoneAt),
+            startedAt: record.startedAt === null ? null : new Date(record.startedAt),
+            finishedAt: record.finishedAt === null ? null : new Date(record.finishedAt),
             createdAt: new Date(record.createdAt),
           },
         });
@@ -917,6 +958,14 @@ class AccountImporter implements ArchiveSink {
             crossSpaceCommunication: record.crossSpaceCommunication,
             dailyCheckIns: record.dailyCheckIns,
             replyMode: record.replyMode,
+            approvalMode: record.approvalMode,
+            maxConcurrentHelpers: record.maxConcurrentHelpers,
+            conversationCompactionMode: record.conversationCompactionMode ?? "automatic",
+            conversationCompactionTokens: record.conversationCompactionTokens ?? null,
+            maxToolCallsPerTurn: record.maxToolCallsPerTurn ?? null,
+            useOwnMemory: record.useOwnMemory,
+            useSharedMemory: record.useSharedMemory,
+            workspacePath: record.workspacePath,
             createdAt: new Date(record.createdAt),
           },
         });
@@ -935,7 +984,12 @@ class AccountImporter implements ArchiveSink {
       id: bot.id,
       threadId: thread.id,
       homeKey: computer.homeKey,
-      directory: resolveBotWorkspacePath(parseComputerMode(computer.scope), bot.id, ""),
+      directory: resolveBotWorkspacePath(
+        parseComputerMode(computer.scope),
+        bot.id,
+        "",
+        record.workspacePath,
+      ),
     });
     if (record.parentBotId)
       space.parentLinks.push({ botId: bot.id, parentBotId: record.parentBotId });
