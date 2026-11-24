@@ -115,13 +115,13 @@ describe("warm window lifetime", () => {
 });
 
 describe("development icon", () => {
-  it("uses the squircle asset on macOS because the dock draws the file unmasked", () => {
-    expect(developmentIconFile("darwin")).toBe("icon-macos.png");
+  it("uses the DEV squircle asset on macOS because the dock draws the file unmasked", () => {
+    expect(developmentIconFile("darwin")).toBe("icon-macos-dev.png");
   });
 
-  it("keeps the full-bleed icon elsewhere", () => {
+  it("keeps the full-bleed DEV icon elsewhere", () => {
     for (const platform of ["win32", "linux"] as const) {
-      expect(developmentIconFile(platform)).toBe("icon.png");
+      expect(developmentIconFile(platform)).toBe("icon-dev.png");
     }
   });
 });
