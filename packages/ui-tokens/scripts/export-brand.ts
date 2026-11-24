@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { darkTokens } from "../src/index.ts";
+import { darkTokens, lightTokens } from "../src/index.ts";
 
 const root = new URL("../../../", import.meta.url);
 const path = (name: string) => fileURLToPath(new URL(name, root));
@@ -76,9 +76,9 @@ await ico(rounded, "apps/desktop/assets/icon.ico", [16, 32, 48, 64, 128, 256]);
 // Development launches replace the Dock icon with one that carries the same DEV label as the app.
 const DEV_BADGE = Buffer.from(
   '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="160">' +
-    `<rect width="288" height="160" rx="26" fill="${darkTokens.warning}"/>` +
+    `<rect x="5" y="5" width="278" height="150" rx="24" fill="${lightTokens.background}" stroke="${lightTokens.warning}" stroke-width="10"/>` +
     '<text x="144" y="112" text-anchor="middle" font-family="sans-serif" ' +
-    `font-weight="700" font-size="86" fill="${darkTokens.background}">DEV</text></svg>`,
+    `font-weight="700" font-size="86" fill="${lightTokens.foreground}">DEV</text></svg>`,
 );
 const DEV_BADGE_INSET = 56;
 /** Draws the DEV badge over the icon tile's bottom-right corner, clear of its rounded edge. */
