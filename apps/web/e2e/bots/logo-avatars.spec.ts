@@ -734,7 +734,7 @@ test("directional vector rim follows the source edge falloff without whitening t
 }) => {
   const original = await readFile(
     new URL(
-      "../../../../packages/ui-tokens/assets/AgentForge.icon/Assets/orange-bot.png",
+      "../../../../packages/ui-tokens/assets/Rakazo.icon/Assets/orange-bot.png",
       import.meta.url,
     ),
   );
