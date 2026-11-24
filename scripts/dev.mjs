@@ -600,6 +600,13 @@ if (/^(1|true)$/i.test(setting("RAKAZO_DEV_TAILNET") ?? "")) {
     .join(",");
 }
 
+// An unpackaged desktop app reads this to open the stack this checkout just started.
+const devWebOrigin =
+  env.WEB_ORIGIN ??
+  setting("WEB_ORIGIN") ??
+  `http://127.0.0.1:${setting("WEB_PORT") ?? DEFAULT_PORTS.web}`;
+writeFileSync(path.join(root, ".rakazo-dev-web-url"), `${devWebOrigin}\n`);
+
 if (tailnet) log(`Open ${tailnet.origin} from any device on your tailnet`);
 else if (ports) log(`Open http://127.0.0.1:${ports.web}`);
 const turbo = spawnPnpm(
