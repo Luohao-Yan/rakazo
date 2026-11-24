@@ -34,6 +34,7 @@ import { appWindowTargets, desktop, permissionTarget } from "./desktop-state.js"
 import { createLocaleHandler, errorDetail, startDesktopLocale, t, withDetail } from "./i18n.js";
 import type { IpcCaller } from "./ipc/ipc.js";
 import { handleIpc, sentFrom } from "./ipc/ipc.js";
+import { resolveDesktopStartupTarget, usesExplicitTarget } from "./setup/dev-server.js";
 import { installServerHeaders } from "./setup/server-request-headers.js";
 import {
   DEFAULT_LOCAL_WEB_URL,
@@ -44,7 +45,6 @@ import {
   normalizeServerUrl,
   probeFailureMessage,
   readProbeJson,
-  resolveStartupTarget,
 } from "./setup/setup-config.js";
 import {
   clearSetup,
@@ -786,12 +786,16 @@ app.whenReady().then(async () => {
     },
     useStack,
   );
-  if (desktop.currentSetup?.mode === "new") await settleLocalStack();
-  const target = resolveStartupTarget({
+  const target = resolveDesktopStartupTarget({
+    packaged: app.isPackaged,
+    appPath: app.getAppPath(),
     envUrl: process.env.RAKAZO_WEB_URL,
     saved: desktop.currentSetup,
     forceSetup: process.env.RAKAZO_FORCE_SETUP === "1",
   });
+  // A running checkout's stack is the development instance; never start the managed
+  // one beside it, which would pull the published images.
+  if (desktop.currentSetup?.mode === "new" && !usesExplicitTarget(target)) await settleLocalStack();
   if (process.env.RAKAZO_PERFORMANCE_CLEAR_CACHE === "1") {
     const cacheSessions = new Set<Session>([session.defaultSession]);
     if (target.kind === "app") {
@@ -944,7 +948,7 @@ app.whenReady().then(async () => {
       void desktop.localStack.start();
       showSetupWindow();
     }
-  } else if (target.source !== "env") {
+  } else if (target.source !== "env" && target.source !== "dev") {
     const reachability = await probeServer(target.url, undefined, desktop.currentSetup?.headers);
     if (reachability.ok) {
       if (await appOpener.open(target.url)) {

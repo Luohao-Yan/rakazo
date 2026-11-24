@@ -276,7 +276,9 @@ files as `infra/compose/install-images.sh`) under the app's data directory. This
 Desktop, OrbStack, or Docker Engine. Without one, setup offers the Docker Desktop download, opens
 an installed Docker app that is not running, and continues on its own once Docker answers. Installed
 builds pin the image tag to their own version; unpackaged builds pull `edge`. Developers running
-`pnpm dev` should pick **Existing instance** with `http://127.0.0.1:5173` instead. Public servers
+`pnpm dev` get its origin automatically: an unpackaged app reads the `.rakazo-dev-web-url` the dev
+script writes, so it opens the checkout's own stack instead of the managed one. Set `RAKAZO_WEB_URL`
+to point it somewhere else. Public servers
 must use HTTPS; HTTP is accepted only for loopback and private LAN addresses (not link-local). The
 app verifies AgentForge's health endpoint before saving, and later launches go straight to that
 instance. The Docker stack keeps running after the app quits; the Docker-free server stops with the app.

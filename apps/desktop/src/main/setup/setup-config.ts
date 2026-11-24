@@ -13,7 +13,7 @@ export const PROBE_RESPONSE_LIMIT_BYTES = 64 * 1024;
 export const SETUP_FILE_NAME = "setup.json";
 
 export type StartupTarget =
-  | { kind: "app"; url: string; source: "env" | "saved" | "cloud" }
+  | { kind: "app"; url: string; source: "env" | "dev" | "saved" | "cloud" }
   | { kind: "setup" };
 
 const SCHEME = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//;
@@ -88,7 +88,12 @@ export function parseSetupInput(value: unknown): DesktopSetup | null {
 
   const normalized = normalizeServerUrl(serverUrl);
   if (normalized === null) return null;
-  if (mode === "new" && !isLoopbackHost(new URL(normalized).hostname)) return null;
+  if (
+    mode === "new" &&
+    (!isLoopbackHost(new URL(normalized).hostname) ||
+      normalized === normalizeServerUrl(RAKAZO_CLOUD_URL))
+  )
+    return null;
   if (headers === undefined) return { mode, serverUrl: normalized };
   const parsed = parseServerHeaders(headers);
   if (parsed === null || (mode === "new" && Object.keys(parsed).length > 0)) return null;
@@ -124,12 +129,15 @@ export function serializeSetup(setup: DesktopSetup): string {
 
 /**
  * Decides between the setup window and the app window. A first launch opens AgentForge
- * Cloud; other servers are a choice made from setup later. An explicit
- * `RAKAZO_WEB_URL` still wins over saved configuration so test and performance
- * harnesses can point the shell anywhere without touching a user's real setup.
+ * Cloud; other servers are a choice made from setup later. An unpackaged app opens the
+ * checkout's own `pnpm dev` stack, which replaces a saved managed instance so development
+ * never pulls the published images. An explicit `RAKAZO_WEB_URL` still wins over both so
+ * test and performance harnesses can point the shell anywhere without touching a user's
+ * real setup, and an explicitly saved existing server is left alone.
  */
 export function resolveStartupTarget(input: {
   envUrl?: string;
+  devUrl?: string | null;
   saved?: DesktopSetup | null;
   forceSetup?: boolean;
 }): StartupTarget {
@@ -138,8 +146,13 @@ export function resolveStartupTarget(input: {
   const envUrl = input.envUrl?.trim();
   if (envUrl !== undefined && envUrl !== "") return { kind: "app", url: envUrl, source: "env" };
 
+  const saved = input.saved == null ? null : parseSetupInput(input.saved);
+  if (saved?.mode === "existing") return { kind: "app", url: saved.serverUrl, source: "saved" };
+
+  const devUrl = input.devUrl?.trim();
+  if (devUrl !== undefined && devUrl !== "") return { kind: "app", url: devUrl, source: "dev" };
+
   if (input.saved != null) {
-    const saved = parseSetupInput(input.saved);
     if (saved !== null) return { kind: "app", url: saved.serverUrl, source: "saved" };
     return { kind: "setup" };
   }
