@@ -5,7 +5,7 @@ import { darkTokens } from "../src/index.ts";
 
 const root = new URL("../../../", import.meta.url);
 const path = (name: string) => fileURLToPath(new URL(name, root));
-const source = path("packages/ui-tokens/assets/AgentForge.icon/Assets/orange-bot.png");
+const source = path("packages/ui-tokens/assets/Rakazo.icon/Assets/orange-bot.png");
 
 // Match the Icon Composer portrait: the character sits 90 points below center.
 const portrait = await sharp(source).resize(1024, 1024).png().toBuffer();
@@ -72,6 +72,44 @@ await sharp(rounded)
 await png(rounded, "apps/mobile/assets/favicon.png", 128);
 await png(square, "apps/desktop/assets/icon.png", 1024);
 await ico(rounded, "apps/desktop/assets/icon.ico", [16, 32, 48, 64, 128, 256]);
+
+// Development launches replace the Dock icon with one that carries the same DEV label as the app.
+const DEV_BADGE = Buffer.from(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="160">' +
+    `<rect width="288" height="160" rx="26" fill="${darkTokens.warning}"/>` +
+    '<text x="144" y="112" text-anchor="middle" font-family="sans-serif" ' +
+    `font-weight="700" font-size="86" fill="${darkTokens.background}">DEV</text></svg>`,
+);
+const DEV_BADGE_INSET = 56;
+/** Draws the DEV badge over the icon tile's bottom-right corner, clear of its rounded edge. */
+async function devIcon(input: string, name: string) {
+  const { data, info } = await sharp(input)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  let right = 0;
+  let bottom = 0;
+  for (let y = 0; y < info.height; y += 1) {
+    for (let x = 0; x < info.width; x += 1) {
+      if ((data[(y * info.width + x) * 4 + 3] ?? 0) > 8) {
+        if (x > right) right = x;
+        if (y > bottom) bottom = y;
+      }
+    }
+  }
+  await sharp(input)
+    .composite([
+      {
+        input: DEV_BADGE,
+        left: right - DEV_BADGE_INSET - 288,
+        top: bottom - DEV_BADGE_INSET - 160,
+      },
+    ])
+    .png()
+    .toFile(path(name));
+}
+await devIcon(path("apps/desktop/assets/icon-macos.png"), "apps/desktop/assets/icon-macos-dev.png");
+await devIcon(path("apps/desktop/assets/icon.png"), "apps/desktop/assets/icon-dev.png");
 
 // The splash shows the character alone, with no plate, so it sits on either splash colour.
 // Keep the existing transparent padding so its visual size stays stable.
