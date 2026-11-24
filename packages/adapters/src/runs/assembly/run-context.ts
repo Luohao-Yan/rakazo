@@ -38,6 +38,7 @@ import { appendOutsideText } from "../../approvals/review-target-sources.js";
 import type { ComputerExecutionLease } from "../../computers/computer-lifecycle.js";
 import type { UnchangedVisualStreak } from "../../computers/screens/computer-tools.js";
 import type { selectRunConnections } from "../../integrations/connection-context.js";
+import type { RunMediaSources } from "../../media/media-sources.js";
 import type { loadBotMessageContext } from "../../messaging/bot-messages.js";
 import { namedAgentTools } from "../../runtime/pi/tools/pi-runtime-tools.js";
 import type { inferScript } from "../../runtime/scripted-runtime.js";
@@ -235,6 +236,8 @@ export interface RunState {
    * attempt refuses own instruction writes rather than guessing.
    */
   ownInstructionsBaseline: string | undefined;
+  /** Set once this run archives its own bot: it may only finish its reply. */
+  selfArchived?: true;
   earlierAttempt: Promise<boolean> | undefined;
   /**
    * Hosts of the sites this run typed an approved wallet purchase into (fill_card, fill_pay_token):
@@ -291,8 +294,6 @@ export interface RunSource {
   peerMessage: Awaited<ReturnType<typeof loadBotMessageContext>>;
   /** Whose own computer user_computer_shell may reach (see userComputerOwner). */
   userComputerOwner: string | undefined;
-  /** The paired computer the bot is pinned to; unset reaches whichever connects first. */
-  userComputerDeviceId: string | undefined;
   /** A routine run its owner let use their computer: it may call only the tools it was offered. */
   ownerComputerRoutine: boolean;
 }
@@ -314,6 +315,8 @@ export type RunTrust = ReturnType<typeof createRunTrustLoaders> & {
 export interface RunProviders {
   web: WebProvider;
   mediaGeneration: MediaGenerationProvider | undefined;
+  /** Where this run's images and videos come from. */
+  media: RunMediaSources;
   paidServices: PaidServiceProvider | undefined;
   browser: BrowserProvider;
   cloudAgent: ExecutorDeps["cloudAgent"];
@@ -335,10 +338,6 @@ export interface RunContext {
   bot: Bot & { computer: Computer | null };
   thread: Thread;
   task: Task;
-  /** The context window of the model that started this attempt, when known. */
-  contextWindow: number | null;
-  /** Largest input-token estimate observed by the runtime during this attempt. */
-  observedContextTokens: number | null;
   /** Provider context for this run's calls; aborting the run aborts its signal. */
   context: AdapterContext;
   abortController: AbortController;

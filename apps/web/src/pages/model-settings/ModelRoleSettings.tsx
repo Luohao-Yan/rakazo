@@ -46,7 +46,7 @@ import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { spaceQueries } from "../../lib/query/query";
 import { useSpaceRpc } from "../../lib/query/space-rpc";
 import type { ConnectableProvider, RoleModelOption } from "./role-model-picker";
-import { RoleModelPicker } from "./role-model-picker";
+import { RoleModelPicker, rolePickerTrigger } from "./role-model-picker";
 
 export type ModelRoleConnectIntent = {
   /** Only the main role's empty first slot takes the new connection's model on connect. */
@@ -352,7 +352,7 @@ export function ModelRoleSettings({
           <li className={`${rowClass} ${ordered ? "ps-8" : ""}`} data-testid="model-role-default">
             {ordered ? number(0) : null}
             <RoleModelPicker
-              trigger={pickerTrigger(
+              trigger={rolePickerTrigger(
                 // Blank until loaded, so an unloaded role never reads as unconfigured.
                 !settings ? "\u00a0" : deployment ? modelLabel(deployment) : defaultLabel,
                 deploymentSource,
@@ -430,7 +430,7 @@ export function ModelRoleSettings({
                 </>
               ) : null}
               <RoleModelPicker
-                trigger={pickerTrigger(name, providerName(choice))}
+                trigger={rolePickerTrigger(name, providerName(choice))}
                 label={t`Change ${name}`}
                 options={options}
                 current={choice}

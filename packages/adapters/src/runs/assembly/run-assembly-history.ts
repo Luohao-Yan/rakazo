@@ -230,10 +230,7 @@ export async function loadTurnContext(
       loadCurrentTurnImages(deps, turnBlocks, context),
       savedContextHidden
         ? Promise.resolve("")
-        : loadAgentMemoryContext(deps.memory, bot.id, context, undefined, {
-            includeBot: bot.useOwnMemory,
-            includeUser: bot.useSharedMemory,
-          }),
+        : loadAgentMemoryContext(deps.memory, bot.id, context),
       savedContextHidden
         ? Promise.resolve("")
         : loadAgentScratchpadContext(deps, {

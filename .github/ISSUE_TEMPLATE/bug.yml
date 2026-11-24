@@ -9,14 +9,6 @@ body:
       value: |
         For **security vulnerabilities**, email [security@agentforge.example.com](mailto:security@agentforge.example.com) — do not use this form. See [SECURITY.md](https://github.com/Luohao-Yan/rakazo/blob/main/SECURITY.md).
 
-  - type: checkboxes
-    id: not-security
-    attributes:
-      label: Confirmation
-      options:
-        - label: This is not a security vulnerability report
-          required: true
-
   - type: textarea
     id: description
     attributes:
@@ -42,15 +34,11 @@ body:
     id: expected
     attributes:
       label: Expected behavior
-    validations:
-      required: true
 
   - type: textarea
     id: actual
     attributes:
       label: Actual behavior
-    validations:
-      required: true
 
   - type: input
     id: version
@@ -69,8 +57,6 @@ body:
         - Linux
         - Windows
         - Other
-    validations:
-      required: true
 
   - type: input
     id: sandbox

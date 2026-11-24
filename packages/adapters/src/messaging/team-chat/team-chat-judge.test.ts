@@ -279,7 +279,7 @@ describe("team chat engagement judge", () => {
               "x-boundary": "12345678",
               "x-region": "us",
             },
-            models: { "model-fixture": { reasoning: true } },
+            models: { "model-fixture": { reasoning: true, thinkingLevel: "high" } },
           }),
       } as never,
       deploymentProvider: "openai-compatible",

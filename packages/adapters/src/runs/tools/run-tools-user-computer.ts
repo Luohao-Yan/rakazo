@@ -3,7 +3,6 @@ import type { AgentToolExecutionResult, ProcessEvent } from "@rakazo/adapter-kit
 import type { ApprovalMode } from "@rakazo/core";
 import { redactSecrets } from "@rakazo/core";
 import { sandboxCommandTimeoutMs } from "@rakazo/core/node/sandbox-command";
-import { getLogger } from "@rakazo/logging";
 import { z } from "zod";
 import type { HostComputerEnvironment } from "../../computers/host/host-computer-protocol.js";
 import { nativeShellCommandArgv } from "../../computers/host/native-shell.js";
@@ -43,7 +42,7 @@ export {
 export type UserComputerState = "connected" | "offline" | undefined;
 
 const USER_COMPUTER_UNAVAILABLE =
-  'The user\'s computer is not connected. If the task needs it, ask them to open the AgentForge desktop app and turn on "Let bots use this computer" in its settings.';
+  'The user\'s computer is not connected. If the task needs it, ask them to open the Rakazo desktop app and turn on "Let bots use this computer" in its settings.';
 
 /**
  * Whose own computer this run may reach: the bot owner's, when their own message started it or it
@@ -155,18 +154,8 @@ async function lastValue<T>(values: AsyncIterable<T>): Promise<T> {
 async function connectedUserComputer(ctx: RunContext, computerId?: string) {
   const owner = ctx.source.userComputerOwner;
   const devices = ctx.deps.userDevices;
-  const pinned = ctx.source.userComputerDeviceId;
-  // A bot bound to one computer never reaches another, even when a call names one.
-  if (pinned && computerId && computerId !== pinned) return undefined;
   const device =
-    owner && devices
-      ? await devices.connected(owner, pinned ?? computerId).catch((error) => {
-          // A lookup that fails is not a computer that is gone; name the failure before the
-          // bot reads it as unavailable.
-          getLogger().warn("user computer lookup failed", { error });
-          return null;
-        })
-      : null;
+    owner && devices ? await devices.connected(owner, computerId).catch(() => null) : null;
   return owner && devices && device ? { owner, devices, deviceId: device.deviceId } : undefined;
 }
 
@@ -183,10 +172,9 @@ function requestedComputer(args: Record<string, unknown>): { computerId?: string
 export async function userComputerList(ctx: RunContext, call: ToolCall) {
   const owner = ctx.source.userComputerOwner;
   const devices = ctx.deps.userDevices;
-  const pinned = ctx.source.userComputerDeviceId;
   if (!owner || !devices) return call.finish({ error: USER_COMPUTER_UNAVAILABLE });
   const computers = (await devices.list(owner))
-    .filter((device) => device.connected && (!pinned || device.deviceId === pinned))
+    .filter((device) => device.connected)
     .map((device) => ({
       computerId: device.deviceId,
       name: device.name,

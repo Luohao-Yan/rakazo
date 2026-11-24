@@ -27,11 +27,8 @@ import {
 import { resolveComputerRunModel } from "../../computers/computer-model-settings.js";
 import { checkpointRunComputerWorkspace } from "../../computers/computer-workspace.js";
 import { sandboxKindCapabilities } from "../../computers/sandbox/sandbox-kind-capabilities.js";
-import { botWorkspaceDirectory } from "../../computers/screens/computer-support.js";
-import {
-  customWorkspaceInstruction,
-  teamWorkspaceInstruction,
-} from "../../computers/screens/computer-support.prompt.js";
+import { teamWorkspaceInstruction } from "../../computers/screens/computer-support.prompt.js";
+import type { RunMediaSources } from "../../media/media-sources.js";
 import { approvedModelCreditOffering } from "../../model-credits/offerings.js";
 import { resolveDeploymentModel } from "../../models/deployment-model.js";
 import { selectConfiguredModel } from "../../models/model-roles.js";
@@ -244,7 +241,6 @@ export async function prepareRunComputer(
   const recentFilesInput = {
     context,
     computerMode,
-    workspacePath: bot.workspacePath,
     skipMessageId: currentTurnMessage?.id,
     maxTurns: RECENT_TURN_IMAGE_TURNS,
   };
@@ -267,9 +263,7 @@ export async function prepareRunComputer(
         context.screenLeaseId = screenLeaseIdForRun(hold.computerLease, runId, hold.fence);
       }
       getLogger().info("computer.requested");
-      const computer = await provisionComputer(deps, storedComputer.id, context, "bot", undefined, {
-        workspacePath: bot.workspacePath,
-      });
+      const computer = await provisionComputer(deps, storedComputer.id, context, "bot");
       earlierFiles.computerStarted();
       computerUse.screenRelease = { computer, context, keepWarm: false };
       recordComputerDisk(deps, storedComputer.id, computer, context);
@@ -325,7 +319,6 @@ export async function prepareRunComputer(
                   context,
                   computer: async () => computer,
                   computerMode,
-                  workspacePath: bot.workspacePath,
                   markWorkspaceDirty: workspaceCheckpoint.markDirty,
                 },
               );
@@ -341,7 +334,6 @@ export async function prepareRunComputer(
                   context,
                   computer: async () => computer,
                   computerMode,
-                  workspacePath: bot.workspacePath,
                   markWorkspaceDirty: workspaceCheckpoint.markDirty,
                 }),
               );
@@ -485,8 +477,7 @@ export async function resolveRunCapabilities(
     provider: runModelProvider,
     id: runModelId,
     ...(credential ? { connectionId: credential.id } : {}),
-    ...resolvedModelRunFields(resolved),
-    thinkingLevel: thinkingLevel ?? null,
+    ...resolvedModelRunFields(resolved, thinkingLevel),
   };
   // Saved identities win on resume, including when the setting was cleared meanwhile.
   const computerModel =
@@ -576,20 +567,13 @@ export async function resolveRunCapabilities(
     deps.userDevices &&
     !disabledBuiltinTools.has(USER_COMPUTER_SHELL_TOOL)
   ) {
-    const pinnedDeviceId = bot.hostDeviceId ?? undefined;
-    const device = await deps.userDevices
-      .connected(userComputerOwnerId, pinnedDeviceId)
-      .catch(() => null);
+    const device = await deps.userDevices.connected(userComputerOwnerId).catch(() => null);
     if (device) {
       userComputer = "connected";
       userComputerShell = !device.screenOnly;
       // The macOS and Windows desktops fetch a screen driver; Linux has none yet.
-      const computers = pinnedDeviceId
-        ? [device]
-        : await deps.userDevices
-            .list(userComputerOwnerId)
-            .then((listed) => [device, ...listed.filter((computer) => computer.connected)]);
-      userComputerScreen = computers.some(
+      const computers = await deps.userDevices.list(userComputerOwnerId);
+      userComputerScreen = [device, ...computers.filter((computer) => computer.connected)].some(
         (computer) => computer.platform === "darwin" || computer.platform === "win32",
       );
     } else userComputer = "offline";
@@ -654,9 +638,10 @@ export async function selectRunTools(
     turnContext: TurnContext;
     capabilities: RunCapabilities;
     meetingTranscriptsAvailable?: boolean;
+    media: RunMediaSources;
   },
 ) {
-  const { contextStrategy, mediaGeneration, paidServices } = services;
+  const { contextStrategy, paidServices } = services;
   const { deps, run, runId } = hold;
   const { checkpointLoadError, turnCheckpoint } = parts.saved;
   const {
@@ -753,8 +738,8 @@ export async function selectRunTools(
       semanticMemoryEnabled,
       semanticMemoryForgets: Boolean(semanticMemory?.forget),
       semanticMemoryReflects: Boolean(semanticMemory?.reflect),
-      mediaImagesEnabled: Boolean(deps.artifacts && mediaGeneration?.capabilities.images),
-      mediaVideoEnabled: Boolean(deps.artifacts && mediaGeneration?.capabilities.video),
+      mediaImagesEnabled: Boolean(deps.artifacts && parts.media.image),
+      mediaVideoEnabled: Boolean(deps.artifacts && parts.media.video),
       paidServicesEnabled: Boolean(paidServices),
       cloudAgentEnabled: Boolean(cloudAgent),
       cloudAgentCleanupEnabled,
@@ -942,18 +927,9 @@ export async function loadComputerInstructions(
   ]
     .filter(Boolean)
     .join(" ");
-  const workspaceInstruction = bot.workspacePath
-    ? customWorkspaceInstruction(
-        computerMode,
-        botWorkspaceDirectory(computerMode, bot.id, bot.workspacePath),
-      )
-    : computerMode === "team"
-      ? teamWorkspaceInstruction(bot.id)
-      : PRIVATE_WORKSPACE_INSTRUCTION;
+  const workspaceInstruction =
+    computerMode === "team" ? teamWorkspaceInstruction(bot.id) : PRIVATE_WORKSPACE_INSTRUCTION;
   return { hostEnvironment, computerInstruction, workspaceInstruction };
 }
 
 export type ComputerInstructions = Awaited<ReturnType<typeof loadComputerInstructions>>;
-
-export type { ModelFallbacks } from "./run-model-fallbacks.js";
-export { loadModelFallbacks } from "./run-model-fallbacks.js";

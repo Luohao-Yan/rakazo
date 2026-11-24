@@ -137,7 +137,7 @@ function modelTurnRequest(
   const {
     agentSkillsLine,
     botDirectory,
-    historicalContext,
+    hasHistoricalContext,
     pluginLine,
     prompt,
     runtimeHistory,
@@ -173,10 +173,6 @@ function modelTurnRequest(
     : undefined;
   return {
     botId: bot.id,
-    maxToolCallsPerTurn: bot.maxToolCallsPerTurn ?? undefined,
-    onContextObserved: (estimatedInputTokens) => {
-      ctx.observedContextTokens = Math.max(ctx.observedContextTokens ?? 0, estimatedInputTokens);
-    },
     verbatimMcpServers,
     threadId: thread.id,
     runId,
@@ -223,7 +219,7 @@ function modelTurnRequest(
       redactedScratchpadContext,
       currentTurnDataInPrompt,
       redactedTicketContext: ticketContext ? redactSecrets(ticketContext, runSecrets) : undefined,
-      hasHistoricalContext: historicalContext.length > 0,
+      hasHistoricalContext,
       // A background helper is not offered the history tools, so it gets no guidance on them.
       historyRetrievalEnabled:
         contextStrategy !== "current" && tools.some((tool) => tool.name === "search_history"),

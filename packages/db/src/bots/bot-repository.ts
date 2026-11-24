@@ -262,6 +262,66 @@ export function createRepos(
     });
   }
 
+  async function readBotViews(
+    actor: Actor,
+    options: { archived?: boolean; botId?: string },
+  ): Promise<Bot[]> {
+    const bots = await withLatestBotRuns(
+      prisma,
+      await prisma.bot.findMany({
+        where: {
+          ...(options.botId ? { id: options.botId } : {}),
+          spaceId: actor.spaceId,
+          archivedAt: options.archived ? { not: null } : null,
+        },
+        include: {
+          thread: { include: { reads: readStateFor(actor.userId) } },
+          runs: activeRunSelection,
+          computer: { select: { scope: true } },
+          hostDevice: true,
+        },
+        orderBy: [{ pinned: "desc" }, { position: "asc" }, { createdAt: "asc" }],
+      }),
+    );
+    const threadIds = bots.flatMap((bot) => (bot.thread ? [bot.thread.id] : []));
+    const callMessages =
+      capabilities.phoneCallsEnabled && threadIds.length
+        ? await prisma.message.findMany({
+            where: {
+              threadId: { in: threadIds },
+              createdAt: {
+                gt: new Date(
+                  Date.now() -
+                    (capabilities.phoneCallRingSeconds ??
+                      phoneCallSettings().phoneCallRingSeconds) *
+                      1000,
+                ),
+              },
+              role: "bot",
+              clientNonce: { startsWith: "call:", endsWith: ":request" },
+            },
+            orderBy: { seq: "desc" },
+            distinct: ["threadId"],
+            select: { threadId: true, role: true, blocks: true },
+          })
+        : [];
+    const callsByThread = new Map(callMessages.map((message) => [message.threadId, message]));
+    const { previews, newestAt } = await botThreadPreviews(prisma, threadIds);
+    return bots.map((bot) => {
+      const threadId = bot.thread?.id;
+      const activeRun = primaryActiveRun(bot.runs);
+      const mapped = mapBot(
+        bot,
+        (threadId && previews.get(threadId)) || "",
+        activeRun?.status ?? "idle",
+        rosterRunErrorId(bot.thread?.runs[0], activeRun),
+        (threadId && newestAt.get(threadId)) || bot.updatedAt,
+        ringingCall(threadId && callsByThread.has(threadId) ? [callsByThread.get(threadId)!] : []),
+      );
+      return { ...mapped, threadStatus: threadRunStatus(bot.runs, mapped.threadId) };
+    });
+  }
+
   return {
     async listBotSections(actor: Actor): Promise<BotSection[]> {
       return listBotSectionsForSpaces([actor.spaceId]);
@@ -385,61 +445,13 @@ export function createRepos(
     },
 
     async listBots(actor: Actor, options: { archived?: boolean } = {}): Promise<Bot[]> {
-      const bots = await withLatestBotRuns(
-        prisma,
-        await prisma.bot.findMany({
-          where: {
-            spaceId: actor.spaceId,
-            archivedAt: options.archived ? { not: null } : null,
-          },
-          include: {
-            thread: { include: { reads: readStateFor(actor.userId) } },
-            runs: activeRunSelection,
-            computer: { select: { scope: true } },
-            hostDevice: true,
-          },
-          orderBy: [{ pinned: "desc" }, { position: "asc" }, { createdAt: "asc" }],
-        }),
-      );
-      const threadIds = bots.flatMap((bot) => (bot.thread ? [bot.thread.id] : []));
-      const callMessages =
-        capabilities.phoneCallsEnabled && threadIds.length
-          ? await prisma.message.findMany({
-              where: {
-                threadId: { in: threadIds },
-                createdAt: {
-                  gt: new Date(
-                    Date.now() -
-                      (capabilities.phoneCallRingSeconds ??
-                        phoneCallSettings().phoneCallRingSeconds) *
-                        1000,
-                  ),
-                },
-                role: "bot",
-                clientNonce: { startsWith: "call:", endsWith: ":request" },
-              },
-              orderBy: { seq: "desc" },
-              distinct: ["threadId"],
-              select: { threadId: true, role: true, blocks: true },
-            })
-          : [];
-      const callsByThread = new Map(callMessages.map((message) => [message.threadId, message]));
-      const { previews, newestAt } = await botThreadPreviews(prisma, threadIds);
-      return bots.map((bot) => {
-        const threadId = bot.thread?.id;
-        const activeRun = primaryActiveRun(bot.runs);
-        const mapped = mapBot(
-          bot,
-          (threadId && previews.get(threadId)) || "",
-          activeRun?.status ?? "idle",
-          rosterRunErrorId(bot.thread?.runs[0], activeRun),
-          (threadId && newestAt.get(threadId)) || bot.updatedAt,
-          ringingCall(
-            threadId && callsByThread.has(threadId) ? [callsByThread.get(threadId)!] : [],
-          ),
-        );
-        return { ...mapped, threadStatus: threadRunStatus(bot.runs, mapped.threadId) };
-      });
+      return readBotViews(actor, { archived: options.archived });
+    },
+
+    async getBotView(actor: Actor, botId: string): Promise<Bot> {
+      const [bot] = await readBotViews(actor, { botId });
+      if (!bot) throw new IsolationError();
+      return bot;
     },
 
     listSpaceBotsForSpaces,
