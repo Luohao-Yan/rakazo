@@ -705,11 +705,14 @@ export function AuthFrame({
         >
           {leading ? <div className="mb-4 self-start">{leading}</div> : null}
           <div className={surface ? "flex w-full flex-col items-center" : "contents"}>
-            <LogoAvatar
-              size={74}
-              avatarValue={BOT_COLOR_LIST.find((color) => color.id === "orange")?.hex}
-              motion={false}
-            />
+            <span className="relative inline-flex">
+              <LogoAvatar
+                size={74}
+                avatarValue={BOT_COLOR_LIST.find((color) => color.id === "orange")?.hex}
+                motion={false}
+              />
+              <DevBadge className="absolute -right-1.5 -bottom-1 z-10" />
+            </span>
             <h1
               aria-live="polite"
               className={
