@@ -711,7 +711,7 @@ export function AuthFrame({
                 avatarValue={BOT_COLOR_LIST.find((color) => color.id === "orange")?.hex}
                 motion={false}
               />
-              <DevBadge variant="solid" className="absolute -right-1.5 -bottom-1 z-10" />
+              <DevBadge className="absolute -right-1.5 -bottom-1 z-10" />
             </span>
             <h1
               aria-live="polite"
