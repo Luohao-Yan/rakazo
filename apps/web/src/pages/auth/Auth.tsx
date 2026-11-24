@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { PasskeySignIn, usePasskeySignIn } from "../../components/account/PasskeySignIn";
 import { SocialSignInButtons } from "../../components/account/SocialSignInButtons";
+import { DevBadge } from "../../components/DevBadge";
 import { WindowChrome } from "../../components/WindowChrome";
 import { authClient } from "../../lib/auth/auth";
 import type { AuthCapabilities } from "../../lib/auth/auth-capabilities";
@@ -691,6 +692,7 @@ export function AuthFrame({
     >
       <div className="app-drag flex items-center gap-2 px-5 py-[18px]">
         <WindowChrome />
+        <DevBadge className="ms-auto" />
       </div>
       <div className="flex flex-1 items-center justify-center px-6 pb-16">
         <form
