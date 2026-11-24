@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import type { Bot } from "@rakazo/contracts";
-import { Button, Popover, PopoverContent, PopoverTrigger } from "@rakazo/ui-web";
+import { Button, cn, Popover, PopoverContent, PopoverTrigger } from "@rakazo/ui-web";
 import { Bell, PanelLeftClose, Plus, Search, X } from "lucide-react";
 import { IconTooltip } from "../../../components/IconTooltip";
 import { WindowChrome } from "../../../components/WindowChrome";
@@ -53,7 +53,13 @@ export function SidebarHeader({
 }) {
   const { t } = useLingui();
   return (
-    <div className="app-drag flex h-15 shrink-0 items-center gap-1.5 px-3 pb-3 pt-[14px]">
+    <div
+      className={cn(
+        "app-drag flex h-15 shrink-0 items-center gap-1.5 px-3 pb-3 pt-[14px]",
+        // The rail reserves the traffic lights above its brand, so the list title starts below them too.
+        desktopBridge() && "md:mt-6 md:pt-3",
+      )}
+    >
       {isMobile && desktopBridge() ? <WindowChrome /> : null}
       <span className="min-w-0 flex-1 truncate text-body-lg font-medium">{title}</span>
       {isMobile ? (
