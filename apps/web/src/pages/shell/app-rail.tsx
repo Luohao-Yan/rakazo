@@ -14,6 +14,7 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 import { createContext, Suspense, use, useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { DevBadge } from "../../components/DevBadge";
 import { RouteLoading } from "../../components/RouteLoading";
 import { WindowChrome } from "../../components/WindowChrome";
 import { authClient } from "../../lib/auth/auth";
@@ -345,22 +346,6 @@ function RailBrand() {
       <RailBrandMark />
       <span className="min-w-0 truncate text-body font-medium">AgentForge</span>
       <DevBadge />
-    </span>
-  );
-}
-
-/** Development builds say so in the rail, matching the DEV badge on the Dock icon. */
-function DevBadge({ className }: { className?: string }) {
-  if (!import.meta.env.DEV) return null;
-  return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        "pointer-events-none shrink-0 rounded-sm border border-warning/60 px-1.5 py-0.5 text-[10px] font-semibold leading-none tracking-wide text-warning",
-        className,
-      )}
-    >
-      DEV
     </span>
   );
 }
