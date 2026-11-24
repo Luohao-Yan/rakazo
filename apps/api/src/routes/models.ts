@@ -356,7 +356,11 @@ export function modelsRoutes(ctx: RouterContext) {
               { ...input, apiKey, headers },
               preset ? deps.modelConnectionFetch : undefined,
               context.signal,
-              { allowPrivate: mayUsePrivateEndpoint(deps), allowHttp },
+              {
+                allowPrivate: mayUsePrivateEndpoint(deps),
+                allowHttp,
+                catalogProbe: preset !== undefined,
+              },
             );
             return { models };
           } catch (error) {

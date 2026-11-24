@@ -307,6 +307,7 @@ describe("team chat engagement judge", () => {
           headers: { "x-route": "route-value-fixture", "x-boundary": "12345678", "x-region": "us" },
           reasoning: true,
           allowHttpEndpoint: true,
+          thinkingLevel: "high",
         },
       });
       expect(sink.events).toHaveLength(1);
