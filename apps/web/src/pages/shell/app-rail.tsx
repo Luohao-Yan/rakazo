@@ -14,6 +14,7 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 import { createContext, Suspense, use, useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { DevBadge } from "../../components/DevBadge";
 import { RouteLoading } from "../../components/RouteLoading";
 import { WindowChrome } from "../../components/WindowChrome";
 import { authClient } from "../../lib/auth/auth";
@@ -201,20 +202,23 @@ function PrimaryRail({
             <RailToggle expanded label={t`Collapse sidebar`} onClick={onToggle} />
           </>
         ) : (
-          <button
-            type="button"
-            aria-label={t`Expand sidebar`}
-            aria-expanded={false}
-            onClick={onToggle}
-            className="app-no-drag group/rail-toggle relative grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
-          >
-            <RailBrandMark className="transition-[opacity,scale] duration-(--motion-floating) ease-(--ease-out) group-hover/rail-toggle:scale-75 group-hover/rail-toggle:opacity-0 group-focus-visible/rail-toggle:scale-75 group-focus-visible/rail-toggle:opacity-0 motion-reduce:transition-none" />
-            <PanelLeftOpen
-              className="absolute size-5 scale-75 opacity-0 transition-[opacity,scale] duration-(--motion-floating) ease-(--ease-out) group-hover/rail-toggle:scale-100 group-hover/rail-toggle:opacity-100 group-focus-visible/rail-toggle:scale-100 group-focus-visible/rail-toggle:opacity-100 motion-reduce:transition-none"
-              strokeWidth={1.75}
-              aria-hidden="true"
-            />
-          </button>
+          <span className="relative flex items-center justify-center">
+            <button
+              type="button"
+              aria-label={t`Expand sidebar`}
+              aria-expanded={false}
+              onClick={onToggle}
+              className="app-no-drag group/rail-toggle relative grid size-8 shrink-0 place-items-center rounded-full text-muted-foreground outline-none transition-colors hover:bg-sidebar-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50"
+            >
+              <RailBrandMark className="transition-[opacity,scale] duration-(--motion-floating) ease-(--ease-out) group-hover/rail-toggle:scale-75 group-hover/rail-toggle:opacity-0 group-focus-visible/rail-toggle:scale-75 group-focus-visible/rail-toggle:opacity-0 motion-reduce:transition-none" />
+              <PanelLeftOpen
+                className="absolute size-5 scale-75 opacity-0 transition-[opacity,scale] duration-(--motion-floating) ease-(--ease-out) group-hover/rail-toggle:scale-100 group-hover/rail-toggle:opacity-100 group-focus-visible/rail-toggle:scale-100 group-focus-visible/rail-toggle:opacity-100 motion-reduce:transition-none"
+                strokeWidth={1.75}
+                aria-hidden="true"
+              />
+            </button>
+            <DevBadge className="absolute top-full left-1/2 -translate-x-1/2" />
+          </span>
         )}
       </div>
 
@@ -338,9 +342,10 @@ function RailFooter({
 
 function RailBrand() {
   return (
-    <span className="flex h-8 min-w-0 flex-1 items-center gap-2" aria-hidden="true">
+    <span className="flex h-8 min-w-0 flex-1 items-center justify-center gap-2" aria-hidden="true">
       <RailBrandMark />
-      <span className="min-w-0 flex-1 truncate text-center text-body font-medium">AgentForge</span>
+      <span className="min-w-0 truncate text-body font-medium">AgentForge</span>
+      <DevBadge />
     </span>
   );
 }

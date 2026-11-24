@@ -9,3 +9,7 @@ into `Assets.car` for Tahoe and generates `icon.icns` for older macOS versions.
 
 `icon.png` and `icon.ico` are matching orange exports for Linux and Windows.
 Refresh them with `pnpm --filter @rakazo/ui-tokens export:brand`.
+
+Unpackaged launches use `icon-macos-dev.png` (macOS) or `icon-dev.png` (Windows and
+Linux), the same icons with an amber `DEV` badge so the Dock or taskbar shows which
+app is a development build.
