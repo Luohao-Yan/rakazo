@@ -1,6 +1,6 @@
 import { useLingui } from "@lingui/react/macro";
 import type { Bot } from "@rakazo/contracts";
-import { Button, cn, Popover, PopoverContent, PopoverTrigger } from "@rakazo/ui-web";
+import { Button, Popover, PopoverContent, PopoverTrigger } from "@rakazo/ui-web";
 import { Bell, PanelLeftClose, Plus, Search, X } from "lucide-react";
 import { IconTooltip } from "../../../components/IconTooltip";
 import { WindowChrome } from "../../../components/WindowChrome";
@@ -52,14 +52,9 @@ export function SidebarHeader({
   setCreateBotOpen: (open: boolean) => void;
 }) {
   const { t } = useLingui();
+  // The title centers on the traffic lights' row; the rail's brand mark sits below them.
   return (
-    <div
-      className={cn(
-        "app-drag flex h-15 shrink-0 items-center gap-1.5 px-3 pb-3 pt-[14px]",
-        // The rail reserves the traffic lights above its brand, so the list title starts below them too.
-        desktopBridge() && "md:mt-6 md:pt-3",
-      )}
-    >
+    <div className="app-drag flex h-15 shrink-0 items-center gap-1.5 px-3 pb-3 pt-[14px]">
       {isMobile && desktopBridge() ? <WindowChrome /> : null}
       <span className="min-w-0 flex-1 truncate text-body-lg font-medium">{title}</span>
       {isMobile ? (
