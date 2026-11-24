@@ -11,6 +11,9 @@ The platform exports are:
 
 - `apps/desktop/assets/icon-macos.png`: Icon Composer's default appearance,
   1024-pixel macOS pre-Tahoe export, including Dock margins for development launches.
+- `apps/desktop/assets/icon-macos-dev.png` and `icon-dev.png`: the same development
+  exports with an amber `DEV` badge, so an unpackaged app is identifiable in the Dock
+  or taskbar.
 - `apps/mobile/assets/icon.png`: opaque 1024-pixel square for the generic/legacy icon,
   with no rounded mask or Dock margins.
 - `apps/mobile/assets/adaptive-icon.png`: transparent 1024-pixel Android foreground;

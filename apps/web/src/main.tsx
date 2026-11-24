@@ -30,6 +30,7 @@ registerServiceWorker();
 lockStandaloneZoom();
 applyUiDirection(resolveUiLocale());
 applyUiAppearance();
+if (import.meta.env.DEV) document.title = `${document.title} (Dev)`;
 captureReferral(window.location.search);
 
 function PerformanceProbe() {

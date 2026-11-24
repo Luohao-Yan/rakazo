@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { PasskeySignIn, usePasskeySignIn } from "../../components/account/PasskeySignIn";
 import { SocialSignInButtons } from "../../components/account/SocialSignInButtons";
+import { DevBadge } from "../../components/DevBadge";
 import { WindowChrome } from "../../components/WindowChrome";
 import { authClient } from "../../lib/auth/auth";
 import type { AuthCapabilities } from "../../lib/auth/auth-capabilities";
@@ -691,6 +692,7 @@ export function AuthFrame({
     >
       <div className="app-drag flex items-center gap-2 px-5 py-[18px]">
         <WindowChrome />
+        <DevBadge className="ms-auto" />
       </div>
       <div className="flex flex-1 items-center justify-center px-6 pb-16">
         <form
@@ -703,11 +705,14 @@ export function AuthFrame({
         >
           {leading ? <div className="mb-4 self-start">{leading}</div> : null}
           <div className={surface ? "flex w-full flex-col items-center" : "contents"}>
-            <LogoAvatar
-              size={74}
-              avatarValue={BOT_COLOR_LIST.find((color) => color.id === "orange")?.hex}
-              motion={false}
-            />
+            <span className="relative inline-flex">
+              <LogoAvatar
+                size={74}
+                avatarValue={BOT_COLOR_LIST.find((color) => color.id === "orange")?.hex}
+                motion={false}
+              />
+              <DevBadge className="absolute -right-1.5 -bottom-1 z-10" />
+            </span>
             <h1
               aria-live="polite"
               className={

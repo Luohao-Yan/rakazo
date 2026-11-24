@@ -60,10 +60,11 @@ export function browserWindowOptions(
 
 /**
  * Unpackaged (dev) launches set the dock/taskbar icon by hand. macOS draws the file as-is,
- * so it needs the squircle-with-margins asset; packaged builds already use icon.icns.
+ * so it needs the squircle-with-margins asset; packaged builds already use icon.icns. The
+ * development exports carry the same DEV badge as the app's brand mark.
  */
 export function developmentIconFile(platform: NodeJS.Platform) {
-  return platform === "darwin" ? "icon-macos.png" : "icon.png";
+  return platform === "darwin" ? "icon-macos-dev.png" : "icon-dev.png";
 }
 
 /** The first-run setup window is smaller and keeps the same platform chrome. */
