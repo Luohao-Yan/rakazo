@@ -12,11 +12,12 @@ export function warmWindowTtlMs(value: string | undefined) {
 }
 
 /**
- * Centers the traffic lights on the web shell's top bar (y 26) and its 92px icon rail (x 46).
- * macOS 26 (Darwin 25) draws them 60px wide; earlier releases 52px.
+ * Centers the traffic lights on the web shell's 60px top bar, which the rail, the chat list
+ * header and the chat header share. macOS 26 (Darwin 25) draws them 60px wide; earlier
+ * releases 52px.
  */
 function trafficLightPosition(darwinRelease: string) {
-  return { x: Number.parseInt(darwinRelease, 10) >= 25 ? 16 : 20, y: 19 };
+  return { x: Number.parseInt(darwinRelease, 10) >= 25 ? 16 : 20, y: 24 };
 }
 
 function windowChrome(platform: NodeJS.Platform, release: string) {

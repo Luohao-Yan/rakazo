@@ -16,13 +16,13 @@ describe("desktop window chrome", () => {
     const opts = browserWindowOptions("darwin", laptop, "25.5.0");
     expect(opts.frame).toBe(true);
     expect(opts.titleBarStyle).toBe("hiddenInset");
-    expect(opts.trafficLightPosition).toEqual({ x: 16, y: 19 });
+    expect(opts.trafficLightPosition).toEqual({ x: 16, y: 24 });
   });
 
   it("moves the narrower pre-26 traffic lights in to stay centered on the rail", () => {
     expect(browserWindowOptions("darwin", laptop, "24.6.0").trafficLightPosition).toEqual({
       x: 20,
-      y: 19,
+      y: 24,
     });
   });
 

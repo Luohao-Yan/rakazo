@@ -132,7 +132,7 @@
       "bundleIdentifier": "com.rakazo.app",
       "buildNumber": "1",
       "supportsTablet": true,
-      "icon": "../../packages/ui-tokens/assets/AgentForge.icon",
+      "icon": "../../packages/ui-tokens/assets/Rakazo.icon",
       "config": {
         "usesNonExemptEncryption": false
       },
