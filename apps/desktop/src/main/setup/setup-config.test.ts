@@ -211,6 +211,41 @@ describe("startup target", () => {
     });
   });
 
+  it("opens this checkout's dev stack in an unpackaged app", () => {
+    expect(resolveStartupTarget({ devUrl: "http://127.0.0.1:5173" })).toEqual({
+      kind: "app",
+      url: "http://127.0.0.1:5173",
+      source: "dev",
+    });
+  });
+
+  it("replaces a saved managed instance with this checkout's dev stack", () => {
+    expect(
+      resolveStartupTarget({
+        devUrl: "http://127.0.0.1:5173",
+        saved: { mode: "new", serverUrl: DEFAULT_LOCAL_WEB_URL },
+      }),
+    ).toEqual({ kind: "app", url: "http://127.0.0.1:5173", source: "dev" });
+  });
+
+  it("keeps an explicitly saved existing server over the dev stack", () => {
+    expect(resolveStartupTarget({ devUrl: "http://127.0.0.1:5173", saved })).toEqual({
+      kind: "app",
+      url: "https://rakazo.example.com",
+      source: "saved",
+    });
+  });
+
+  it("lets RAKAZO_WEB_URL win over the dev stack", () => {
+    expect(
+      resolveStartupTarget({
+        envUrl: "http://127.0.0.1:4321",
+        devUrl: "http://127.0.0.1:5173",
+        saved,
+      }),
+    ).toMatchObject({ url: "http://127.0.0.1:4321", source: "env" });
+  });
+
   it("ignores an empty RAKAZO_WEB_URL", () => {
     expect(resolveStartupTarget({ envUrl: "   ", saved }).kind).toBe("app");
     expect(resolveStartupTarget({ envUrl: "   ", saved })).toMatchObject({ source: "saved" });
