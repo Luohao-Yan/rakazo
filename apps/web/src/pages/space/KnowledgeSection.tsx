@@ -45,13 +45,23 @@ function rowClass(open: boolean): string {
  * The full mode lists every document and the empty state; the caller names the section.
  * The compact preview folds into its parent list.
  */
-export function KnowledgeSection({ botId, full = false }: { botId: string; full?: boolean }) {
+export function KnowledgeSection({
+  botId,
+  full = false,
+  onConflictChange,
+}: {
+  botId: string;
+  full?: boolean;
+  /** Marks the Memory tab while a save's conflict waits for the reader. */
+  onConflictChange?: (conflicted: boolean) => void;
+}) {
   return (
     <MemoryDocumentList
       key={botId}
       input={{ botId, scope: "bot" }}
       testId="bot-knowledge-memory"
       compact={!full}
+      onConflictChange={onConflictChange}
     />
   );
 }
@@ -102,10 +112,12 @@ export function MemoryDocumentList({
   input,
   testId,
   compact = false,
+  onConflictChange,
 }: {
   input: { botId?: string; scope: "bot" | "user" };
   testId: string;
   compact?: boolean;
+  onConflictChange?: (conflicted: boolean) => void;
 }) {
   const { t } = useLingui();
   const queries = useSpaceQueries();
@@ -216,6 +228,7 @@ export function MemoryDocumentList({
     onFailed: async (failure, { kind }) => {
       if (kind !== "save" || !isConflict(failure)) return;
       setConflicted(true);
+      onConflictChange?.(true);
       try {
         await fetchFresh(queryClient, list);
       } catch {
@@ -243,6 +256,7 @@ export function MemoryDocumentList({
     setLoadedRevision(doc.revision);
     setConflicted(false);
     setHistoryId(null);
+    onConflictChange?.(false);
     setOpenId(doc.id);
     setDraft(doc.content);
     setDescriptionDraft(doc.description ?? "");
@@ -254,6 +268,7 @@ export function MemoryDocumentList({
     setOpenId(null);
     setHistoryId(null);
     setConflicted(false);
+    onConflictChange?.(false);
     setConfirmingDelete(false);
   }
 

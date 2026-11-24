@@ -18,12 +18,14 @@ export function BotMemoryTabs({
   useOwnMemory,
   useSharedMemory,
   disabled,
+  onConflictChange,
   onSave,
 }: {
   botId: string;
   useOwnMemory: boolean;
   useSharedMemory: boolean;
   disabled?: boolean;
+  onConflictChange?: (conflicted: boolean) => void;
   onSave: (patch: { useOwnMemory?: boolean; useSharedMemory?: boolean }) => void;
 }) {
   return (
@@ -55,7 +57,11 @@ export function BotMemoryTabs({
             this space. Tell the bot to change them.
           </Trans>
         </p>
-        <MemoryDocumentList input={{ scope: "user" }} testId="bot-shared-memory" />
+        <MemoryDocumentList
+          input={{ scope: "user" }}
+          testId="bot-shared-memory"
+          onConflictChange={onConflictChange}
+        />
       </TabsContent>
       <TabsContent keepMounted value="bot" className="space-y-4 pt-4">
         <SettingsCard>
@@ -70,7 +76,11 @@ export function BotMemoryTabs({
         <p className="text-body-sm text-muted-foreground">
           <Trans>What this bot learned about you. Tell it in the chat to change a note.</Trans>
         </p>
-        <MemoryDocumentList input={{ botId, scope: "bot" }} testId="bot-knowledge-memory" />
+        <MemoryDocumentList
+          input={{ botId, scope: "bot" }}
+          testId="bot-knowledge-memory"
+          onConflictChange={onConflictChange}
+        />
       </TabsContent>
       <TabsContent keepMounted value="dreams" className="space-y-4 pt-4">
         <DreamsList botId={botId} memoryOff={!useOwnMemory && !useSharedMemory} />

@@ -197,7 +197,13 @@ vi.mock("../../space/KnowledgeSection", () => ({
   MemoryDocumentList: () => null,
 }));
 vi.mock("./bot-library", () => ({ BotLibrary: () => null }));
-vi.mock("./bot-memory-tabs", () => ({ BotMemoryTabs: () => null }));
+vi.mock("./bot-memory-tabs", () => ({
+  BotMemoryTabs: ({ onConflictChange }: { onConflictChange?: (conflicted: boolean) => void }) => (
+    <button type="button" data-testid="memory-conflict" onClick={() => onConflictChange?.(true)}>
+      Memory and skills
+    </button>
+  ),
+}));
 
 import { spaceQueries } from "../../../lib/query/query";
 import { rpc } from "../../../lib/query/rpc";
@@ -457,6 +463,17 @@ it("marks the computer tab when the computer needs attention", async () => {
   await act(flush);
   expect(container.querySelector('[data-testid="computer-attention"]')).not.toBeNull();
   expect(panelTab("Computer").getAttribute("aria-label")).toBe("Computer, needs attention");
+});
+
+it("marks the memory tab while a save conflict waits for the reader", async () => {
+  await render();
+  await openTab("Memory");
+  expect(container.querySelector('[data-testid="memory-attention"]')).toBeNull();
+  await act(async () => {
+    container.querySelector<HTMLButtonElement>('[data-testid="memory-conflict"]')!.click();
+  });
+  expect(container.querySelector('[data-testid="memory-attention"]')).not.toBeNull();
+  expect(panelTab("Memory").getAttribute("aria-label")).toBe("Memory, needs attention");
 });
 
 it("opens shared-memory settings from the memory tab when the host offers it", async () => {

@@ -11,7 +11,6 @@ import { BOT_NAME_MAX_LENGTH, isBuiltinToolName, resolveBotAvatarSet } from "@ra
 import { botModelState, modelOptionKey } from "@rakazo/core";
 import { localizeModelEntry } from "@rakazo/i18n/model-provider";
 import {
-  BotAvatar,
   Button,
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +25,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, MoreHorizontal, Plus, X } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { Suspense, useEffect, useId, useRef, useState } from "react";
-import { BotEmailAddressField } from "../../../components/BotEmailAddressField";
 import { ComputerHomeVersions } from "../../../components/computers/ComputerHomeVersions";
 import { ErrorBoundary, SectionLoadFailed } from "../../../components/ErrorBoundary";
 import { PagesList } from "../../../components/pages/PagesList";
@@ -41,6 +39,7 @@ import { ConversationSettingsCard } from "./bot-conversation-settings";
 import { BotLibrary } from "./bot-library";
 import { BotMemoryTabs } from "./bot-memory-tabs";
 import { advancedValues } from "./bot-panel-advanced";
+import { BotProfileHeader } from "./bot-profile-header";
 import {
   ApprovalModeRow,
   DescriptionGroup,
@@ -131,12 +130,17 @@ export function BotSettings({
   const modelRef = useRef<HTMLDivElement>(null);
   /** The page under the profile; whole lists (routines, pages) push over it. */
   const [tab, setTab] = useState<BotPanelTab>("details");
+  // Read only once its tab has been opened: the Library tab loads a bot's files.
+  const [libraryTabVisited, setLibraryTabVisited] = useState(false);
+  // A memory save that conflicted waits for the reader even after they leave the tab.
+  const [memoryAttention, setMemoryAttention] = useState(false);
   const queryClient = useQueryClient();
   function selectTab(value: BotPanelTab) {
     setTab(value);
     // Files change from outside the panel; arriving on the tab reads them fresh instead of
     // showing whatever the first visit loaded.
     if (value === "library") {
+      setLibraryTabVisited(true);
       void queryClient.invalidateQueries({ queryKey: queries.artifacts.listSpace.key() });
     }
   }
@@ -650,30 +654,14 @@ export function BotSettings({
           </DropdownMenu>
           {headerButtons}
         </div>
-        <div
-          data-testid="bot-profile-header"
-          className="flex flex-col items-center pb-5 text-center"
-        >
-          <div className="flex justify-center pb-4">
-            <BotAvatar
-              color={color}
-              identity={bot.id}
-              status={bot.status}
-              size={76}
-              avatarSet={avatarSet}
-            />
-          </div>
-          <div className="break-words px-2 text-heading2 font-semibold">{name}</div>
-          {email && (email.address || claimingEmail) ? (
-            <div data-testid="bot-email" className="mt-2 w-full max-w-sm text-left">
-              <BotEmailAddressField
-                bot={{ id: bot.id, name }}
-                domain={email.domain}
-                address={email.address}
-              />
-            </div>
-          ) : null}
-        </div>
+        <BotProfileHeader
+          bot={bot}
+          name={name}
+          color={color}
+          avatarSet={avatarSet}
+          email={email}
+          claimingEmail={claimingEmail}
+        />
         <Tabs value={tab} onValueChange={(value) => selectTab(value as BotPanelTab)}>
           <TabsList className="mx-auto max-w-full overflow-x-auto">
             <TabsTrigger value="details" data-testid="bot-tab-details">
@@ -696,8 +684,19 @@ export function BotSettings({
             <TabsTrigger value="library" data-testid="bot-tab-library">
               <Trans>Library</Trans>
             </TabsTrigger>
-            <TabsTrigger value="memory" data-testid="bot-tab-memory">
+            <TabsTrigger
+              value="memory"
+              data-testid="bot-tab-memory"
+              aria-label={memoryAttention ? t`Memory, needs attention` : undefined}
+            >
               <Trans>Memory</Trans>
+              {memoryAttention ? (
+                <span
+                  aria-hidden="true"
+                  className="size-1.5 shrink-0 rounded-full bg-destructive"
+                  data-testid="memory-attention"
+                />
+              ) : null}
             </TabsTrigger>
             <TabsTrigger value="settings" data-testid="bot-tab-settings">
               <Trans>Settings</Trans>
@@ -780,11 +779,13 @@ export function BotSettings({
             </SettingsCard>
           </TabsContent>
           <TabsContent keepMounted value="library" className="space-y-6 pt-4">
-            <BotLibrary
-              botId={bot.id}
-              botName={bot.name}
-              onOpenAllPages={() => onViewChange?.("pages")}
-            />
+            {libraryTabVisited ? (
+              <BotLibrary
+                botId={bot.id}
+                botName={bot.name}
+                onOpenAllPages={() => onViewChange?.("pages")}
+              />
+            ) : null}
           </TabsContent>
           <TabsContent keepMounted value="memory" className="space-y-6 pt-4">
             <ErrorBoundary fallback={<SectionLoadFailed />}>
@@ -794,6 +795,7 @@ export function BotSettings({
                   useOwnMemory={useOwnMemory}
                   useSharedMemory={useSharedMemory}
                   disabled={saving}
+                  onConflictChange={setMemoryAttention}
                   onSave={(patch) => {
                     if (patch.useOwnMemory !== undefined) setUseOwnMemory(patch.useOwnMemory);
                     if (patch.useSharedMemory !== undefined)
