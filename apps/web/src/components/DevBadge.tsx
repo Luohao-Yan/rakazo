@@ -15,7 +15,7 @@ export function DevBadge({
       aria-hidden="true"
       className={`pointer-events-none shrink-0 rounded-sm px-1.5 py-0.5 text-[10px] font-semibold leading-none tracking-wide ${
         variant === "solid"
-          ? "border border-warning bg-warning text-foreground"
+          ? "border border-warning bg-background text-foreground"
           : "border border-warning/60 text-warning"
       }${className ? ` ${className}` : ""}`}
     >
