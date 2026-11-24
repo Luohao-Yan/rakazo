@@ -189,11 +189,12 @@ function PrimaryRail({
       data-expanded={expanded}
       className="app-drag relative z-20 hidden w-(--app-rail-width) shrink-0 flex-col bg-sidebar transition-[width] duration-(--motion-pop) ease-(--ease-out) motion-reduce:transition-none md:flex"
     >
-      {desktopBridge() ? <WindowChrome className="mt-3 self-start" /> : null}
+      {desktopBridge() ? <WindowChrome className="mt-6 self-start" /> : null}
       <div
         className={cn(
           "flex h-11 shrink-0 items-center pt-3",
-          expanded ? "justify-between gap-2 px-3" : "justify-center px-3",
+          // The brand shares the menu icons' vertical axis below it.
+          expanded ? "justify-between gap-2 px-3" : "justify-start px-3",
         )}
       >
         {expanded ? (
